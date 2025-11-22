@@ -654,6 +654,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SEO: Generate sitemap.xml
+  app.get("/sitemap.xml", async (_req, res) => {
+    try {
+      const shows = await storage.getAllShows();
+      const baseUrl = process.env.BASE_URL || "https://streamvault-production.up.railway.app";
+      
+      let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n';
+      sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+      
+      // Homepage
+      sitemap += '  <url>\n';
+      sitemap += `    <loc>${baseUrl}/</loc>\n`;
+      sitemap += '    <changefreq>daily</changefreq>\n';
+      sitemap += '    <priority>1.0</priority>\n';
+      sitemap += '  </url>\n';
+      
+      // Show pages
+      for (const show of shows) {
+        sitemap += '  <url>\n';
+        sitemap += `    <loc>${baseUrl}/show/${show.slug}</loc>\n`;
+        sitemap += '    <changefreq>weekly</changefreq>\n';
+        sitemap += '    <priority>0.8</priority>\n';
+        sitemap += '  </url>\n';
+        
+        // Episode watch pages
+        const episodes = await storage.getEpisodesByShowId(show.id);
+        for (const episode of episodes) {
+          sitemap += '  <url>\n';
+          sitemap += `    <loc>${baseUrl}/watch/${show.slug}?episode=${episode.id}</loc>\n`;
+          sitemap += '    <changefreq>monthly</changefreq>\n';
+          sitemap += '    <priority>0.6</priority>\n';
+          sitemap += '  </url>\n';
+        }
+      }
+      
+      sitemap += '</urlset>';
+      
+      res.header('Content-Type', 'application/xml');
+      res.send(sitemap);
+    } catch (error) {
+      res.status(500).send('Error generating sitemap');
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

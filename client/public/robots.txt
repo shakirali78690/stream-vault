@@ -1,0 +1,15 @@
+# StreamVault Robots.txt
+User-agent: *
+Allow: /
+Allow: /show/*
+Allow: /watch/*
+Allow: /search
+Allow: /category/*
+Disallow: /admin
+Disallow: /api/admin/*
+
+# Sitemap
+Sitemap: https://streamvault-production.up.railway.app/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
