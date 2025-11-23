@@ -1,15 +1,36 @@
-# StreamVault Robots.txt
+# StreamVault - Free Streaming Platform
+# Watch 200+ TV Shows & Movies Online Free
+
 User-agent: *
 Allow: /
 Allow: /show/*
 Allow: /watch/*
 Allow: /search
 Allow: /category/*
+Allow: /series
+Allow: /movies
+Allow: /trending
+Allow: /watchlist
+
+# Block admin and API endpoints
 Disallow: /admin
 Disallow: /api/admin/*
+Disallow: /api/
 
-# Sitemap
+# Sitemaps
 Sitemap: https://streamvault.up.railway.app/sitemap.xml
+Sitemap: https://streamvault.up.railway.app/sitemap-shows.xml
+Sitemap: https://streamvault.up.railway.app/sitemap-episodes.xml
 
 # Crawl-delay for polite crawling
 Crawl-delay: 1
+
+# Popular Categories
+# /category/action - Action & Thriller Movies
+# /category/drama - Drama & Romance Series
+# /category/comedy - Comedy Shows Online
+# /category/horror - Horror & Mystery
+# /category/romance - Romance Series
+# /category/thriller - Thriller Movies
+# /category/crime - Crime & Mystery
+# /category/sci-fi - Sci-Fi & Fantasy

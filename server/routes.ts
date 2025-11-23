@@ -5,6 +5,7 @@ import { z } from "zod";
 import { watchlistSchema, viewingProgressSchema } from "@shared/schema";
 import type { InsertEpisode } from "@shared/schema";
 import { readFileSync, existsSync } from "fs";
+import { setupSitemaps } from "./sitemap";
 
 // Admin credentials (in production, use environment variables and hashed passwords)
 const ADMIN_USERNAME = "admin";
@@ -30,6 +31,9 @@ function requireAdmin(req: any, res: any, next: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup dynamic sitemaps
+  setupSitemaps(app, storage);
+
   // Get all shows
   app.get("/api/shows", async (_req, res) => {
     try {
