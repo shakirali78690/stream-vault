@@ -150,7 +150,10 @@ export function serveStatic(app: Express) {
               const title = escapeHtml(show.title);
               const description = escapeHtml(show.description.slice(0, 200));
               const url = `https://streamvault.live/show/${show.slug}`;
-              const image = show.backdropUrl;
+              // Use posterUrl for better vertical preview, fallback to backdropUrl
+              const image = show.posterUrl || show.backdropUrl;
+
+              console.log(`[Meta Tags] Injecting for ${show.slug}, image: ${image}`);
 
               // Inject show-specific meta tags
               const metaTags = `
@@ -158,12 +161,18 @@ export function serveStatic(app: Express) {
     <meta property="og:title" content="${title} - Watch Online Free | StreamVault">
     <meta property="og:description" content="${description}">
     <meta property="og:image" content="${image}">
+    <meta property="og:image:secure_url" content="${image}">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:url" content="${url}">
     <meta property="og:type" content="video.tv_show">
+    <meta property="og:site_name" content="StreamVault">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${title} - Watch Online Free">
     <meta name="twitter:description" content="${description}">
     <meta name="twitter:image" content="${image}">
+    <meta name="twitter:site" content="@StreamVault">
     <title>${title} - Watch Online Free | StreamVault</title>`;
 
               // Replace the closing </head> tag
