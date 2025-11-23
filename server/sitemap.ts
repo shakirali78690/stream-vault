@@ -123,6 +123,10 @@ export function setupSitemaps(app: Express, storage: IStorage) {
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&apos;");
 
+          // Escape URLs for XML
+          const posterUrl = (show.posterUrl || "").replace(/&/g, "&amp;");
+          const backdropUrl = (show.backdropUrl || "").replace(/&/g, "&amp;");
+
           return `
   <url>
     <loc>${baseUrl}/show/${show.slug}</loc>
@@ -130,12 +134,12 @@ export function setupSitemaps(app: Express, storage: IStorage) {
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>${show.posterUrl || ""}</image:loc>
+      <image:loc>${posterUrl}</image:loc>
       <image:title>${title}</image:title>
       <image:caption>${description}</image:caption>
     </image:image>
     <image:image>
-      <image:loc>${show.backdropUrl || ""}</image:loc>
+      <image:loc>${backdropUrl}</image:loc>
       <image:title>${title} - Backdrop</image:title>
     </image:image>
   </url>`;
@@ -188,6 +192,9 @@ export function setupSitemaps(app: Express, storage: IStorage) {
               .replace(/"/g, "&quot;")
               .replace(/'/g, "&apos;");
 
+            // Escape thumbnail URL for XML
+            const thumbnailUrl = (episode.thumbnailUrl || "").replace(/&/g, "&amp;");
+
             return `
   <url>
     <loc>${baseUrl}/watch/${show.slug}/${episode.season}/${episode.episodeNumber}</loc>
@@ -195,7 +202,7 @@ export function setupSitemaps(app: Express, storage: IStorage) {
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <image:image>
-      <image:loc>${episode.thumbnailUrl || ""}</image:loc>
+      <image:loc>${thumbnailUrl}</image:loc>
       <image:title>${escapedTitle}</image:title>
     </image:image>
   </url>`;
