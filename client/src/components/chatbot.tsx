@@ -3,7 +3,7 @@ import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
-import type { Show } from "@shared/schema";
+import type { Show, Movie } from "@shared/schema";
 import { Link } from "wouter";
 
 interface Message {
@@ -11,7 +11,7 @@ interface Message {
   text: string;
   isBot: boolean;
   suggestions?: string[];
-  showLinks?: Array<{ title: string; slug: string }>;
+  showLinks?: Array<{ title: string; slug: string; type: 'show' | 'movie' }>;
 }
 
 export function Chatbot() {
@@ -22,10 +22,10 @@ export function Chatbot() {
       text: "👋 Hi! I'm your StreamVault assistant. How can I help you today?",
       isBot: true,
       suggestions: [
+        "Find a movie",
         "Find a show to watch",
-        "I'm having playback issues",
-        "How do I add to watchlist?",
         "Browse by genre",
+        "What's trending?",
       ],
     },
   ]);
@@ -35,6 +35,10 @@ export function Chatbot() {
 
   const { data: shows } = useQuery<Show[]>({
     queryKey: ["/api/shows"],
+  });
+
+  const { data: movies } = useQuery<Movie[]>({
+    queryKey: ["/api/movies"],
   });
 
   const scrollToBottom = () => {
@@ -58,41 +62,100 @@ export function Chatbot() {
     );
   };
 
+  const findMovies = (query: string): Movie[] => {
+    if (!movies) return [];
+    const lowerQuery = query.toLowerCase();
+    return movies.filter(
+      (movie) => {
+        const genres = movie.genres?.toLowerCase() || '';
+        return movie.title.toLowerCase().includes(lowerQuery) ||
+          genres.includes(lowerQuery);
+      }
+    );
+  };
+
   const generateResponse = (userMessage: string): Message => {
     const lowerMessage = userMessage.toLowerCase();
 
-    // Show search queries - check for actual show names first
+    // Check for movies specifically
+    const matchedMovies = findMovies(userMessage);
     const matchedShows = findShows(userMessage);
     
-    if (matchedShows.length > 0 && userMessage.length > 3) {
+    // If user mentions "movie" or "film", prioritize movies
+    if ((lowerMessage.includes("movie") || lowerMessage.includes("film")) && matchedMovies.length > 0) {
       return {
         id: Date.now().toString(),
-        text: `I found ${matchedShows.length} show(s) for you! Click any to watch:`,
+        text: `I found ${matchedMovies.length} movie(s) for you! Click any to watch:`,
         isBot: true,
-        showLinks: matchedShows.slice(0, 5).map((s) => ({
-          title: s.title,
-          slug: s.slug,
+        showLinks: matchedMovies.slice(0, 5).map((m) => ({
+          title: m.title,
+          slug: m.slug,
+          type: 'movie' as const,
         })),
-        suggestions: ["Show me more", "Browse by genre", "What's trending?"],
+        suggestions: ["Show me more movies", "Browse shows", "What's trending?"],
       };
     }
+    
+    // Combined search for both shows and movies
+    if ((matchedShows.length > 0 || matchedMovies.length > 0) && userMessage.length > 3) {
+      const combinedResults = [
+        ...matchedShows.slice(0, 3).map(s => ({ title: s.title, slug: s.slug, type: 'show' as const })),
+        ...matchedMovies.slice(0, 3).map(m => ({ title: m.title, slug: m.slug, type: 'movie' as const }))
+      ].slice(0, 5);
+      
+      if (combinedResults.length > 0) {
+        return {
+          id: Date.now().toString(),
+          text: `I found ${combinedResults.length} result(s) for you! Click any to watch:`,
+          isBot: true,
+          showLinks: combinedResults,
+          suggestions: ["Show me more", "Browse by genre", "What's trending?"],
+        };
+      }
+    }
 
-    // Generic find/watch queries without specific show name
+    // Generic find/watch queries without specific show/movie name
     if (
       (lowerMessage.includes("find") ||
       lowerMessage.includes("watch") ||
       lowerMessage.includes("show me")) &&
-      matchedShows.length === 0
+      matchedShows.length === 0 &&
+      matchedMovies.length === 0
     ) {
       return {
         id: Date.now().toString(),
-        text: "What would you like to watch? Try:\n• Typing a show name (e.g., 'Stranger Things')\n• Browsing by category\n• Checking what's trending",
+        text: "What would you like to watch? Try:\n• Typing a show name (e.g., 'Stranger Things')\n• Typing a movie name (e.g., 'The Godfather')\n• Browsing by category\n• Checking what's trending",
         isBot: true,
-        suggestions: ["Action shows", "Drama series", "Comedy shows", "Trending now"],
+        suggestions: ["Action movies", "Drama series", "Comedy shows", "Trending now"],
       };
     }
 
-    // Episode navigation
+    // Episode navigation - handle specific episode requests
+    const episodeMatch = userMessage.match(/(.*?)\s*(?:season|s)(\d+)\s*(?:episode|e)(\d+)/i);
+    if (episodeMatch) {
+      const showName = episodeMatch[1].trim();
+      const season = episodeMatch[2];
+      const episode = episodeMatch[3];
+      
+      const foundShow = shows?.find(s => 
+        s.title.toLowerCase().includes(showName.toLowerCase())
+      );
+      
+      if (foundShow) {
+        return {
+          id: Date.now().toString(),
+          text: `Found ${foundShow.title}! Click below to watch Season ${season}, Episode ${episode}:`,
+          isBot: true,
+          showLinks: [{
+            title: `${foundShow.title} - S${season}E${episode}`,
+            slug: `${foundShow.slug}?season=${season}&episode=${episode}`,
+            type: 'show' as const,
+          }],
+          suggestions: ["Show all episodes", "Find another show", "Browse shows"],
+        };
+      }
+    }
+    
     if (
       lowerMessage.includes("episode") ||
       lowerMessage.includes("season") ||
@@ -101,9 +164,9 @@ export function Chatbot() {
     ) {
       return {
         id: Date.now().toString(),
-        text: "To find a specific episode:\n1. Search for the show name\n2. Click on the show\n3. Select the season\n4. Choose your episode\n\nWhich show are you looking for?",
+        text: "To play a specific episode, try:\n• 'Stranger Things season 1 episode 1'\n• 'Breaking Bad s5e16'\n• Or search for the show and select the episode\n\nWhich show are you looking for?",
         isBot: true,
-        suggestions: ["Stranger Things", "Breaking Bad", "Money Heist"],
+        suggestions: ["Stranger Things s1e1", "Breaking Bad s5e16", "Browse shows"],
       };
     }
 
@@ -132,9 +195,9 @@ export function Chatbot() {
     ) {
       return {
         id: Date.now().toString(),
-        text: "📚 To add shows to your watchlist:\n\n1. Go to any show page\n2. Click the 'Add to Watchlist' button\n3. Access your watchlist from the header\n\nYour watchlist is saved in your browser!",
+        text: "📚 To add shows or movies to your watchlist:\n\n1. Go to any show or movie page\n2. Click the 'Add to Watchlist' button\n3. Access your watchlist from the header\n\nYour watchlist is saved in your browser!",
         isBot: true,
-        suggestions: ["Browse shows", "View trending", "Search shows"],
+        suggestions: ["Browse shows", "Browse movies", "View trending"],
       };
     }
 
@@ -163,17 +226,24 @@ export function Chatbot() {
         const genres = s.genres?.toLowerCase() || '';
         return s.category === "action" || 
           genres.includes("action") || genres.includes("thriller");
-      }).slice(0, 5) || [];
+      }).slice(0, 3) || [];
       
-      if (categoryShows.length > 0) {
+      const categoryMovies = movies?.filter(m => {
+        const genres = m.genres?.toLowerCase() || '';
+        return genres.includes("action") || genres.includes("thriller");
+      }).slice(0, 3) || [];
+      
+      const combined = [
+        ...categoryShows.map(s => ({ title: s.title, slug: s.slug, type: 'show' as const })),
+        ...categoryMovies.map(m => ({ title: m.title, slug: m.slug, type: 'movie' as const }))
+      ];
+      
+      if (combined.length > 0) {
         return {
           id: Date.now().toString(),
-          text: `🎬 Found ${categoryShows.length} action/thriller shows:`,
+          text: `🎬 Found ${combined.length} action/thriller titles:`,
           isBot: true,
-          showLinks: categoryShows.map((s) => ({
-            title: s.title,
-            slug: s.slug,
-          })),
+          showLinks: combined,
           suggestions: ["Drama shows", "Comedy shows", "What's trending?"],
         };
       }
@@ -197,6 +267,7 @@ export function Chatbot() {
           showLinks: categoryShows.map((s) => ({
             title: s.title,
             slug: s.slug,
+            type: 'show' as const,
           })),
           suggestions: ["Action shows", "Comedy shows", "What's trending?"],
         };
@@ -218,6 +289,7 @@ export function Chatbot() {
           showLinks: categoryShows.map((s) => ({
             title: s.title,
             slug: s.slug,
+            type: 'show' as const,
           })),
           suggestions: ["Action shows", "Drama shows", "What's trending?"],
         };
@@ -239,6 +311,7 @@ export function Chatbot() {
           showLinks: categoryShows.map((s) => ({
             title: s.title,
             slug: s.slug,
+            type: 'show' as const,
           })),
           suggestions: ["Action shows", "Comedy shows", "What's trending?"],
         };
@@ -257,6 +330,7 @@ export function Chatbot() {
           showLinks: trendingShows.map((s) => ({
             title: s.title,
             slug: s.slug,
+            type: 'show' as const,
           })),
           suggestions: ["Show more", "Browse categories", "Search shows"],
         };
@@ -270,6 +344,30 @@ export function Chatbot() {
       };
     }
 
+    // Browse movies
+    if (
+      lowerMessage.includes("browse movies") ||
+      lowerMessage.includes("show movies") ||
+      lowerMessage.includes("all movies") ||
+      lowerMessage.includes("movie list")
+    ) {
+      const allMovies = movies?.slice(0, 10) || [];
+      
+      if (allMovies.length > 0) {
+        return {
+          id: Date.now().toString(),
+          text: `🎬 Here are ${allMovies.length} popular movies:`,
+          isBot: true,
+          showLinks: allMovies.map((m) => ({
+            title: m.title,
+            slug: m.slug,
+            type: 'movie' as const,
+          })),
+          suggestions: ["Browse shows", "What's trending?", "Browse categories"],
+        };
+      }
+    }
+    
     // Show more / Browse all
     if (
       lowerMessage.includes("show more") ||
@@ -287,8 +385,9 @@ export function Chatbot() {
           showLinks: allShows.map((s) => ({
             title: s.title,
             slug: s.slug,
+            type: 'show' as const,
           })),
-          suggestions: ["Browse categories", "What's trending?", "Search shows"],
+          suggestions: ["Browse movies", "Browse categories", "What's trending?"],
         };
       }
     }
@@ -306,13 +405,13 @@ export function Chatbot() {
     // Default response
     return {
       id: Date.now().toString(),
-      text: "I can help you with:\n• Finding shows to watch\n• Navigating to specific episodes\n• Fixing playback issues\n• Managing your watchlist\n• Browsing by genre\n\nWhat would you like to do?",
+      text: "I can help you with:\n• Finding shows and movies\n• Playing specific episodes (e.g., 'Stranger Things s1e1')\n• Fixing playback issues\n• Managing your watchlist\n• Browsing by genre\n\nWhat would you like to do?",
       isBot: true,
       suggestions: [
+        "Find a movie",
         "Find a show",
-        "Fix playback issue",
         "Browse categories",
-        "Help with watchlist",
+        "What's trending?",
       ],
     };
   };
@@ -401,19 +500,34 @@ export function Chatbot() {
             >
               <p className="text-sm whitespace-pre-line">{message.text}</p>
 
-              {/* Show links */}
+              {/* Show/Movie links */}
               {message.showLinks && message.showLinks.length > 0 && (
                 <div className="mt-3 space-y-2">
-                  {message.showLinks.map((show) => (
-                    <Link key={show.slug} href={`/show/${show.slug}`}>
-                      <div
-                        className="text-sm bg-background hover:bg-accent p-2 rounded border border-border cursor-pointer transition-colors"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        🎬 {show.title}
-                      </div>
-                    </Link>
-                  ))}
+                  {message.showLinks.map((item) => {
+                    // Handle different URL formats
+                    let href;
+                    if (item.type === 'movie') {
+                      href = `/movie/${item.slug}`;
+                    } else if (item.slug.includes('?season=')) {
+                      // Episode link with query params
+                      href = `/watch/${item.slug}`;
+                    } else {
+                      // Regular show link
+                      href = `/show/${item.slug}`;
+                    }
+                    const icon = item.type === 'movie' ? '🎬' : '📺';
+                    
+                    return (
+                      <Link key={item.slug} href={href}>
+                        <div
+                          className="text-sm bg-background hover:bg-accent p-2 rounded border border-border cursor-pointer transition-colors"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          {icon} {item.title}
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
               )}
 
