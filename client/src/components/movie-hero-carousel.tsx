@@ -72,9 +72,19 @@ export function MovieHeroCarousel({ movies }: MovieHeroCarouselProps) {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Background Image with Gradient */}
+      {/* Background Image with Gradient - Poster on mobile, Backdrop on desktop */}
       <div
         className="absolute inset-0 bg-cover bg-center transition-all duration-700"
+        style={{
+          backgroundImage: `url(${currentMovie.posterUrl})`,
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-transparent hidden md:block" />
+      </div>
+      {/* Backdrop for desktop only */}
+      <div
+        className="absolute inset-0 bg-cover bg-center transition-all duration-700 hidden md:block"
         style={{
           backgroundImage: `url(${currentMovie.backdropUrl})`,
         }}

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
-import { Play, Clock, Calendar, Star, Plus, Check, Share2 } from "lucide-react";
+import { Play, Clock, Calendar, Star, Plus, Check, Share2, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -138,15 +138,35 @@ export default function MovieDetail() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section with Backdrop */}
+      {/* Hero Section - Poster on mobile, Backdrop on desktop */}
       <div className="relative h-[60vh] overflow-hidden">
+        {/* Poster for mobile */}
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center md:hidden"
+          style={{
+            backgroundImage: `url(${movie.posterUrl})`,
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+        </div>
+        {/* Backdrop for desktop */}
+        <div
+          className="absolute inset-0 bg-cover bg-center hidden md:block"
           style={{
             backgroundImage: `url(${movie.backdropUrl})`,
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+        </div>
+
+        {/* Back Button - Overlaid on image */}
+        <div className="absolute top-4 left-4 z-10">
+          <Link href="/movies">
+            <Button variant="ghost" className="gap-2 bg-background/20 backdrop-blur-sm hover:bg-background/40">
+              <ChevronLeft className="w-4 h-4" />
+              Back to Movies
+            </Button>
+          </Link>
         </div>
 
         <div className="relative container mx-auto px-4 h-full flex items-end pb-12">

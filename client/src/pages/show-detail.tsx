@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute, Link, useLocation } from "wouter";
-import { Play, Plus, Check, Star, Share2 } from "lucide-react";
+import { Play, Plus, Check, Star, Share2, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -212,13 +212,33 @@ export default function ShowDetail() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <div
-        className="relative w-full h-96 md:h-[500px] bg-cover bg-center"
-        style={{ backgroundImage: `url(${show.backdropUrl})` }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent" />
+      {/* Hero Section - Poster on mobile, Backdrop on desktop */}
+      <div className="relative w-full h-96 md:h-[500px] overflow-hidden">
+        {/* Poster for mobile */}
+        <div
+          className="absolute inset-0 bg-cover bg-center md:hidden"
+          style={{ backgroundImage: `url(${show.posterUrl})` }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
+        </div>
+        {/* Backdrop for desktop */}
+        <div
+          className="absolute inset-0 bg-cover bg-center hidden md:block"
+          style={{ backgroundImage: `url(${show.backdropUrl})` }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent" />
+        </div>
+
+        {/* Back Button - Overlaid on image */}
+        <div className="absolute top-4 left-4 z-10">
+          <Link href="/series">
+            <Button variant="ghost" className="gap-2 bg-background/20 backdrop-blur-sm hover:bg-background/40">
+              <ChevronLeft className="w-4 h-4" />
+              Back to Series
+            </Button>
+          </Link>
+        </div>
 
         <div className="relative h-full container mx-auto px-4 flex items-end pb-8">
           <div className="flex flex-col md:flex-row gap-6 md:gap-8 w-full">
