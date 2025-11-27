@@ -124,6 +124,14 @@ export function serveStatic(app: Express) {
 
     // Helper function to inject meta tags
     const injectMetaAndServe = (html: string, metaTags: string) => {
+      // Remove ALL existing meta tags that we'll replace
+      html = html.replace(/<meta property="og:[^"]*"[^>]*>/g, '');
+      html = html.replace(/<meta name="twitter:[^"]*"[^>]*>/g, '');
+      html = html.replace(/<meta name="title"[^>]*>/g, '');
+      html = html.replace(/<meta name="description"[^>]*>/g, '');
+      html = html.replace(/<title>.*?<\/title>/g, '');
+      
+      // Inject new meta tags
       html = html.replace('</head>', `${metaTags}\n  </head>`);
       res.setHeader('Content-Type', 'text/html');
       res.send(html);
@@ -140,11 +148,17 @@ export function serveStatic(app: Express) {
       import('./storage.js').then(({ storage }) => {
         storage.getShowBySlug(slug).then(show => {
           if (show) {
+            console.log(`[Meta Tags] Found show: ${show.title}`);
+            console.log(`[Meta Tags] Poster URL: ${show.posterUrl}`);
+            console.log(`[Meta Tags] Backdrop URL: ${show.backdropUrl}`);
+            
             let html = fs.readFileSync(indexPath, 'utf-8');
             const title = escapeHtml(show.title);
             const description = escapeHtml(show.description.slice(0, 200));
             const url = `https://streamvault.live/show/${show.slug}`;
             const image = show.posterUrl || show.backdropUrl;
+
+            console.log(`[Meta Tags] Using image: ${image}`);
 
             const metaTags = `
     <meta property="og:title" content="${title} - Watch Online Free | StreamVault">
@@ -156,12 +170,20 @@ export function serveStatic(app: Express) {
     <meta name="twitter:image" content="${image}">
     <title>${title} - StreamVault</title>`;
 
+            console.log(`[Meta Tags] Injecting meta tags for ${slug}`);
             injectMetaAndServe(html, metaTags);
           } else {
+            console.log(`[Meta Tags] Show not found: ${slug}`);
             res.sendFile(indexPath);
           }
-        }).catch(() => res.sendFile(indexPath));
-      }).catch(() => res.sendFile(indexPath));
+        }).catch((err) => {
+          console.error(`[Meta Tags] Error fetching show:`, err);
+          res.sendFile(indexPath);
+        });
+      }).catch((err) => {
+        console.error(`[Meta Tags] Error importing storage:`, err);
+        res.sendFile(indexPath);
+      });
       return;
     }
 
