@@ -222,8 +222,8 @@ export default function ShowDetail() {
 
         <div className="relative h-full container mx-auto px-4 flex items-end pb-8">
           <div className="flex flex-col md:flex-row gap-6 md:gap-8 w-full">
-            {/* Poster */}
-            <div className="flex-shrink-0">
+            {/* Poster - Hidden on mobile */}
+            <div className="flex-shrink-0 hidden md:block">
               <img
                 src={show.posterUrl}
                 alt={show.title}
@@ -233,16 +233,16 @@ export default function ShowDetail() {
             </div>
 
             {/* Info */}
-            <div className="flex-1 space-y-4">
+            <div className="flex-1 space-y-2 md:space-y-4">
               <h1
-                className="text-3xl md:text-5xl font-bold"
+                className="text-2xl md:text-5xl font-bold"
                 data-testid="text-show-title"
               >
                 {show.title}
               </h1>
 
               {/* Metadata */}
-              <div className="flex flex-wrap items-center gap-3 text-sm">
+              <div className="flex flex-wrap items-center gap-2 md:gap-3 text-xs md:text-sm">
                 {show.imdbRating && (
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
@@ -258,52 +258,54 @@ export default function ShowDetail() {
               </div>
 
               {/* Genres */}
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 md:gap-2">
                 {show.genres?.split(',').map((genre) => (
-                  <Badge key={genre.trim()} variant="secondary">
+                  <Badge key={genre.trim()} variant="secondary" className="text-xs md:text-sm">
                     {genre.trim()}
                   </Badge>
                 ))}
               </div>
 
-              {/* Description */}
-              <p className="text-base max-w-3xl">{show.description}</p>
+              {/* Description - Hidden on mobile */}
+              <p className="text-base max-w-3xl hidden md:block">{show.description}</p>
 
               {/* CTAs */}
-              <div className="flex flex-wrap gap-3 pt-2">
+              <div className="flex flex-wrap gap-2 md:gap-3 pt-1 md:pt-2">
                 <Link href={`/watch/${show.slug}`}>
-                  <Button size="lg" className="gap-2" data-testid="button-play-episode-1">
-                    <Play className="w-5 h-5 fill-current" />
+                  <Button size="default" className="gap-1.5 md:gap-2 text-sm md:text-base h-9 md:h-11" data-testid="button-play-episode-1">
+                    <Play className="w-4 h-4 md:w-5 md:h-5 fill-current" />
                     Play Episode 1
                   </Button>
                 </Link>
                 <Button
-                  size="lg"
+                  size="default"
                   variant="outline"
-                  className="gap-2"
+                  className="gap-1.5 md:gap-2 text-sm md:text-base h-9 md:h-11"
                   onClick={toggleWatchlist}
                   data-testid="button-add-to-watchlist"
                 >
                   {isInWatchlist ? (
                     <>
-                      <Check className="w-5 h-5" />
-                      In Watchlist
+                      <Check className="w-4 h-4 md:w-5 md:h-5" />
+                      <span className="hidden sm:inline">In Watchlist</span>
+                      <span className="sm:hidden">Watchlist</span>
                     </>
                   ) : (
                     <>
-                      <Plus className="w-5 h-5" />
-                      Add to Watchlist
+                      <Plus className="w-4 h-4 md:w-5 md:h-5" />
+                      <span className="hidden sm:inline">Add to Watchlist</span>
+                      <span className="sm:hidden">Watchlist</span>
                     </>
                   )}
                 </Button>
                 <Button
-                  size="lg"
+                  size="default"
                   variant="outline"
-                  className="gap-2"
+                  className="gap-1.5 md:gap-2 text-sm md:text-base h-9 md:h-11"
                   onClick={handleShare}
                   data-testid="button-share-show"
                 >
-                  <Share2 className="w-5 h-5" />
+                  <Share2 className="w-4 h-4 md:w-5 md:h-5" />
                   Share
                 </Button>
               </div>
@@ -315,14 +317,14 @@ export default function ShowDetail() {
       {/* Tabs Section */}
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="episodes" className="w-full">
-          <TabsList className="mb-6">
-            <TabsTrigger value="episodes" data-testid="tab-episodes">
+          <TabsList className="mb-4 md:mb-6">
+            <TabsTrigger value="episodes" data-testid="tab-episodes" className="text-xs md:text-sm">
               Episodes
             </TabsTrigger>
-            <TabsTrigger value="about" data-testid="tab-about">
+            <TabsTrigger value="about" data-testid="tab-about" className="text-xs md:text-sm">
               About
             </TabsTrigger>
-            <TabsTrigger value="similar" data-testid="tab-similar">
+            <TabsTrigger value="similar" data-testid="tab-similar" className="text-xs md:text-sm">
               Similar Shows
             </TabsTrigger>
           </TabsList>
@@ -338,6 +340,7 @@ export default function ShowDetail() {
                     variant={selectedSeason === season ? "default" : "outline"}
                     onClick={() => setSelectedSeason(season)}
                     data-testid={`button-season-${season}`}
+                    className="text-xs md:text-sm h-8 md:h-10"
                   >
                     Season {season}
                   </Button>
@@ -371,31 +374,31 @@ export default function ShowDetail() {
                     }}
                   >
                     <Card className="overflow-hidden cursor-pointer group hover-elevate active-elevate-2 transition-all">
-                      <div className="flex gap-4 p-0">
+                      <div className="flex gap-3 md:gap-4 p-0">
                         {/* Thumbnail */}
-                        <div className="relative w-64 flex-shrink-0 aspect-video">
+                        <div className="relative w-32 md:w-64 flex-shrink-0 aspect-video">
                           <img
                             src={getEpisodeThumbnail(episode, show.backdropUrl)}
                             alt={episode.title}
                             className="w-full h-full object-cover"
                           />
                           <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <Play className="w-12 h-12 text-primary fill-current" />
+                            <Play className="w-8 md:w-12 h-8 md:h-12 text-primary fill-current" />
                           </div>
                         </div>
                         
                         {/* Episode Info */}
-                        <div className="flex-1 py-4 pr-4">
+                        <div className="flex-1 py-3 md:py-4 pr-3 md:pr-4">
                           <h3
-                            className="text-xl font-semibold mb-2"
+                            className="text-base md:text-xl font-semibold mb-1 md:mb-2 line-clamp-1"
                             data-testid={`text-episode-title-${episode.id}`}
                           >
                             {episode.title}
                           </h3>
-                          <p className="text-sm text-muted-foreground mb-3">
+                          <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3">
                             S{episode.season} E{episode.episodeNumber} • {episode.airDate} • {episode.duration}m
                           </p>
-                          <p className="text-sm text-muted-foreground line-clamp-2">
+                          <p className="text-xs md:text-sm text-muted-foreground line-clamp-2">
                             {episode.description}
                           </p>
                         </div>
