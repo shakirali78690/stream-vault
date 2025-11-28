@@ -74,6 +74,42 @@ export default function Watch() {
     };
   }, [currentEpisodeData?.id, show?.id, currentSeason, currentEpisode]);
 
+  // Set Media Session metadata for browser controls
+  useEffect(() => {
+    if ('mediaSession' in navigator && currentEpisodeData && show) {
+      const episodeTitle = currentEpisodeData.title || `Episode ${currentEpisode}`;
+      const metadata = {
+        title: episodeTitle,
+        artist: show.title,
+        album: `Season ${currentSeason}`,
+        artwork: [
+          {
+            src: currentEpisodeData.thumbnailUrl || show.posterUrl || '',
+            sizes: '512x512',
+            type: 'image/jpeg',
+          },
+          {
+            src: currentEpisodeData.thumbnailUrl || show.posterUrl || '',
+            sizes: '256x256',
+            type: 'image/jpeg',
+          },
+        ],
+      };
+
+      navigator.mediaSession.metadata = new MediaMetadata(metadata);
+      
+      // Update document title
+      document.title = `${episodeTitle} - ${show.title} | StreamVault`;
+    }
+
+    return () => {
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = null;
+      }
+      document.title = 'StreamVault - Free Movies & TV Shows';
+    };
+  }, [currentEpisodeData, show, currentSeason, currentEpisode]);
+
   if (!show || !currentEpisodeData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
