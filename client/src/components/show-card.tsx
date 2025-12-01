@@ -2,14 +2,14 @@ import { Link, useLocation } from "wouter";
 import { Play, Plus, Check, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import type { Show } from "@shared/schema";
+import type { Show, Movie } from "@shared/schema";
 import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { getHeaders } from "@/lib/api";
 
 interface ShowCardProps {
-  show: Show;
+  show: Show | Movie;
   orientation?: "portrait" | "landscape";
   showProgress?: number;
 }
@@ -58,17 +58,19 @@ export function ShowCard({
     }
   };
 
+  const isMovie = 'googleDriveUrl' in show;
+  
   const handlePlayClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setLocation(`/watch/${show.slug}`);
+    setLocation(isMovie ? `/watch-movie/${show.slug}` : `/watch/${show.slug}`);
   };
 
   const imageUrl = orientation === "portrait" ? show.posterUrl : show.backdropUrl;
   const aspectRatio = orientation === "portrait" ? "aspect-[2/3]" : "aspect-video";
 
   return (
-    <Link href={`/show/${show.slug}`}>
+    <Link href={isMovie ? `/movie/${show.slug}` : `/show/${show.slug}`}>
       <div
         className="group relative overflow-visible cursor-pointer"
         onMouseEnter={() => setIsHovered(true)}
@@ -110,7 +112,7 @@ export function ShowCard({
               {/* Meta Info */}
               <div className="flex items-center gap-2 text-xs text-white/80 mb-3">
                 <span>{show.year}</span>
-                {show.totalSeasons && (
+                {!isMovie && 'totalSeasons' in show && show.totalSeasons && (
                   <>
                     <span>•</span>
                     <span>{show.totalSeasons}S</span>

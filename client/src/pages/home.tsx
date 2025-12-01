@@ -2,13 +2,19 @@ import { useQuery } from "@tanstack/react-query";
 import { HeroCarousel } from "@/components/hero-carousel";
 import { ContentRow } from "@/components/content-row";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Show, ViewingProgress } from "@shared/schema";
+import type { Show, Movie, ViewingProgress } from "@shared/schema";
 import { useMemo } from "react";
 
 export default function Home() {
-  const { data: shows, isLoading } = useQuery<Show[]>({
+  const { data: shows, isLoading: showsLoading } = useQuery<Show[]>({
     queryKey: ["/api/shows"],
   });
+
+  const { data: movies, isLoading: moviesLoading } = useQuery<Movie[]>({
+    queryKey: ["/api/movies"],
+  });
+
+  const isLoading = showsLoading || moviesLoading;
 
   const { data: progressData = [] } = useQuery<ViewingProgress[]>({
     queryKey: ["/api/progress"],
@@ -53,12 +59,15 @@ export default function Home() {
     );
   }
 
+  // Combine shows and movies
+  const allContent: (Show | Movie)[] = [...(shows || []), ...(movies || [])];
+  
   const featured = shows?.filter((show) => show.featured) || [];
-  const trending = shows?.filter((show) => show.trending) || [];
-  const action = shows?.filter((show) => show.genres?.toLowerCase().includes("action")) || [];
-  const drama = shows?.filter((show) => show.genres?.toLowerCase().includes("drama")) || [];
-  const comedy = shows?.filter((show) => show.genres?.toLowerCase().includes("comedy")) || [];
-  const horror = shows?.filter((show) => show.genres?.toLowerCase().includes("horror")) || [];
+  const trending = allContent.filter((item) => item.trending) || [];
+  const action = allContent.filter((item) => item.genres?.toLowerCase().includes("action")) || [];
+  const drama = allContent.filter((item) => item.genres?.toLowerCase().includes("drama")) || [];
+  const comedy = allContent.filter((item) => item.genres?.toLowerCase().includes("comedy")) || [];
+  const horror = allContent.filter((item) => item.genres?.toLowerCase().includes("horror")) || [];
 
   return (
     <div className="min-h-screen">
@@ -96,10 +105,10 @@ export default function Home() {
           <ContentRow title="Horror & Mystery" shows={horror} />
         )}
 
-        {shows && shows.length > 0 && (
+        {allContent.length > 0 && (
           <ContentRow
             title="Recently Added"
-            shows={shows.slice(0, 12)}
+            shows={allContent.slice(0, 12)}
             orientation="landscape"
           />
         )}

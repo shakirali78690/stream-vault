@@ -29,6 +29,7 @@ import Request from "@/pages/request";
 import Movies from "@/pages/movies";
 import BrowseShows from "@/pages/browse-shows";
 import BrowseMovies from "@/pages/browse-movies";
+import Trending from "@/pages/trending";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -60,7 +61,7 @@ function Router() {
           <Route path="/movies" component={Movies} />
           <Route path="/browse/shows" component={BrowseShows} />
           <Route path="/browse/movies" component={BrowseMovies} />
-          <Route path="/trending" component={Home} />
+          <Route path="/trending" component={Trending} />
           <Route component={NotFound} />
         </Switch>
       </main>
