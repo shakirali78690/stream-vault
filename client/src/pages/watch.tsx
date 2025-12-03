@@ -120,8 +120,11 @@ export default function Watch() {
 
   const extractDriveId = (url: string | undefined) => {
     if (!url) return null;
+    // Check if it's a full URL with /d/ pattern
     const match = url.match(/\/d\/([^/]+)/);
-    return match ? match[1] : null;
+    if (match) return match[1];
+    // Otherwise, assume it's already just the file ID
+    return url;
   };
 
   const videoUrl = currentEpisodeData.videoUrl || currentEpisodeData.googleDriveUrl;

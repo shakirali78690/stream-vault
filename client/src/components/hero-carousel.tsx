@@ -2,11 +2,18 @@ import { useState, useEffect, useRef } from "react";
 import { Play, Info, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import type { Show } from "@shared/schema";
+import type { Show, Movie } from "@shared/schema";
 import { Link } from "wouter";
 
+type ContentItem = Show | Movie;
+
 interface HeroCarouselProps {
-  shows: Show[];
+  shows: ContentItem[];
+}
+
+// Helper to check if item is a movie
+function isMovie(item: ContentItem): item is Movie {
+  return 'googleDriveUrl' in item;
 }
 
 export function HeroCarousel({ shows }: HeroCarouselProps) {
@@ -112,9 +119,14 @@ export function HeroCarousel({ shows }: HeroCarouselProps) {
             )}
             <span className="text-foreground font-medium">{currentShow.year}</span>
             <span className="text-foreground">{currentShow.rating}</span>
-            <span className="text-foreground">
-              {currentShow.totalSeasons} Season{currentShow.totalSeasons > 1 ? "s" : ""}
-            </span>
+            {!isMovie(currentShow) && (
+              <span className="text-foreground">
+                {currentShow.totalSeasons} Season{currentShow.totalSeasons > 1 ? "s" : ""}
+              </span>
+            )}
+            {isMovie(currentShow) && (
+              <span className="text-foreground">Movie</span>
+            )}
           </div>
 
           {/* Genres */}
@@ -138,7 +150,7 @@ export function HeroCarousel({ shows }: HeroCarouselProps) {
 
           {/* CTAs */}
           <div className="flex flex-wrap gap-3 pt-2">
-            <Link href={`/watch/${currentShow.slug}`}>
+            <Link href={isMovie(currentShow) ? `/watch-movie/${currentShow.slug}` : `/watch/${currentShow.slug}`}>
               <Button
                 size="lg"
                 className="gap-2 min-h-11"
@@ -148,7 +160,7 @@ export function HeroCarousel({ shows }: HeroCarouselProps) {
                 Play Now
               </Button>
             </Link>
-            <Link href={`/show/${currentShow.slug}`}>
+            <Link href={isMovie(currentShow) ? `/movie/${currentShow.slug}` : `/show/${currentShow.slug}`}>
               <Button
                 size="lg"
                 variant="outline"
