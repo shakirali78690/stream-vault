@@ -127,12 +127,79 @@
         }
       });
       
-      // DevTools detection and redirect
+      // DevTools detection with page freeze
       (function() {
         var devtoolsOpen = false;
-        var threshold = 160;
+        var threshold = 100; // Lower threshold for better detection
+        var overlay = null;
+        var isSticky = false; // If true, overlay stays until reload
         
-        // Method 1: Check window size difference
+        // Create freeze overlay
+        function createOverlay() {
+          if (overlay) return;
+          
+          overlay = document.createElement('div');
+          overlay.id = 'devtools-overlay';
+          overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff0000;
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            pointer-events: all;
+            user-select: none;
+          `;
+          overlay.innerHTML = `
+            <div>
+              <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+              <div>Developer Tools Detected</div>
+              <div style="font-size: 16px; margin-top: 10px; color: #ff6b6b;">
+                Please reload the page to continue
+              </div>
+            </div>
+          `;
+          
+          // Prevent all interactions on overlay
+          overlay.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+          }, true);
+          
+          overlay.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+          }, true);
+          
+          document.body.appendChild(overlay);
+          
+          // Freeze page scrolling and interactions
+          document.body.style.overflow = 'hidden';
+          document.body.style.pointerEvents = 'none';
+          document.body.style.userSelect = 'none';
+        }
+        
+        // Remove freeze overlay
+        function removeOverlay() {
+          if (overlay && overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay);
+            overlay = null;
+            document.body.style.overflow = '';
+            document.body.style.pointerEvents = '';
+            document.body.style.userSelect = '';
+          }
+        }
+        
+        // Method 1: Check window size difference (detects docked DevTools)
         var checkDevTools = function() {
           var widthThreshold = window.outerWidth - window.innerWidth > threshold;
           var heightThreshold = window.outerHeight - window.innerHeight > threshold;
@@ -140,49 +207,84 @@
           if (widthThreshold || heightThreshold) {
             if (!devtoolsOpen) {
               devtoolsOpen = true;
+              isSticky = true; // FORCE STICKY MODE
               handleDevToolsOpen();
             }
-          } else {
-            devtoolsOpen = false;
+          }
+          // REMOVED THE ELSE BLOCK to prevent auto-closing
+        };
+        
+        // Method 2: Firebug check (detects console panel)
+        var checkFirebug = function() {
+          if (window.Firebug && window.Firebug.chrome && window.Firebug.chrome.isInitialized) {
+            if (!devtoolsOpen || !isSticky) {
+              devtoolsOpen = true;
+              isSticky = true;
+              handleDevToolsOpen();
+            }
           }
         };
         
-        // Method 2: Console detection
+        // Method 3: Console detection using toString
         var element = new Image();
         Object.defineProperty(element, 'id', {
           get: function() {
-            devtoolsOpen = true;
-            handleDevToolsOpen();
+            if (!devtoolsOpen || !isSticky) {
+              devtoolsOpen = true;
+              isSticky = true;
+              handleDevToolsOpen();
+            }
           }
         });
         
-        // Method 3: debugger detection
-        var checkDebugger = function() {
-          var before = new Date();
-          debugger;
-          var after = new Date();
-          if (after - before > 100) {
-            handleDevToolsOpen();
-          }
-        };
-        
-        // Redirect to homepage when DevTools detected
+        // Freeze page when DevTools detected
         function handleDevToolsOpen() {
-          if (window.location.pathname !== '/' && window.location.pathname !== '') {
-            window.location.href = '/';
-          }
+          createOverlay();
         }
         
+        // Unfreeze page when DevTools closed
+        function handleDevToolsClose() {
+          removeOverlay();
+        }
+        
+        // Run initial check
+        checkDevTools();
+        
         // Run checks continuously
-        setInterval(checkDevTools, 500);
+        setInterval(checkDevTools, 300);
+        setInterval(checkFirebug, 300);
         setInterval(function() {
           console.log(element);
           console.clear();
         }, 1000);
-        setInterval(checkDebugger, 1000);
         
         // Additional detection on resize
         window.addEventListener('resize', checkDevTools);
+        
+        // Check on load
+        window.addEventListener('load', checkDevTools);
+        
+        // Block all interactions when overlay is present
+        document.addEventListener('click', function(e) {
+          if (overlay) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }, true);
+        
+        document.addEventListener('touchstart', function(e) {
+          if (overlay) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }, true);
+        
+        document.addEventListener('keydown', function(e) {
+          if (overlay) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }, true);
       })();
     </script>
   </body>
