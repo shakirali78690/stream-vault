@@ -3,6 +3,7 @@ import { MovieHeroCarousel } from "@/components/movie-hero-carousel";
 import { MovieContentRow } from "@/components/movie-content-row";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo";
+import { AdBanner } from "@/components/ad-banner";
 import type { Movie } from "@shared/schema";
 
 export default function MoviesPage() {
@@ -58,6 +59,9 @@ export default function MoviesPage() {
           <MovieContentRow title="Action & Thriller" movies={action} />
         )}
 
+        {/* Ad Banner */}
+        <AdBanner />
+
         {drama.length > 0 && <MovieContentRow title="Drama & Romance" movies={drama} />}
 
         {comedy.length > 0 && <MovieContentRow title="Comedy" movies={comedy} />}
@@ -65,6 +69,9 @@ export default function MoviesPage() {
         {horror.length > 0 && (
           <MovieContentRow title="Horror & Mystery" movies={horror} />
         )}
+
+        {/* Ad Banner */}
+        <AdBanner />
 
         {movies && movies.length > 0 && (
           <MovieContentRow

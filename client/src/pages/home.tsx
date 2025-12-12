@@ -3,6 +3,7 @@ import { HeroCarousel } from "@/components/hero-carousel";
 import { ContentRow } from "@/components/content-row";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo";
+import { AdBanner } from "@/components/ad-banner";
 import type { Show, Movie, ViewingProgress } from "@shared/schema";
 import { useMemo } from "react";
 
@@ -104,6 +105,9 @@ export default function Home() {
           <ContentRow title="Action & Thriller" shows={action} />
         )}
 
+        {/* Ad Banner */}
+        <AdBanner />
+
         {drama.length > 0 && <ContentRow title="Drama & Romance" shows={drama} />}
 
         {comedy.length > 0 && <ContentRow title="Comedy" shows={comedy} />}
@@ -111,6 +115,9 @@ export default function Home() {
         {horror.length > 0 && (
           <ContentRow title="Horror & Mystery" shows={horror} />
         )}
+
+        {/* Ad Banner */}
+        <AdBanner />
 
         {allContent.length > 0 && (
           <ContentRow

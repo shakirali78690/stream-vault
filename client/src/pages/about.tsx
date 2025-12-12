@@ -1,5 +1,6 @@
 import { Play, Users, Tv, Heart } from "lucide-react";
 import { SEO } from "@/components/seo";
+import { AdBanner } from "@/components/ad-banner";
 
 export default function About() {
   return (
@@ -126,6 +127,9 @@ export default function About() {
             <div className="text-muted-foreground">No Subscription Needed</div>
           </div>
         </div>
+
+        {/* Ad Banner */}
+        <AdBanner />
 
         {/* Contact CTA */}
         <div className="max-w-2xl mx-auto text-center p-8 rounded-lg bg-card border border-border">
