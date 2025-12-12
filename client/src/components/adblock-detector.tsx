@@ -1,16 +1,15 @@
 import { useState, useEffect } from "react";
-import { ShieldAlert, Heart, RefreshCw } from "lucide-react";
+import { ShieldOff, Heart, RefreshCw, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function AdBlockDetector() {
   const [adBlockDetected, setAdBlockDetected] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
   const [checking, setChecking] = useState(false);
 
   const checkAdBlocker = async (): Promise<boolean> => {
     try {
       // Method 1: Try to fetch a known ad script
-      const response = await fetch(
+      await fetch(
         "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js",
         { method: "HEAD", mode: "no-cors" }
       );
@@ -34,34 +33,30 @@ export function AdBlockDetector() {
       
       return isBlocked;
     } catch {
-      return true; // If fetch fails, likely blocked
+      return true;
     }
   };
 
   useEffect(() => {
     const detectAdBlocker = async () => {
-      // Wait a bit for page to load
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
       const blocked = await checkAdBlocker();
       setAdBlockDetected(blocked);
     };
 
     detectAdBlocker();
 
-    // Re-check periodically when ad blocker is detected
     const interval = setInterval(async () => {
-      if (adBlockDetected && !dismissed) {
+      if (adBlockDetected) {
         const stillBlocked = await checkAdBlocker();
         if (!stillBlocked) {
-          // Ad blocker was disabled, refresh the page
           window.location.reload();
         }
       }
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [adBlockDetected, dismissed]);
+  }, [adBlockDetected]);
 
   const handleRefresh = async () => {
     setChecking(true);
@@ -71,76 +66,66 @@ export function AdBlockDetector() {
       window.location.reload();
     } else {
       setChecking(false);
-      // Show a message that ad blocker is still active
     }
   };
 
-  if (!adBlockDetected || dismissed) {
+  if (!adBlockDetected) {
     return null;
   }
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="relative mx-4 max-w-lg w-full bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl border border-gray-700 shadow-2xl overflow-hidden">
-        {/* Decorative gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-500/10 pointer-events-none" />
-        
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background/95 backdrop-blur-md">
+      <div className="mx-4 max-w-md w-full bg-card border border-border rounded-lg overflow-hidden">
+        {/* Header with logo */}
+        <div className="bg-primary/10 border-b border-border px-6 py-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+            <Play className="w-5 h-5 text-primary-foreground fill-current" />
+          </div>
+          <span className="text-xl font-bold text-foreground">StreamVault</span>
+        </div>
 
-        <div className="relative p-8 text-center">
+        <div className="p-6">
           {/* Icon */}
-          <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-red-500/20 to-orange-500/20 flex items-center justify-center mb-6 ring-2 ring-red-500/30">
-            <ShieldAlert className="w-10 h-10 text-red-400" />
+          <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+            <ShieldOff className="w-8 h-8 text-destructive" />
           </div>
 
           {/* Title */}
-          <h2 className="text-2xl font-bold text-white mb-3">
+          <h2 className="text-xl font-semibold text-foreground text-center mb-2">
             Ad Blocker Detected
           </h2>
 
           {/* Message */}
-          <p className="text-gray-300 mb-6 leading-relaxed">
-            We noticed you're using an ad blocker. We understand ads can be annoying, 
-            but they're our <span className="text-primary font-semibold">only source of income</span> to 
-            keep StreamVault free for everyone.
+          <p className="text-muted-foreground text-center text-sm mb-6">
+            Please disable your ad blocker to continue. Ads are our{" "}
+            <span className="text-primary font-medium">only source of income</span>{" "}
+            to keep StreamVault free.
           </p>
 
-          {/* Benefits */}
-          <div className="bg-white/5 rounded-xl p-4 mb-6 text-left">
-            <p className="text-sm text-gray-400 mb-3 flex items-center gap-2">
-              <Heart className="w-4 h-4 text-red-400" />
-              By disabling your ad blocker, you help us:
-            </p>
-            <ul className="text-sm text-gray-300 space-y-2">
-              <li className="flex items-start gap-2">
-                <span className="text-primary">•</span>
-                Keep the service 100% free
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">•</span>
-                Add new movies & shows regularly
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">•</span>
-                Maintain fast streaming servers
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">•</span>
-                Improve the platform for you
-              </li>
+          {/* Benefits card */}
+          <div className="bg-muted/50 rounded-md p-4 mb-6">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+              <Heart className="w-4 h-4 text-primary" />
+              <span>Your support helps us:</span>
+            </div>
+            <ul className="text-sm text-foreground space-y-1.5 ml-6">
+              <li>• Keep streaming 100% free</li>
+              <li>• Add new content regularly</li>
+              <li>• Maintain fast servers</li>
             </ul>
           </div>
 
           {/* Instructions */}
-          <div className="text-sm text-gray-400 mb-6">
-            <p className="font-medium text-gray-300 mb-2">How to disable:</p>
-            <p>Click the ad blocker icon in your browser → Disable for this site → Refresh</p>
+          <div className="text-xs text-muted-foreground text-center mb-4 bg-accent/50 rounded-md p-3">
+            <strong className="text-foreground">How to disable:</strong> Click the ad blocker icon → Disable for this site
           </div>
 
           {/* Button */}
           <Button
             onClick={handleRefresh}
             disabled={checking}
-            className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white font-semibold py-3"
+            className="w-full"
+            size="lg"
           >
             {checking ? (
               <>
@@ -156,13 +141,8 @@ export function AdBlockDetector() {
           </Button>
 
           {/* Auto-refresh notice */}
-          <p className="mt-4 text-sm text-gray-400">
+          <p className="mt-4 text-xs text-muted-foreground text-center">
             Page will auto-refresh when ad blocker is disabled
-          </p>
-
-          {/* Footer note */}
-          <p className="mt-6 text-xs text-gray-500">
-            We promise to keep ads minimal and non-intrusive. Thank you for your support! 💜
           </p>
         </div>
       </div>
