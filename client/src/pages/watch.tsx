@@ -271,6 +271,11 @@ export default function Watch() {
           </div>
         </div>
 
+        {/* Adsterra Native Banner - Above Comments */}
+        <div className="mt-8 flex justify-center">
+          <div id="container-326e4e570b95e9b55f432cac93890441"></div>
+        </div>
+
         {/* Comments Section - Mobile only (below Up Next) */}
         <div className="mt-8 lg:hidden">
           <CommentsSection episodeId={currentEpisodeData.id} />

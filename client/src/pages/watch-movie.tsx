@@ -203,6 +203,11 @@ export default function WatchMovie() {
             </div>
           )}
 
+          {/* Adsterra Native Banner - Above Comments */}
+          <div className="mt-8 flex justify-center">
+            <div id="container-326e4e570b95e9b55f432cac93890441"></div>
+          </div>
+
           {/* Comments Section at Bottom */}
           <div className="mt-8">
             <CommentsSection movieId={movie.id} />
