@@ -9,6 +9,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Chatbot } from "@/components/chatbot";
 import { AdBanner } from "@/components/ad-banner";
+import { AdBlockDetector } from "@/components/adblock-detector";
 import Home from "@/pages/home";
 import ShowDetail from "@/pages/show-detail";
 import Watch from "@/pages/watch";
@@ -89,6 +90,7 @@ function App() {
         <ThemeProvider defaultTheme="dark">
           <TooltipProvider>
             <Toaster />
+            <AdBlockDetector />
             <Router />
           </TooltipProvider>
         </ThemeProvider>
