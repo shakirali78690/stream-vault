@@ -1,11 +1,11 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, useState } from "react";
 import { ShowCard } from "./show-card";
-import type { Show } from "@shared/schema";
+import type { Show, Movie } from "@shared/schema";
 
 interface ContentRowProps {
   title: string;
-  shows: Show[];
+  shows: (Show | Movie)[];
   orientation?: "portrait" | "landscape";
   showProgress?: Map<string, number>;
 }

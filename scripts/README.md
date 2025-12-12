@@ -1,4 +1,113 @@
-# 🎬 TMDB Show Update Script
+# 🎬 StreamVault Content Scripts
+
+Scripts for managing content in StreamVault using The Movie Database (TMDB) API.
+
+## 📦 Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `add-movie.js` | Add a new movie from TMDB with Google Drive link |
+| `add-show.js` | Add a new TV show from TMDB with episode links |
+| `update-shows-from-tmdb.ts` | Update existing shows with TMDB data |
+
+---
+
+## 🎬 Add Movie Script
+
+Add a movie to StreamVault by providing the TMDB movie ID and Google Drive URL.
+
+### Usage
+
+```bash
+node scripts/add-movie.js
+```
+
+### What It Does
+
+1. Prompts for TMDB Movie ID
+2. Fetches all movie data from TMDB (title, description, cast, poster, etc.)
+3. Prompts for Google Drive URL
+4. Asks if movie should be featured/trending
+5. Saves to `data/streamvault-data.json`
+
+### Example
+
+```
+🎬 StreamVault Movie Adder
+==========================
+
+Enter TMDB Movie ID: 1218925
+
+✅ Found: Chainsaw Man: The Movie - Reze Arc (2025)
+   Overview: In a brutal war between devils, hunters...
+
+Enter Google Drive URL (embed/preview format): https://drive.google.com/file/d/xxx/preview
+Featured on homepage? (y/n): y
+Show in trending? (y/n): y
+
+💾 Saving data...
+
+✅ Movie added successfully!
+   Title: Chainsaw Man: The Movie - Reze Arc
+   Slug: chainsaw-man-the-movie-reze-arc
+   Year: 2025
+   Genres: Animation, Action, Horror
+   Duration: 120 min
+```
+
+---
+
+## 📺 Add Show Script
+
+Add a TV show to StreamVault with episode links.
+
+### Usage
+
+```bash
+node scripts/add-show.js
+```
+
+### What It Does
+
+1. Prompts for TMDB TV Show ID
+2. Fetches all show data from TMDB
+3. Asks which seasons to add
+4. Prompts for Google Drive URL for each episode
+5. Saves show and episodes to `data/streamvault-data.json`
+
+### Example
+
+```
+📺 StreamVault Show Adder
+=========================
+
+Enter TMDB TV Show ID: 114410
+
+✅ Found: Chainsaw Man (2022)
+   Seasons: 1
+   Episodes: 12
+
+Which seasons to add? (1-1, comma-separated, or 'all'): 1
+
+📺 Season 1
+────────────────────────────────────
+   Found 12 episodes
+
+   Enter Google Drive URLs for each episode:
+   S1E1 - Dog & Chainsaw: https://drive.google.com/file/d/xxx/preview
+   S1E2 - Arrival in Tokyo: https://drive.google.com/file/d/yyy/preview
+   ...
+
+💾 Saving data...
+
+✅ Show added successfully!
+   Title: Chainsaw Man
+   Episodes added: 12
+```
+
+---
+
+## 🔄 TMDB Show Update Script
 
 This script updates show information from The Movie Database (TMDB) API.
 
