@@ -1,26 +1,51 @@
 # StreamVault - Free Streaming Platform
-# Watch 200+ TV Shows & Movies Online Free
+# Watch 500+ TV Shows & Movies Online Free in HD
+# https://streamvault.live
 
 User-agent: *
+
+# Main Pages
 Allow: /
-Allow: /show/*
-Allow: /watch/*
-Allow: /watch-movie/*
-Allow: /movie/*
-Allow: /search
-Allow: /category/*
 Allow: /series
 Allow: /movies
 Allow: /trending
+Allow: /search
 Allow: /watchlist
-Allow: /request-content
-Allow: /report-issue
+Allow: /browse
+Allow: /browse/shows
+Allow: /browse/movies
+Allow: /continue-watching
+Allow: /sitemap
+
+# Content Pages
+Allow: /show/*
+Allow: /movie/*
+Allow: /watch/*
+Allow: /watch-movie/*
+Allow: /category/*
+
+# Blog & Articles
+Allow: /blog
+Allow: /blog/*
+
+# User Features
+Allow: /request
+Allow: /report
+
+# Info Pages
+Allow: /about
+Allow: /contact
+Allow: /privacy
+Allow: /terms
+Allow: /dmca
+Allow: /help
+Allow: /faq
 
 # Block admin and API endpoints
 Disallow: /admin
 Disallow: /admin/*
-Disallow: /api/admin/*
 Disallow: /api/
+Disallow: /api/*
 
 # Sitemaps
 Sitemap: https://streamvault.live/sitemap.xml
@@ -28,12 +53,18 @@ Sitemap: https://streamvault.live/sitemap.xml
 # Crawl-delay for polite crawling
 Crawl-delay: 1
 
-# Popular Categories
+# StreamVault Content Categories
 # /category/action - Action & Thriller Movies
-# /category/drama - Drama & Romance Series
+# /category/drama - Drama & Romance Series  
 # /category/comedy - Comedy Shows Online
 # /category/horror - Horror & Mystery
 # /category/romance - Romance Series
 # /category/thriller - Thriller Movies
 # /category/crime - Crime & Mystery
 # /category/sci-fi - Sci-Fi & Fantasy
+# /category/documentary - Documentaries
+# /category/animation - Animation & Anime
+
+# Blog Articles - Complete Guides for Movies & Shows
+# /blog/movie/* - Movie reviews, cast, plot, trivia
+# /blog/show/* - TV show guides, episodes, reviews

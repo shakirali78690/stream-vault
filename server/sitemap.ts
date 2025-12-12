@@ -10,23 +10,33 @@ export function setupSitemaps(app: Express, storage: IStorage) {
     try {
       const lastmod = new Date().toISOString().split("T")[0];
       
-      // Static pages
+      // Static pages - all public routes
       const staticPages = [
+        // Main pages
         { url: "/", priority: "1.0", changefreq: "daily" },
         { url: "/series", priority: "0.9", changefreq: "daily" },
         { url: "/movies", priority: "0.9", changefreq: "daily" },
         { url: "/trending", priority: "0.9", changefreq: "daily" },
+        { url: "/blog", priority: "0.9", changefreq: "daily" },
         { url: "/search", priority: "0.8", changefreq: "weekly" },
+        // Browse pages
+        { url: "/browse", priority: "0.8", changefreq: "daily" },
+        { url: "/browse/shows", priority: "0.8", changefreq: "daily" },
+        { url: "/browse/movies", priority: "0.8", changefreq: "daily" },
+        // User features
         { url: "/watchlist", priority: "0.7", changefreq: "weekly" },
-        { url: "/request-content", priority: "0.7", changefreq: "monthly" },
-        { url: "/report-issue", priority: "0.7", changefreq: "monthly" },
+        { url: "/continue-watching", priority: "0.7", changefreq: "weekly" },
+        { url: "/request", priority: "0.7", changefreq: "monthly" },
+        { url: "/report", priority: "0.7", changefreq: "monthly" },
+        // Info pages
         { url: "/about", priority: "0.6", changefreq: "monthly" },
         { url: "/contact", priority: "0.6", changefreq: "monthly" },
+        { url: "/help", priority: "0.6", changefreq: "monthly" },
+        { url: "/faq", priority: "0.6", changefreq: "monthly" },
         { url: "/privacy", priority: "0.5", changefreq: "monthly" },
         { url: "/terms", priority: "0.5", changefreq: "monthly" },
         { url: "/dmca", priority: "0.5", changefreq: "monthly" },
-        { url: "/help", priority: "0.6", changefreq: "monthly" },
-        { url: "/faq", priority: "0.6", changefreq: "monthly" },
+        { url: "/sitemap", priority: "0.5", changefreq: "weekly" },
       ];
 
       let allUrls: string[] = [];
@@ -101,6 +111,26 @@ export function setupSitemaps(app: Express, storage: IStorage) {
         showUrl += `
   </url>`;
         allUrls.push(showUrl);
+
+        // Add blog article page for this show
+        let blogShowUrl = `
+  <url>
+    <loc>${baseUrl}/blog/show/${show.slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>`;
+
+        if (backdropUrl && backdropUrl.startsWith('http')) {
+          blogShowUrl += `
+    <image:image>
+      <image:loc>${backdropUrl}</image:loc>
+      <image:title>${title} - Complete Guide, Cast &amp; Reviews</image:title>
+    </image:image>`;
+        }
+
+        blogShowUrl += `
+  </url>`;
+        allUrls.push(blogShowUrl);
 
         // Add episodes for this show
         try {
@@ -189,6 +219,26 @@ export function setupSitemaps(app: Express, storage: IStorage) {
         movieUrl += `
   </url>`;
         allUrls.push(movieUrl);
+
+        // Add blog article page for this movie
+        let blogMovieUrl = `
+  <url>
+    <loc>${baseUrl}/blog/movie/${movie.slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>`;
+
+        if (backdropUrl && backdropUrl.startsWith('http')) {
+          blogMovieUrl += `
+    <image:image>
+      <image:loc>${backdropUrl}</image:loc>
+      <image:title>${title} - Complete Guide, Cast &amp; Reviews</image:title>
+    </image:image>`;
+        }
+
+        blogMovieUrl += `
+  </url>`;
+        allUrls.push(blogMovieUrl);
 
         // Add watch-movie page
         let watchMovieUrl = `
