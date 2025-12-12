@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MovieCard } from "@/components/movie-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo";
+import { AdsterraNativeBanner } from "@/components/adsterra-banner";
 import type { Movie } from "@shared/schema";
 
 export default function BrowseMovies() {
@@ -17,9 +18,7 @@ export default function BrowseMovies() {
         canonical="https://streamvault.live/browse/movies"
       />
       {/* Adsterra Native Banner */}
-      <div className="flex justify-center py-4">
-        <div id="container-326e4e570b95e9b55f432cac93890441"></div>
-      </div>
+      <AdsterraNativeBanner />
 
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">

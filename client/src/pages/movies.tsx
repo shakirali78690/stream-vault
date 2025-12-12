@@ -3,6 +3,7 @@ import { MovieHeroCarousel } from "@/components/movie-hero-carousel";
 import { MovieContentRow } from "@/components/movie-content-row";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo";
+import { AdsterraNativeBanner } from "@/components/adsterra-banner";
 import type { Movie } from "@shared/schema";
 
 export default function MoviesPage() {
@@ -59,9 +60,7 @@ export default function MoviesPage() {
         )}
 
         {/* Adsterra Native Banner */}
-        <div className="flex justify-center py-4">
-          <div id="container-326e4e570b95e9b55f432cac93890441"></div>
-        </div>
+        <AdsterraNativeBanner />
 
         {drama.length > 0 && <MovieContentRow title="Drama & Romance" movies={drama} />}
 

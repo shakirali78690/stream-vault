@@ -3,6 +3,7 @@ import { HeroCarousel } from "@/components/hero-carousel";
 import { ContentRow } from "@/components/content-row";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo";
+import { AdsterraNativeBanner } from "@/components/adsterra-banner";
 import type { Show, Movie, ViewingProgress } from "@shared/schema";
 import { useMemo } from "react";
 
@@ -49,6 +50,8 @@ export default function Home() {
       <div className="min-h-screen">
         <Skeleton className="w-full h-[70vh]" />
         <div className="container mx-auto px-4 py-8 space-y-8">
+          {/* Adsterra Native Banner */}
+          <AdsterraNativeBanner />
           <Skeleton className="h-8 w-48" />
           <div className="flex gap-4 overflow-hidden">
             {[...Array(6)].map((_, i) => (

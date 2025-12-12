@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CommentsSection } from "@/components/comments-section";
 import { Helmet } from "react-helmet-async";
+import { AdsterraNativeBanner } from "@/components/adsterra-banner";
 import type { Movie } from "@shared/schema";
 
 export default function WatchMovie() {
@@ -204,9 +205,7 @@ export default function WatchMovie() {
           )}
 
           {/* Adsterra Native Banner - Above Comments */}
-          <div className="mt-8 flex justify-center">
-            <div id="container-326e4e570b95e9b55f432cac93890441"></div>
-          </div>
+          <AdsterraNativeBanner className="mt-8" />
 
           {/* Comments Section at Bottom */}
           <div className="mt-8">

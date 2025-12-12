@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { ChevronRight, Film, Tv, Home, Search, User, Heart, Clock, MessageSquare, AlertCircle, Info } from "lucide-react";
 import { SEO } from "@/components/seo";
+import { AdsterraNativeBanner } from "@/components/adsterra-banner";
 import type { Show, Movie } from "@shared/schema";
 
 export default function SitemapPage() {
@@ -52,9 +53,7 @@ export default function SitemapPage() {
         canonical="https://streamvault.live/sitemap"
       />
       {/* Adsterra Native Banner */}
-      <div className="flex justify-center py-4">
-        <div id="container-326e4e570b95e9b55f432cac93890441"></div>
-      </div>
+      <AdsterraNativeBanner />
 
       {/* Header */}
       <div className="border-b bg-card">

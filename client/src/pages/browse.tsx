@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Search, Filter, Film, Tv, Grid, List, X } from "lucide-react";
 import { SEO } from "@/components/seo";
+import { AdsterraNativeBanner } from "@/components/adsterra-banner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -152,9 +153,7 @@ export default function Browse() {
         </div>
 
         {/* Adsterra Native Banner */}
-        <div className="flex justify-center py-4 mb-6">
-          <div id="container-326e4e570b95e9b55f432cac93890441"></div>
-        </div>
+        <AdsterraNativeBanner className="mb-6" />
 
         {/* Filters */}
         <div className="flex flex-col gap-4 mb-8">

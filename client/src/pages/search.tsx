@@ -11,6 +11,7 @@ import { ShowCard } from "@/components/show-card";
 import { MovieCard } from "@/components/movie-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo";
+import { AdsterraNativeBanner } from "@/components/adsterra-banner";
 import {
   Sheet,
   SheetContent,
@@ -197,9 +198,7 @@ export default function Search() {
         canonical="https://streamvault.live/search"
       />
       {/* Adsterra Native Banner */}
-      <div className="flex justify-center py-4">
-        <div id="container-326e4e570b95e9b55f432cac93890441"></div>
-      </div>
+      <AdsterraNativeBanner />
 
       <div className="container mx-auto px-4 py-8">
         {/* Search Header */}

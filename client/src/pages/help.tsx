@@ -1,6 +1,7 @@
 import { Search, Play, Bookmark, Settings, HelpCircle, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { SEO } from "@/components/seo";
+import { AdsterraNativeBanner } from "@/components/adsterra-banner";
 import { useState } from "react";
 
 export default function HelpCenter() {
@@ -164,9 +165,7 @@ export default function HelpCenter() {
         canonical="https://streamvault.live/help"
       />
       {/* Adsterra Native Banner */}
-      <div className="flex justify-center py-4">
-        <div id="container-326e4e570b95e9b55f432cac93890441"></div>
-      </div>
+      <AdsterraNativeBanner />
 
       <div className="container mx-auto px-4 py-12">
         {/* Header */}
