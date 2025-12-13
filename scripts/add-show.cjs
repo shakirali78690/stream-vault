@@ -31,20 +31,53 @@ function question(prompt) {
   });
 }
 
-function httpsGet(url) {
+function httpsGet(url, retries = 3) {
   return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
-      let data = '';
-      res.on('data', (chunk) => data += chunk);
-      res.on('end', () => {
-        try {
-          resolve(JSON.parse(data));
-        } catch (e) {
-          reject(e);
+    const makeRequest = (attempt) => {
+      const req = https.get(url, {
+        timeout: 30000,
+        headers: {
+          'User-Agent': 'StreamVault/1.0',
+          'Accept': 'application/json'
+        }
+      }, (res) => {
+        let data = '';
+        res.on('data', (chunk) => data += chunk);
+        res.on('end', () => {
+          try {
+            resolve(JSON.parse(data));
+          } catch (e) {
+            reject(e);
+          }
+        });
+      });
+      
+      req.on('error', (err) => {
+        if (attempt < retries) {
+          console.log(`   ⚠️ Connection error, retrying (${attempt + 1}/${retries})...`);
+          setTimeout(() => makeRequest(attempt + 1), 1000 * attempt);
+        } else {
+          reject(err);
         }
       });
-    }).on('error', reject);
+      
+      req.on('timeout', () => {
+        req.destroy();
+        if (attempt < retries) {
+          console.log(`   ⚠️ Timeout, retrying (${attempt + 1}/${retries})...`);
+          setTimeout(() => makeRequest(attempt + 1), 1000 * attempt);
+        } else {
+          reject(new Error('Request timeout'));
+        }
+      });
+    };
+    
+    makeRequest(1);
   });
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function generateSlug(title) {
@@ -104,15 +137,21 @@ async function fetchShowData(showId) {
   const creditsUrl = `${TMDB_BASE_URL}/tv/${showId}/credits?api_key=${TMDB_API_KEY}`;
   const ratingsUrl = `${TMDB_BASE_URL}/tv/${showId}/content_ratings?api_key=${TMDB_API_KEY}`;
   
-  const [show, credits, ratings] = await Promise.all([
-    httpsGet(showUrl),
-    httpsGet(creditsUrl),
-    httpsGet(ratingsUrl)
-  ]);
+  // Fetch sequentially to avoid connection issues
+  console.log('   Fetching show details...');
+  const show = await httpsGet(showUrl);
   
   if (show.success === false) {
     throw new Error(`Show not found: ${show.status_message}`);
   }
+  
+  await delay(500);
+  console.log('   Fetching credits...');
+  const credits = await httpsGet(creditsUrl);
+  
+  await delay(500);
+  console.log('   Fetching ratings...');
+  const ratings = await httpsGet(ratingsUrl);
   
   return { show, credits, ratings };
 }
@@ -174,7 +213,7 @@ async function main() {
     const featured = (await question('\nFeatured on homepage? (y/n): ')).toLowerCase() === 'y';
     const trending = (await question('Show in trending? (y/n): ')).toLowerCase() === 'y';
     
-    // Build cast details
+    // Build cast details - top 10 cast members
     const topCast = credits.cast?.slice(0, 10) || [];
     const castNames = topCast.map(c => c.name).join(', ');
     const castDetails = topCast.map(c => ({
@@ -285,6 +324,34 @@ async function main() {
     data.shows.push(newShow);
     data.episodes.push(...episodes);
     
+    // Generate blog post
+    const blogPost = {
+      id: `blog-${newShow.slug}-${Date.now()}`,
+      title: `${newShow.title} (${newShow.year}) - Complete Guide, Cast & Reviews`,
+      slug: `${newShow.slug}-${newShow.year}-complete-guide`,
+      contentType: 'show',
+      contentId: newShow.id,
+      featuredImage: newShow.backdropUrl || newShow.posterUrl,
+      excerpt: `${newShow.title} (${newShow.year}) is a ${newShow.genres?.split(',')[0]?.trim() || 'captivating'} TV series that has captured audiences worldwide. This comprehensive guide covers everything you need to know - from plot details to behind-the-scenes insights.`,
+      content: `${newShow.title} stands as one of the most captivating series of ${newShow.year}. Spanning ${newShow.totalSeasons} season${newShow.totalSeasons > 1 ? 's' : ''}, this ${newShow.genres?.split(',')[0]?.trim()?.toLowerCase() || ''} series delivers an unforgettable viewing experience.\n\n${newShow.description}\n\nThe show features an impressive ensemble cast including ${newShow.cast || 'talented performers'}, each bringing depth and authenticity to their roles.${newShow.creators ? ` Created by ${newShow.creators}, the production achieves a perfect balance of storytelling and visual spectacle.` : ''}`,
+      plotSummary: `${newShow.title} takes viewers on an extraordinary journey through its compelling narrative.\n\n${newShow.description}\n\nThe story unfolds with masterful pacing, keeping audiences engaged from the first episode to the season finale.`,
+      review: `${newShow.title} (${newShow.year}) delivers exactly what fans of ${newShow.genres || 'quality entertainment'} are looking for.${newShow.creators ? ` Creator ${newShow.creators.split(',')[0]?.trim()} demonstrates` : ' The creative team demonstrates'} a clear vision that translates beautifully to the screen.\n\nThe performances are uniformly excellent. ${newShow.cast ? newShow.cast.split(',').slice(0, 2).join(' and ') : 'The lead actors'} deliver standout performances that anchor the series emotionally.\n\n${newShow.imdbRating ? `With an IMDb rating of ${newShow.imdbRating}/10, audience reception has been overwhelmingly positive.` : 'Audience reception has been positive across the board.'}\n\n**Our Rating: ${newShow.imdbRating ? (parseFloat(newShow.imdbRating) >= 8 ? '5/5 - Masterpiece' : parseFloat(newShow.imdbRating) >= 7 ? '4/5 - Highly Recommended' : '3.5/5 - Worth Watching') : '4/5 - Recommended'}**`,
+      boxOffice: null,
+      trivia: `• ${newShow.title} was released in ${newShow.year} and quickly became a fan favorite in the ${newShow.genres?.split(',')[0]?.trim() || 'entertainment'} genre.\n• The series features ${newShow.cast ? newShow.cast.split(',').length : 'numerous'} talented cast members bringing the story to life.\n• ${newShow.creators ? `${newShow.creators.split(',')[0]?.trim()} brought their unique vision to this project.` : 'The creative team worked tirelessly to bring this vision to life.'}\n• The show has been praised for its compelling storytelling.`,
+      behindTheScenes: `The making of ${newShow.title} involved months of preparation and dedication from the entire cast and crew.\n\n${newShow.creators ? `${newShow.creators.split(',')[0]?.trim()} approached this project with a clear artistic vision, working closely with the cast to achieve authentic performances.` : 'The creative team approached this project with dedication and passion.'}\n\n${newShow.cast ? `Lead actors ${newShow.cast.split(',').slice(0, 2).join(' and ')} underwent extensive preparation for their roles.` : 'The cast underwent extensive preparation for their roles.'}`,
+      awards: `${newShow.title} has received recognition for its quality and impact:\n\n• ${newShow.imdbRating && parseFloat(newShow.imdbRating) >= 7.5 ? 'Critically acclaimed with high audience ratings' : 'Positive reception from audiences'}\n• Praised for quality production\n• ${newShow.cast ? `${newShow.cast.split(',')[0]?.trim()} received particular praise for their performance` : 'The ensemble cast received praise for their performances'}`,
+      author: 'StreamVault Editorial',
+      published: true,
+      featured: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    if (!data.blogPosts) data.blogPosts = [];
+    // Remove existing blog post for this show if any
+    data.blogPosts = data.blogPosts.filter(b => b.contentId !== newShow.id && !b.slug.includes(newShow.slug));
+    data.blogPosts.push(blogPost);
+    
     // Save data
     console.log('\n💾 Saving data...');
     fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
@@ -297,6 +364,7 @@ async function main() {
     console.log(`   Genres: ${newShow.genres}`);
     console.log(`   Category: ${newShow.category}`);
     console.log(`   Episodes added: ${episodes.length}`);
+    console.log(`   Blog post: Created`);
     
   } catch (error) {
     console.error('\n❌ Error:', error.message);

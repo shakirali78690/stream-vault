@@ -156,7 +156,7 @@ async function main() {
     const featured = (await question('Featured on homepage? (y/n): ')).toLowerCase() === 'y';
     const trending = (await question('Show in trending? (y/n): ')).toLowerCase() === 'y';
     
-    // Build cast details
+    // Build cast details - top 10 cast members
     const topCast = credits.cast?.slice(0, 10) || [];
     const castNames = topCast.map(c => c.name).join(', ');
     const castDetails = topCast.map(c => ({
@@ -211,6 +211,32 @@ async function main() {
     // Add movie
     data.movies.push(newMovie);
     
+    // Generate blog post
+    const blogPost = {
+      id: `blog-${newMovie.slug}-${Date.now()}`,
+      title: `${newMovie.title} (${newMovie.year}) - Complete Guide, Cast & Reviews`,
+      slug: `${newMovie.slug}-${newMovie.year}-complete-guide`,
+      contentType: 'movie',
+      contentId: newMovie.id,
+      featuredImage: newMovie.backdropUrl || newMovie.posterUrl,
+      excerpt: `${newMovie.title} (${newMovie.year}) is a ${newMovie.genres?.split(',')[0]?.trim() || 'captivating'} movie that has captured audiences worldwide. This comprehensive guide covers everything you need to know - from plot details to behind-the-scenes insights.`,
+      content: `${newMovie.title} stands as one of the most captivating films of ${newMovie.year}. With a runtime of ${newMovie.duration} minutes, this ${newMovie.genres?.split(',')[0]?.trim()?.toLowerCase() || ''} masterpiece delivers an unforgettable viewing experience.\n\n${newMovie.description}\n\nThe film features an impressive ensemble cast including ${newMovie.cast || 'talented performers'}, each bringing depth and authenticity to their roles.${newMovie.directors ? ` Under the direction of ${newMovie.directors}, the production achieves a perfect balance of storytelling and visual spectacle.` : ''}`,
+      plotSummary: `${newMovie.title} takes viewers on an extraordinary journey through its compelling narrative.\n\n${newMovie.description}\n\nThe story unfolds with masterful pacing, keeping audiences engaged from the opening scene to the final credits.`,
+      review: `${newMovie.title} (${newMovie.year}) delivers exactly what fans of ${newMovie.genres || 'quality entertainment'} are looking for.${newMovie.directors ? ` Director ${newMovie.directors.split(',')[0]?.trim()} demonstrates` : ' The creative team demonstrates'} a clear vision that translates beautifully to the screen.\n\nThe performances are uniformly excellent. ${newMovie.cast ? newMovie.cast.split(',').slice(0, 2).join(' and ') : 'The lead actors'} deliver standout performances that anchor the film emotionally.\n\n${newMovie.imdbRating ? `With an IMDb rating of ${newMovie.imdbRating}/10, audience reception has been overwhelmingly positive.` : 'Audience reception has been positive across the board.'}\n\n**Our Rating: ${newMovie.imdbRating ? (parseFloat(newMovie.imdbRating) >= 8 ? '5/5 - Masterpiece' : parseFloat(newMovie.imdbRating) >= 7 ? '4/5 - Highly Recommended' : '3.5/5 - Worth Watching') : '4/5 - Recommended'}**`,
+      boxOffice: null,
+      trivia: `• ${newMovie.title} was released in ${newMovie.year} and quickly became a fan favorite in the ${newMovie.genres?.split(',')[0]?.trim() || 'entertainment'} genre.\n• The film features ${newMovie.cast ? newMovie.cast.split(',').length : 'numerous'} talented cast members bringing the story to life.\n• ${newMovie.directors ? `${newMovie.directors.split(',')[0]?.trim()} brought their unique vision to this project.` : 'The creative team worked tirelessly to bring this vision to life.'}\n• The movie has been praised for its compelling storytelling.`,
+      behindTheScenes: `The making of ${newMovie.title} involved months of preparation and dedication from the entire cast and crew.\n\n${newMovie.directors ? `${newMovie.directors.split(',')[0]?.trim()} approached this project with a clear artistic vision, working closely with the cast to achieve authentic performances.` : 'The creative team approached this project with dedication and passion.'}\n\n${newMovie.cast ? `Lead actors ${newMovie.cast.split(',').slice(0, 2).join(' and ')} underwent extensive preparation for their roles.` : 'The cast underwent extensive preparation for their roles.'}`,
+      awards: `${newMovie.title} has received recognition for its quality and impact:\n\n• ${newMovie.imdbRating && parseFloat(newMovie.imdbRating) >= 7.5 ? 'Critically acclaimed with high audience ratings' : 'Positive reception from audiences'}\n• Praised for quality production\n• ${newMovie.cast ? `${newMovie.cast.split(',')[0]?.trim()} received particular praise for their performance` : 'The ensemble cast received praise for their performances'}`,
+      author: 'StreamVault Editorial',
+      published: true,
+      featured: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    if (!data.blogPosts) data.blogPosts = [];
+    data.blogPosts.push(blogPost);
+    
     // Save data
     console.log('\n💾 Saving data...');
     fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
@@ -222,6 +248,7 @@ async function main() {
     console.log(`   Genres: ${newMovie.genres}`);
     console.log(`   Duration: ${newMovie.duration} min`);
     console.log(`   Category: ${newMovie.category}`);
+    console.log(`   Blog post: Created`);
     
   } catch (error) {
     console.error('\n❌ Error:', error.message);
