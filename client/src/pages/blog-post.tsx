@@ -88,6 +88,7 @@ export default function BlogPost() {
   // Parse blog post JSON fields
   let boxOfficeData: Record<string, string> = {};
   let triviaData: string[] = [];
+  let keywordsData: string[] = [];
   
   if (blogPost?.boxOffice) {
     try {
@@ -98,6 +99,12 @@ export default function BlogPost() {
   if (blogPost?.trivia) {
     try {
       triviaData = JSON.parse(blogPost.trivia);
+    } catch {}
+  }
+
+  if (blogPost?.keywords) {
+    try {
+      keywordsData = JSON.parse(blogPost.keywords);
     } catch {}
   }
 
@@ -613,6 +620,20 @@ export default function BlogPost() {
                 ))}
               </div>
             </div>
+
+            {/* Keywords from TMDB */}
+            {keywordsData.length > 0 && (
+              <div className="bg-card border border-border rounded-lg p-4">
+                <h3 className="font-bold mb-4">Keywords</h3>
+                <div className="flex flex-wrap gap-2">
+                  {keywordsData.map((keyword) => (
+                    <Badge key={keyword} variant="outline" className="text-xs">
+                      {keyword}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
