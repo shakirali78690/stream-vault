@@ -108,6 +108,24 @@ export default function BlogPost() {
     } catch {}
   }
 
+  // Parse season details for shows
+  interface SeasonDetail {
+    seasonNumber: number;
+    name: string;
+    overview: string;
+    airDate: string | null;
+    episodeCount: number;
+    posterPath: string | null;
+    trailerKey: string | null;
+    trailerName: string | null;
+  }
+  let seasonDetailsData: SeasonDetail[] = [];
+  if (blogPost?.seasonDetails) {
+    try {
+      seasonDetailsData = JSON.parse(blogPost.seasonDetails);
+    } catch {}
+  }
+
   // Extract trailer URL from trivia
   let trailerUrl: string | null = null;
   const trailerItem = triviaData.find(item => item.includes('youtube.com/watch'));
@@ -290,6 +308,75 @@ export default function BlogPost() {
             </section>
 
             {/* ============ DETAILED BLOG CONTENT SECTIONS (after Genres) ============ */}
+
+            {/* Season Details for Shows */}
+            {!isMovie && seasonDetailsData.length > 0 && (
+              <section>
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <Tv className="w-6 h-6 text-primary" />
+                  Season Guide
+                </h2>
+                <div className="space-y-6">
+                  {seasonDetailsData.map((season) => (
+                    <div key={season.seasonNumber} className="bg-card border border-border rounded-lg overflow-hidden">
+                      <div className="flex flex-col md:flex-row">
+                        {/* Season Poster */}
+                        {season.posterPath && (
+                          <div className="md:w-48 flex-shrink-0">
+                            <img
+                              src={season.posterPath}
+                              alt={season.name}
+                              className="w-full h-48 md:h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        
+                        {/* Season Info */}
+                        <div className="flex-1 p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-xl font-bold">{season.name}</h3>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              {season.airDate && (
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-4 h-4" />
+                                  {new Date(season.airDate).getFullYear()}
+                                </span>
+                              )}
+                              <Badge variant="outline">{season.episodeCount} Episodes</Badge>
+                            </div>
+                          </div>
+                          
+                          {season.overview && (
+                            <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                              {season.overview}
+                            </p>
+                          )}
+                          
+                          {/* Season Trailer */}
+                          {season.trailerKey && (
+                            <div className="mt-4">
+                              <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                                <Youtube className="w-4 h-4 text-red-500" />
+                                {season.trailerName || `Season ${season.seasonNumber} Trailer`}
+                              </h4>
+                              <div className="aspect-video rounded-lg overflow-hidden">
+                                <iframe
+                                  src={`https://www.youtube.com/embed/${season.trailerKey}`}
+                                  title={season.trailerName || `Season ${season.seasonNumber} Trailer`}
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                  className="w-full h-full"
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
             
             {/* Excerpt/Intro */}
             {blogPost?.excerpt && (

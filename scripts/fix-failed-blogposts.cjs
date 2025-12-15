@@ -91,7 +91,37 @@ async function fetchShowData(tmdbId) {
     fetchWithRetry(`${baseUrl}/keywords?api_key=${TMDB_API_KEY}`),
     fetchWithRetry(`${baseUrl}/videos?api_key=${TMDB_API_KEY}`)
   ]);
-  return { show, credits, reviews, keywords, videos };
+  
+  // Fetch season details with trailers
+  const seasonDetails = [];
+  const numSeasons = show.number_of_seasons || 0;
+  
+  for (let i = 1; i <= Math.min(numSeasons, 10); i++) {
+    try {
+      await new Promise(r => setTimeout(r, 200));
+      const [seasonData, seasonVideos] = await Promise.all([
+        fetchWithRetry(`${baseUrl}/season/${i}?api_key=${TMDB_API_KEY}`),
+        fetchWithRetry(`${baseUrl}/season/${i}/videos?api_key=${TMDB_API_KEY}`)
+      ]);
+      
+      const seasonTrailer = seasonVideos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+      
+      seasonDetails.push({
+        seasonNumber: i,
+        name: seasonData.name || `Season ${i}`,
+        overview: seasonData.overview || '',
+        airDate: seasonData.air_date || null,
+        episodeCount: seasonData.episodes?.length || 0,
+        posterPath: seasonData.poster_path ? `https://image.tmdb.org/t/p/w300${seasonData.poster_path}` : null,
+        trailerKey: seasonTrailer?.key || null,
+        trailerName: seasonTrailer?.name || null
+      });
+    } catch (err) {
+      // Skip failed seasons
+    }
+  }
+  
+  return { show, credits, reviews, keywords, videos, seasonDetails };
 }
 
 function generateMovieBlogPost(localMovie, movie, credits, reviews, keywords, videos) {
@@ -166,7 +196,7 @@ function generateMovieBlogPost(localMovie, movie, credits, reviews, keywords, vi
   };
 }
 
-function generateShowBlogPost(localShow, show, credits, reviews, keywords, videos) {
+function generateShowBlogPost(localShow, show, credits, reviews, keywords, videos, seasonDetails) {
   const castList = credits.cast?.slice(0, 10).map(c => c.name) || [];
   const creator = show.created_by?.[0]?.name || 'the showrunner';
   const lead1 = castList[0] || 'the lead actor';
@@ -226,6 +256,7 @@ function generateShowBlogPost(localShow, show, credits, reviews, keywords, video
     behindTheScenes: `The making of ${localShow.title} involved collaboration between ${productionCompanies}. ${creator !== 'the showrunner' ? `Creator ${creator} brought a unique vision to the project.` : ''}\n\n${composers ? `Composer ${composers} crafted the memorable score.` : ''}\n\nThe production aired on ${networks}, with the team working to bring this ambitious project to life across ${seasonText}.`,
     awards: null,
     keywords: JSON.stringify(keywordList),
+    seasonDetails: JSON.stringify(seasonDetails || []),
     author: 'StreamVault Team',
     published: true,
     featured: false,
@@ -307,9 +338,9 @@ async function main() {
     
     try {
       console.log(`   Processing: ${item.title} (TMDB ID: ${item.tmdbId})`);
-      const { show, credits, reviews, keywords, videos } = await fetchShowData(item.tmdbId);
+      const { show, credits, reviews, keywords, videos, seasonDetails } = await fetchShowData(item.tmdbId);
       
-      const blogPost = generateShowBlogPost(localShow, show, credits, reviews, keywords, videos);
+      const blogPost = generateShowBlogPost(localShow, show, credits, reviews, keywords, videos, seasonDetails);
       
       // Remove existing blog post if any
       const existingIndex = data.blogPosts.findIndex(b => b.contentId === localShow.id);

@@ -75,7 +75,37 @@ async function fetchShowDetails(tmdbId) {
     httpsGet(`${TMDB_BASE_URL}/tv/${tmdbId}/keywords?api_key=${TMDB_API_KEY}`),
     httpsGet(`${TMDB_BASE_URL}/tv/${tmdbId}/videos?api_key=${TMDB_API_KEY}&language=en-US`)
   ]);
-  return { show, credits, reviews, keywords, videos };
+  
+  // Fetch season details with trailers for each season
+  const seasonDetails = [];
+  const numSeasons = show.number_of_seasons || 0;
+  
+  for (let i = 1; i <= Math.min(numSeasons, 10); i++) { // Limit to 10 seasons to avoid too many requests
+    try {
+      await delay(200);
+      const [seasonData, seasonVideos] = await Promise.all([
+        httpsGet(`${TMDB_BASE_URL}/tv/${tmdbId}/season/${i}?api_key=${TMDB_API_KEY}&language=en-US`),
+        httpsGet(`${TMDB_BASE_URL}/tv/${tmdbId}/season/${i}/videos?api_key=${TMDB_API_KEY}&language=en-US`)
+      ]);
+      
+      const seasonTrailer = seasonVideos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+      
+      seasonDetails.push({
+        seasonNumber: i,
+        name: seasonData.name || `Season ${i}`,
+        overview: seasonData.overview || '',
+        airDate: seasonData.air_date || null,
+        episodeCount: seasonData.episodes?.length || 0,
+        posterPath: seasonData.poster_path ? `https://image.tmdb.org/t/p/w300${seasonData.poster_path}` : null,
+        trailerKey: seasonTrailer?.key || null,
+        trailerName: seasonTrailer?.name || null
+      });
+    } catch (err) {
+      // Skip failed seasons
+    }
+  }
+  
+  return { show, credits, reviews, keywords, videos, seasonDetails };
 }
 
 function generateMovieBlogPost(localMovie, tmdbData) {
@@ -159,7 +189,7 @@ function generateMovieBlogPost(localMovie, tmdbData) {
 }
 
 function generateShowBlogPost(localShow, tmdbData) {
-  const { show, credits, reviews, keywords, videos } = tmdbData;
+  const { show, credits, reviews, keywords, videos, seasonDetails } = tmdbData;
   
   const genre1 = localShow.genres?.split(',')[0]?.trim() || 'Drama';
   const genre2 = localShow.genres?.split(',')[1]?.trim() || '';
@@ -223,6 +253,7 @@ function generateShowBlogPost(localShow, tmdbData) {
     behindTheScenes: `The making of ${localShow.title} was an ambitious undertaking spanning ${seasonText}. ${creator !== 'the showrunner' ? `Created by ${creator}, the` : 'The'} series was produced by ${productionCompanies} for ${networks}.\n\n${execProducers ? `Executive producers ${execProducers} oversaw the production, ensuring quality across all ${totalEpisodes} episodes.` : ''}\n\n${lead1}'s preparation was notable on set. Their commitment elevated the entire production.\n\nThe production originated from ${productionCountries}, bringing authentic perspectives to the storytelling.\n\n${composers ? `Composer ${composers} created the series' memorable score.` : ''}`,
     awards: `${localShow.title} has received recognition:\n\n• TMDB Rating: ${show.vote_average?.toFixed(1)}/10 (${voteCount.toLocaleString()} votes)\n• Popularity Score: ${popularity}\n• Status: ${status}\n• Network: ${networks}\n${parseFloat(show.vote_average) >= 7.5 ? '• Critically acclaimed\n' : '• Positive reception\n'}• ${lead1} received praise for their performance\n• ${creator !== 'the showrunner' ? `${creator} recognized for creating the series` : 'Creative team recognized'}\n${composers ? `• ${composers} recognized for the musical score\n` : ''}• Produced by ${productionCompanies}`,
     keywords: JSON.stringify(keywordList),
+    seasonDetails: JSON.stringify(seasonDetails || []),
     author: 'StreamVault Editorial',
     published: true,
     featured: false,

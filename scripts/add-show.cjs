@@ -173,6 +173,11 @@ async function fetchSeasonData(showId, seasonNumber) {
   return await httpsGet(seasonUrl);
 }
 
+async function fetchSeasonVideos(showId, seasonNumber) {
+  const videosUrl = `${TMDB_BASE_URL}/tv/${showId}/season/${seasonNumber}/videos?api_key=${TMDB_API_KEY}&language=en-US`;
+  return await httpsGet(videosUrl);
+}
+
 async function main() {
   console.log('📺 StreamVault Show Adder');
   console.log('=========================\n');
@@ -262,14 +267,38 @@ async function main() {
       castDetails: JSON.stringify(castDetails)
     };
     
-    // Collect episodes for each season
+    // Collect episodes and season details for each season
     const episodes = [];
+    const seasonDetailsList = [];
     
     for (const seasonNum of seasonsToAdd) {
       console.log(`\n📺 Season ${seasonNum}`);
       console.log('─'.repeat(40));
       
       const seasonData = await fetchSeasonData(showId, seasonNum);
+      
+      // Fetch season-specific videos/trailers
+      let seasonVideos = { results: [] };
+      try {
+        await delay(200);
+        seasonVideos = await fetchSeasonVideos(showId, seasonNum);
+      } catch (err) {
+        // Ignore errors fetching season videos
+      }
+      
+      const seasonTrailer = seasonVideos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+      
+      // Add season details
+      seasonDetailsList.push({
+        seasonNumber: seasonNum,
+        name: seasonData.name || `Season ${seasonNum}`,
+        overview: seasonData.overview || '',
+        airDate: seasonData.air_date || null,
+        episodeCount: seasonData.episodes?.length || 0,
+        posterPath: seasonData.poster_path ? `https://image.tmdb.org/t/p/w300${seasonData.poster_path}` : null,
+        trailerKey: seasonTrailer?.key || null,
+        trailerName: seasonTrailer?.name || null
+      });
       
       if (!seasonData.episodes || seasonData.episodes.length === 0) {
         console.log(`   No episodes found for season ${seasonNum}`);
@@ -402,6 +431,7 @@ async function main() {
       behindTheScenes: `The making of ${newShow.title} was an ambitious undertaking spanning ${seasonText}. ${creator !== 'the showrunner' ? `Created by ${creator}, the` : 'The'} series was produced by ${productionCompanies} for ${networks}.\n\n${execProducers ? `Executive producers ${execProducers} oversaw the production, ensuring quality across all ${totalEpisodes} episodes.` : 'The executive production team ensured quality across all episodes.'}\n\nPre-production involved extensive research and planning to ensure authenticity. The production team worked meticulously on every detail, from set design to costume choices.\n\n${lead1}'s preparation was notable on set. Their commitment to the role elevated the entire production, with co-stars reporting that this dedication inspired everyone's performance.\n\nThe production originated from ${productionCountries}, bringing authentic perspectives to the storytelling. Every department contributed to creating the immersive world audiences see on screen.\n\n${composers ? `Composer ${composers} created the series' memorable score, which enhances the emotional impact of key scenes.` : 'The musical score was carefully crafted to enhance the emotional journey.'}\n\nPost-production for each season involved careful editing, color grading, and sound design to create the polished final product.`,
       awards: `${newShow.title} has received recognition for its quality:\n\n• TMDB Rating: ${newShow.imdbRating}/10 (${voteCount.toLocaleString()} votes)\n• Popularity Score: ${popularity}\n• Status: ${status}\n• Network: ${networks}\n${parseFloat(newShow.imdbRating) >= 7.5 ? '• Critically acclaimed with high audience ratings\n' : '• Positive reception from audiences\n'}• ${lead1} received praise for their performance\n• ${creator !== 'the showrunner' ? `${creator} recognized for creating the series` : 'Creative team recognized for strong showrunning'}\n${composers ? `• ${composers} recognized for the musical score\n` : ''}• Produced by ${productionCompanies}`,
       keywords: JSON.stringify(keywordList),
+      seasonDetails: JSON.stringify(seasonDetailsList),
       author: 'StreamVault Editorial',
       published: true,
       featured: false,
