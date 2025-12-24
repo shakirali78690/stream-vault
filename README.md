@@ -470,83 +470,43 @@ MIT License - feel free to use for personal or commercial projects
 
 ---
 
+## 🎥 Demo Video
+
+See StreamVault in action:
+
+![Website Demo](./screenshots/website-demo.webp)
+
+---
+
 ## 📸 Screenshots
 
 ### 🏠 Homepage
-Beautiful Netflix-inspired homepage with hero carousel and content rows.
+Beautiful Netflix-inspired homepage with hero carousel and trending content rows.
 
 ![Homepage](./screenshots/homepage.png)
 
 ---
 
-### 🎬 Shows Page
-Browse all TV shows with clean card design and hover effects.
-
-![Shows Page](./screenshots/shows-page.png)
-
----
-
 ### 🎥 Movies Page
-Explore movies with featured carousel and genre-based rows.
+Browse all movies with clean card design, ratings, and hover effects.
 
 ![Movies Page](./screenshots/movies-page.png)
 
 ---
 
 ### 📺 Show Detail Page
-Comprehensive show information with seasons, episodes, and cast details.
+Comprehensive show information with seasons, episodes, cast, and production companies.
 
 ![Show Detail](./screenshots/show-detail.png)
 
 ---
 
-### 🎞️ Movie Detail Page
-Movie details with watchlist, share, and play functionality.
+### 📝 Blog Article Page
+SEO-optimized blog articles with trailers, cast info, trivia, and external links.
 
-![Movie Detail](./screenshots/movie-detail.png)
-
----
-
-### ▶️ Video Player (Shows)
-Netflix-style player with episode navigation and progress tracking.
-
-![Video Player - Shows](./screenshots/video-player-show.png)
-
----
-
-### 🎬 Video Player (Movies)
-Clean movie player with Google Drive integration.
-
-![Video Player - Movies](./screenshots/video-player-movie.png)
-
----
-
-### 🔍 Search Page
-Advanced search with genre filters and year range selection.
-
-![Search Page](./screenshots/search-page.png)
-
----
-
-### 📑 Category Page
-Browse content by genre with tabs for shows and movies.
-
-![Category Page](./screenshots/category-page.png)
-
----
-
-### 🔖 Watchlist
-Unified watchlist with tabs for all content, shows, and movies.
-
-![Watchlist](./screenshots/watchlist.png)
-
----
-
-### 📱 Mobile View
-Fully responsive design optimized for mobile devices.
-
-![Mobile View](./screenshots/mobile-view.png)
+![Blog Article](./screenshots/blog-article.png)
 
 ---
 
 **Ready to stream? Run `npm run dev` and visit http://localhost:5000** 🎬
+
