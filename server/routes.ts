@@ -1309,29 +1309,152 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const emailHTML = `
 <!DOCTYPE html>
-<html>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:Arial,sans-serif;">
-  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#0a0a0a;">
-    <tr><td align="center" style="padding:20px;">
-      <table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;">
-        <tr><td style="background:linear-gradient(135deg,#e50914,#8b0000);padding:40px 30px;text-align:center;border-radius:12px 12px 0 0;">
-          <h1 style="margin:0;color:#fff;font-size:36px;font-weight:800;">StreamVault</h1>
-          <p style="margin:12px 0 0 0;color:rgba(255,255,255,0.9);font-size:15px;">🎬 Your Weekly Entertainment Digest</p>
-        </td></tr>
-        <tr><td style="background:#141414;padding:30px;">
-          <h2 style="text-align:center;color:#fff;margin:0 0 30px 0;">What's Hot This Week 🔥</h2>
-          ${newShows.length > 0 ? `<h3 style="color:#e50914;border-left:4px solid #e50914;padding-left:12px;">📺 Featured TV Shows</h3><table cellpadding="0" cellspacing="0" border="0" width="100%">${generateContentRow(newShows, 'show')}</table>` : ''}
-          ${newMovies.length > 0 ? `<h3 style="color:#e50914;border-left:4px solid #e50914;padding-left:12px;margin-top:25px;">🎬 Featured Movies</h3><table cellpadding="0" cellspacing="0" border="0" width="100%">${generateContentRow(newMovies, 'movie')}</table>` : ''}
-          <div style="text-align:center;margin:30px 0;"><a href="https://streamvault.live" style="display:inline-block;background:#e50914;color:#fff;padding:16px 50px;border-radius:50px;text-decoration:none;font-weight:700;">🎬 Browse All Content</a></div>
-        </td></tr>
-        <tr><td style="background:#0d0d0d;padding:30px;text-align:center;border-radius:0 0 12px 12px;">
-          <p style="margin:0;color:#444;font-size:12px;">© 2024 StreamVault. All rights reserved.</p>
-        </td></tr>
-      </table>
-    </td></tr>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StreamVault Weekly Newsletter</title>
+</head>
+<body style="margin:0;padding:0;background-color:#0a0a0a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#0a0a0a;">
+    <tr>
+      <td align="center" style="padding:20px;">
+        <table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;">
+          
+          <!-- Header Banner -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#e50914 0%,#b20710 50%,#8b0000 100%);padding:40px 30px;text-align:center;border-radius:12px 12px 0 0;">
+              <h1 style="margin:0;color:#ffffff;font-size:36px;font-weight:800;letter-spacing:-1px;">StreamVault</h1>
+              <p style="margin:12px 0 0 0;color:rgba(255,255,255,0.9);font-size:15px;">🎬 Your Weekly Entertainment Digest</p>
+            </td>
+          </tr>
+
+          <!-- Main Content -->
+          <tr>
+            <td style="background-color:#141414;padding:30px;">
+              
+              <!-- Welcome Message -->
+              <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td style="text-align:center;padding-bottom:30px;border-bottom:1px solid #2a2a2a;">
+                    <h2 style="margin:0 0 10px 0;color:#ffffff;font-size:24px;font-weight:600;">What's Hot This Week 🔥</h2>
+                    <p style="margin:0;color:#888888;font-size:15px;">Handpicked entertainment just for you</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- TV Shows Section -->
+              ${newShows.length > 0 ? `
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:25px;">
+                <tr>
+                  <td style="padding:12px 0;">
+                    <h3 style="margin:0;color:#e50914;font-size:18px;font-weight:700;border-left:4px solid #e50914;padding-left:12px;">📺 Featured TV Shows</h3>
+                  </td>
+                </tr>
+                ${generateContentRow(newShows, 'show')}
+              </table>
+              ` : ''}
+
+              <!-- Movies Section -->
+              ${newMovies.length > 0 ? `
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:25px;">
+                <tr>
+                  <td style="padding:12px 0;">
+                    <h3 style="margin:0;color:#e50914;font-size:18px;font-weight:700;border-left:4px solid #e50914;padding-left:12px;">🎬 Featured Movies</h3>
+                  </td>
+                </tr>
+                ${generateContentRow(newMovies, 'movie')}
+              </table>
+              ` : ''}
+
+              <!-- Blog Section -->
+              ${latestBlogs.length > 0 ? `
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:25px;">
+                <tr>
+                  <td style="padding:12px 0;">
+                    <h3 style="margin:0;color:#e50914;font-size:18px;font-weight:700;border-left:4px solid #e50914;padding-left:12px;">📰 Latest Articles</h3>
+                  </td>
+                </tr>
+                ${latestBlogs.map((blog: any) => `
+                <tr>
+                  <td style="padding:12px 0;border-bottom:1px solid #2a2a2a;">
+                    <a href="https://streamvault.live/blog/${blog.slug}" style="text-decoration:none;">
+                      <h4 style="margin:0 0 6px 0;color:#ffffff;font-size:16px;font-weight:600;">${blog.title}</h4>
+                      <p style="margin:0;color:#888;font-size:13px;">${(blog.excerpt || '').substring(0, 100)}...</p>
+                    </a>
+                  </td>
+                </tr>
+                `).join('')}
+              </table>
+              ` : ''}
+
+              <!-- Stats Banner -->
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:30px;background:linear-gradient(135deg,#1a1a1a,#252525);border-radius:10px;">
+                <tr>
+                  <td style="padding:25px;text-align:center;">
+                    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                      <tr>
+                        <td width="33%" style="text-align:center;">
+                          <p style="margin:0;color:#e50914;font-size:28px;font-weight:700;">370+</p>
+                          <p style="margin:5px 0 0 0;color:#888;font-size:12px;text-transform:uppercase;">TV Shows</p>
+                        </td>
+                        <td width="33%" style="text-align:center;border-left:1px solid #333;border-right:1px solid #333;">
+                          <p style="margin:0;color:#e50914;font-size:28px;font-weight:700;">250+</p>
+                          <p style="margin:5px 0 0 0;color:#888;font-size:12px;text-transform:uppercase;">Movies</p>
+                        </td>
+                        <td width="33%" style="text-align:center;">
+                          <p style="margin:0;color:#e50914;font-size:28px;font-weight:700;">HD</p>
+                          <p style="margin:5px 0 0 0;color:#888;font-size:12px;text-transform:uppercase;">Quality</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA Button -->
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:30px;">
+                <tr>
+                  <td style="text-align:center;">
+                    <a href="https://streamvault.live" style="display:inline-block;background:linear-gradient(90deg,#e50914,#b20710);color:#ffffff;padding:16px 50px;border-radius:50px;text-decoration:none;font-size:16px;font-weight:700;box-shadow:0 4px 15px rgba(229,9,20,0.4);">
+                      🎬 Browse All Content
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#0d0d0d;padding:30px;text-align:center;border-radius:0 0 12px 12px;">
+              <!-- Social Links -->
+              <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin-bottom:20px;">
+                <tr>
+                  <td style="padding:0 8px;"><a href="https://twitter.streamvault.in" style="color:#888;text-decoration:none;font-size:13px;">Twitter</a></td>
+                  <td style="color:#444;">•</td>
+                  <td style="padding:0 8px;"><a href="https://instagram.streamvault.in" style="color:#888;text-decoration:none;font-size:13px;">Instagram</a></td>
+                  <td style="color:#444;">•</td>
+                  <td style="padding:0 8px;"><a href="https://telegram.streamvault.in" style="color:#888;text-decoration:none;font-size:13px;">Telegram</a></td>
+                  <td style="color:#444;">•</td>
+                  <td style="padding:0 8px;"><a href="https://whatsapp.streamvault.in" style="color:#888;text-decoration:none;font-size:13px;">WhatsApp</a></td>
+                  <td style="color:#444;">•</td>
+                  <td style="padding:0 8px;"><a href="https://facebook.streamvault.in" style="color:#888;text-decoration:none;font-size:13px;">Facebook</a></td>
+                </tr>
+              </table>
+              <p style="margin:0 0 10px 0;color:#555;font-size:12px;">You received this email because you subscribed to StreamVault newsletter.</p>
+              <p style="margin:0;color:#444;font-size:12px;">© 2024 StreamVault. All rights reserved.</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
   </table>
 </body>
-</html>`;
+</html>
+      `;
 
       const subject = '🎬 StreamVault Weekly: Top Picks Just For You!';
 
