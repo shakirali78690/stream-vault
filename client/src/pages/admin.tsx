@@ -152,7 +152,7 @@ export default function AdminPage() {
 
           {/* Push Notifications Tab */}
           <TabsContent value="push">
-            <PushNotificationManager />
+            <PushNotificationManager shows={shows} movies={movies} />
           </TabsContent>
 
           {/* Add Show Tab */}
@@ -2748,25 +2748,20 @@ function NewsletterManager() {
 }
 
 // Push Notification Manager Component
-function PushNotificationManager() {
+function PushNotificationManager({ shows, movies }: { shows: Show[]; movies: Movie[] }) {
   const [subscriberCount, setSubscriberCount] = useState(0);
   const [isSending, setIsSending] = useState(false);
   const [sendResult, setSendResult] = useState<{ sent: number; failed: number } | null>(null);
-  const [notificationType, setNotificationType] = useState<'custom' | 'show' | 'movie'>('custom');
+  const [notificationType, setNotificationType] = useState<'custom' | 'show' | 'movie' | 'episode'>('custom');
+  const [selectedShowId, setSelectedShowId] = useState<number | null>(null);
   const [selectedContentId, setSelectedContentId] = useState<number | null>(null);
   const [customTitle, setCustomTitle] = useState('');
   const [customBody, setCustomBody] = useState('');
   const [customUrl, setCustomUrl] = useState('');
   const { toast } = useToast();
 
-  // Fetch shows and movies for selection
-  const { data: shows = [] } = useQuery<Show[]>({
-    queryKey: ['/api/shows'],
-  });
-
-  const { data: movies = [] } = useQuery<Movie[]>({
-    queryKey: ['/api/movies'],
-  });
+  // Get episodes for selected show
+  const selectedShow = shows.find(s => Number(s.id) === selectedShowId);
 
   // Fetch subscriber count
   useEffect(() => {
@@ -2892,12 +2887,14 @@ function PushNotificationManager() {
                 onChange={(e) => {
                   setNotificationType(e.target.value as any);
                   setSelectedContentId(null);
+                  setSelectedShowId(null);
                 }}
                 className="w-full p-2 bg-background border rounded-lg"
               >
                 <option value="custom">Custom Message</option>
                 <option value="show">New Show Added</option>
                 <option value="movie">New Movie Added</option>
+                <option value="episode">New Episode Added</option>
               </select>
             </div>
 
@@ -2949,7 +2946,7 @@ function PushNotificationManager() {
                   ))}
                 </select>
               </div>
-            ) : (
+            ) : notificationType === 'movie' ? (
               <div>
                 <label className="text-sm font-medium mb-1 block">Select Movie</label>
                 <select
@@ -2965,7 +2962,45 @@ function PushNotificationManager() {
                   ))}
                 </select>
               </div>
-            )}
+            ) : notificationType === 'episode' ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Select Show</label>
+                  <select
+                    value={selectedShowId || ''}
+                    onChange={(e) => {
+                      setSelectedShowId(Number(e.target.value));
+                      setSelectedContentId(null);
+                    }}
+                    className="w-full p-2 bg-background border rounded-lg"
+                  >
+                    <option value="">-- Select a show --</option>
+                    {shows.slice(0, 50).map((show) => (
+                      <option key={show.id} value={show.id}>
+                        {show.title} ({show.year})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {selectedShow && (selectedShow as any).episodes && (
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Select Episode</label>
+                    <select
+                      value={selectedContentId || ''}
+                      onChange={(e) => setSelectedContentId(Number(e.target.value))}
+                      className="w-full p-2 bg-background border rounded-lg"
+                    >
+                      <option value="">-- Select an episode --</option>
+                      {((selectedShow as any).episodes || []).map((ep: any) => (
+                        <option key={ep.id} value={ep.id}>
+                          S{ep.seasonNumber}E{ep.episodeNumber} - {ep.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+            ) : null}
 
             <Button
               onClick={handleSendNotification}
