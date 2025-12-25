@@ -2696,6 +2696,41 @@ function NewsletterManager() {
                       Subscribed: {new Date(sub.subscribedAt).toLocaleDateString()} • Source: {sub.source}
                     </p>
                   </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={async () => {
+                      try {
+                        const res = await fetch("/api/admin/newsletter/send-one", {
+                          method: "POST",
+                          headers: getAuthHeaders(),
+                          body: JSON.stringify({ email: sub.email }),
+                        });
+                        const data = await res.json();
+                        if (res.ok) {
+                          toast({
+                            title: "Sent!",
+                            description: `Newsletter sent to ${sub.email}`,
+                          });
+                        } else {
+                          toast({
+                            title: "Failed",
+                            description: data.error || "Failed to send",
+                            variant: "destructive",
+                          });
+                        }
+                      } catch (err) {
+                        toast({
+                          title: "Error",
+                          description: "Failed to send newsletter",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                  >
+                    <Send className="w-3 h-3 mr-1" />
+                    Send
+                  </Button>
                 </div>
               ))}
             </div>

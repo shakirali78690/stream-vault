@@ -1231,6 +1231,138 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Send newsletter to single subscriber (admin only)
+  app.post("/api/admin/newsletter/send-one", requireAdmin, async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+
+      const DATA_FILE = path.join(__dirname, "..", "data", "streamvault-data.json");
+      const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
+      if (!RESEND_API_KEY) {
+        return res.status(400).json({ error: "RESEND_API_KEY not configured" });
+      }
+
+      // Load content data
+      if (!existsSync(DATA_FILE)) {
+        return res.status(400).json({ error: "No content data found" });
+      }
+
+      const contentData = JSON.parse(readFileSync(DATA_FILE, "utf-8"));
+
+      // Get featured content
+      let newShows = (contentData.shows || [])
+        .filter((s: any) => s.trending || s.featured)
+        .slice(0, 6);
+      if (newShows.length === 0) {
+        newShows = (contentData.shows || []).slice(0, 6);
+      }
+
+      let newMovies = (contentData.movies || [])
+        .filter((m: any) => m.trending || m.featured)
+        .slice(0, 6);
+      if (newMovies.length === 0) {
+        newMovies = (contentData.movies || []).slice(0, 6);
+      }
+
+      // Get blog posts
+      const blogPosts = await storage.getAllBlogPosts();
+      const latestBlogs = blogPosts.filter((b: any) => b.featured).slice(0, 3) || blogPosts.slice(0, 3);
+
+      // Generate email HTML (simplified version)
+      const generateContentRow = (items: any[], type: string) => {
+        return items.slice(0, 3).map((item: any) => {
+          const url = type === 'show'
+            ? `https://streamvault.live/show/${item.slug}`
+            : `https://streamvault.live/movie/${item.slug}`;
+          return `
+            <tr>
+              <td style="padding:15px 0;border-bottom:1px solid #2a2a2a;">
+                <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                  <tr>
+                    <td width="100" style="vertical-align:top;">
+                      <a href="${url}">
+                        <img src="${item.posterUrl}" alt="${item.title}" width="100" height="150" style="border-radius:8px;display:block;object-fit:cover;">
+                      </a>
+                    </td>
+                    <td style="padding-left:20px;vertical-align:top;">
+                      <a href="${url}" style="text-decoration:none;">
+                        <h3 style="margin:0 0 8px 0;font-size:18px;color:#ffffff;font-weight:600;">${item.title}</h3>
+                      </a>
+                      <p style="margin:0 0 8px 0;color:#888888;font-size:13px;">
+                        ${item.year} ${item.imdbRating ? '• ⭐ ' + item.imdbRating : ''}
+                      </p>
+                      <a href="${url}" style="display:inline-block;background:#e50914;color:#ffffff;padding:10px 24px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:600;">
+                        ▶ Watch Now
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      };
+
+      const emailHTML = `
+<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:Arial,sans-serif;">
+  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#0a0a0a;">
+    <tr><td align="center" style="padding:20px;">
+      <table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;">
+        <tr><td style="background:linear-gradient(135deg,#e50914,#8b0000);padding:40px 30px;text-align:center;border-radius:12px 12px 0 0;">
+          <h1 style="margin:0;color:#fff;font-size:36px;font-weight:800;">StreamVault</h1>
+          <p style="margin:12px 0 0 0;color:rgba(255,255,255,0.9);font-size:15px;">🎬 Your Weekly Entertainment Digest</p>
+        </td></tr>
+        <tr><td style="background:#141414;padding:30px;">
+          <h2 style="text-align:center;color:#fff;margin:0 0 30px 0;">What's Hot This Week 🔥</h2>
+          ${newShows.length > 0 ? `<h3 style="color:#e50914;border-left:4px solid #e50914;padding-left:12px;">📺 Featured TV Shows</h3><table cellpadding="0" cellspacing="0" border="0" width="100%">${generateContentRow(newShows, 'show')}</table>` : ''}
+          ${newMovies.length > 0 ? `<h3 style="color:#e50914;border-left:4px solid #e50914;padding-left:12px;margin-top:25px;">🎬 Featured Movies</h3><table cellpadding="0" cellspacing="0" border="0" width="100%">${generateContentRow(newMovies, 'movie')}</table>` : ''}
+          <div style="text-align:center;margin:30px 0;"><a href="https://streamvault.live" style="display:inline-block;background:#e50914;color:#fff;padding:16px 50px;border-radius:50px;text-decoration:none;font-weight:700;">🎬 Browse All Content</a></div>
+        </td></tr>
+        <tr><td style="background:#0d0d0d;padding:30px;text-align:center;border-radius:0 0 12px 12px;">
+          <p style="margin:0;color:#444;font-size:12px;">© 2024 StreamVault. All rights reserved.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+      const subject = '🎬 StreamVault Weekly: Top Picks Just For You!';
+
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'StreamVault <noreply@streamvault.live>',
+          to: [email],
+          subject: subject,
+          html: emailHTML,
+        }),
+      });
+
+      if (response.ok) {
+        console.log(`✅ Newsletter sent to ${email}`);
+        res.json({ success: true, message: `Newsletter sent to ${email}` });
+      } else {
+        const errorText = await response.text();
+        console.error(`❌ Failed to send to ${email}:`, errorText);
+        res.status(500).json({ error: `Failed to send: ${errorText}` });
+      }
+    } catch (error: any) {
+      console.error("Newsletter send error:", error);
+      res.status(500).json({ error: error.message || "Failed to send newsletter" });
+    }
+  });
+
   // Send newsletter (admin only) - inline version to avoid child_process
   app.post("/api/admin/newsletter/send", requireAdmin, async (_req, res) => {
     try {
