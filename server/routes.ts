@@ -1347,9 +1347,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             sent++;
             console.log(`✅ Newsletter sent to ${subscriber.email}`);
           } else {
+            const errorText = await response.text();
+            console.error(`❌ Failed to send to ${subscriber.email}:`, errorText);
             failed++;
           }
-        } catch (err) {
+        } catch (err: any) {
+          console.error(`❌ Error sending to ${subscriber.email}:`, err.message);
           failed++;
         }
 
