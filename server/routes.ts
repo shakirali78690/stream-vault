@@ -1352,7 +1352,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If content type is specified, fetch content details
       if (type && contentId) {
         if (type === 'show') {
-          const shows = await storage.getShows();
+          const shows = await storage.getAllShows();
           const show = shows.find((s: any) => s.id === contentId);
           if (show) {
             notificationTitle = `🎬 New on StreamVault: ${show.title}`;
@@ -1361,7 +1361,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             notificationIcon = show.posterUrl || notificationIcon;
           }
         } else if (type === 'movie') {
-          const movies = await storage.getMovies();
+          const movies = await storage.getAllMovies();
           const movie = movies.find((m: any) => m.id === contentId);
           if (movie) {
             notificationTitle = `🎬 New Movie: ${movie.title}`;

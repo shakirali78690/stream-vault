@@ -101,7 +101,7 @@ export default function AdminPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-10 mb-8">
+          <TabsList className="grid w-full grid-cols-11 mb-8">
             <TabsTrigger value="shows">Shows</TabsTrigger>
             <TabsTrigger value="movies">Movies</TabsTrigger>
             <TabsTrigger value="blog">Blog</TabsTrigger>
@@ -109,6 +109,7 @@ export default function AdminPage() {
             <TabsTrigger value="requests">Requests</TabsTrigger>
             <TabsTrigger value="reports">Reports</TabsTrigger>
             <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
+            <TabsTrigger value="push">Push</TabsTrigger>
             <TabsTrigger value="add-show">Add Show</TabsTrigger>
             <TabsTrigger value="add-episode">Add Episode</TabsTrigger>
             <TabsTrigger value="import">Import</TabsTrigger>
@@ -147,6 +148,11 @@ export default function AdminPage() {
           {/* Newsletter Tab */}
           <TabsContent value="newsletter">
             <NewsletterManager />
+          </TabsContent>
+
+          {/* Push Notifications Tab */}
+          <TabsContent value="push">
+            <PushNotificationManager />
           </TabsContent>
 
           {/* Add Show Tab */}
@@ -2735,6 +2741,241 @@ function NewsletterManager() {
               ))}
             </div>
           )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Push Notification Manager Component
+function PushNotificationManager() {
+  const [subscriberCount, setSubscriberCount] = useState(0);
+  const [isSending, setIsSending] = useState(false);
+  const [sendResult, setSendResult] = useState<{ sent: number; failed: number } | null>(null);
+  const [notificationType, setNotificationType] = useState<'custom' | 'show' | 'movie'>('custom');
+  const [selectedContentId, setSelectedContentId] = useState<number | null>(null);
+  const [customTitle, setCustomTitle] = useState('');
+  const [customBody, setCustomBody] = useState('');
+  const [customUrl, setCustomUrl] = useState('');
+  const { toast } = useToast();
+
+  // Fetch shows and movies for selection
+  const { data: shows = [] } = useQuery<Show[]>({
+    queryKey: ['/api/shows'],
+  });
+
+  const { data: movies = [] } = useQuery<Movie[]>({
+    queryKey: ['/api/movies'],
+  });
+
+  // Fetch subscriber count
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const res = await fetch('/api/admin/push/subscribers', {
+          headers: getAuthHeaders(),
+        });
+        const data = await res.json();
+        setSubscriberCount(data.count || 0);
+      } catch (e) {
+        console.error('Failed to fetch push subscriber count');
+      }
+    };
+    fetchCount();
+  }, []);
+
+  const handleSendNotification = async () => {
+    if (subscriberCount === 0) {
+      toast({
+        title: "No Subscribers",
+        description: "There are no push notification subscribers yet.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      const payload: any = {};
+
+      if (notificationType === 'custom') {
+        if (!customTitle || !customBody) {
+          toast({
+            title: "Missing Fields",
+            description: "Please fill in title and body for custom notification.",
+            variant: "destructive",
+          });
+          setIsSending(false);
+          return;
+        }
+        payload.title = customTitle;
+        payload.body = customBody;
+        payload.url = customUrl || 'https://streamvault.live';
+      } else {
+        if (!selectedContentId) {
+          toast({
+            title: "Select Content",
+            description: `Please select a ${notificationType} to notify about.`,
+            variant: "destructive",
+          });
+          setIsSending(false);
+          return;
+        }
+        payload.type = notificationType;
+        payload.contentId = selectedContentId;
+      }
+
+      const res = await fetch('/api/admin/push/send', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setSendResult({ sent: data.sent, failed: data.failed });
+        toast({
+          title: "Push Sent! 🔔",
+          description: `Sent to ${data.sent} subscribers`,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || "Failed to send push notification",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send push notification",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  return (
+    <div className="grid gap-6">
+      {/* Stats Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            🔔 Push Notifications
+          </CardTitle>
+          <CardDescription>Send push notifications to browser subscribers</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="p-4 bg-muted rounded-lg text-center">
+              <p className="text-3xl font-bold text-primary">{subscriberCount}</p>
+              <p className="text-sm text-muted-foreground">Push Subscribers</p>
+            </div>
+            <div className="p-4 bg-muted rounded-lg text-center">
+              <p className="text-3xl font-bold text-green-500">{sendResult?.sent || 0}</p>
+              <p className="text-sm text-muted-foreground">Last Send Success</p>
+            </div>
+            <div className="p-4 bg-muted rounded-lg text-center">
+              <p className="text-3xl font-bold text-red-500">{sendResult?.failed || 0}</p>
+              <p className="text-sm text-muted-foreground">Last Send Failed</p>
+            </div>
+          </div>
+
+          {/* Notification Type Selection */}
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Notification Type</label>
+              <select
+                value={notificationType}
+                onChange={(e) => {
+                  setNotificationType(e.target.value as any);
+                  setSelectedContentId(null);
+                }}
+                className="w-full p-2 bg-background border rounded-lg"
+              >
+                <option value="custom">Custom Message</option>
+                <option value="show">New Show Added</option>
+                <option value="movie">New Movie Added</option>
+              </select>
+            </div>
+
+            {notificationType === 'custom' ? (
+              <>
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Title</label>
+                  <input
+                    type="text"
+                    value={customTitle}
+                    onChange={(e) => setCustomTitle(e.target.value)}
+                    placeholder="🎬 New on StreamVault!"
+                    className="w-full p-2 bg-background border rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Body</label>
+                  <textarea
+                    value={customBody}
+                    onChange={(e) => setCustomBody(e.target.value)}
+                    placeholder="Check out our latest content..."
+                    className="w-full p-2 bg-background border rounded-lg h-20"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-1 block">URL (optional)</label>
+                  <input
+                    type="text"
+                    value={customUrl}
+                    onChange={(e) => setCustomUrl(e.target.value)}
+                    placeholder="https://streamvault.live"
+                    className="w-full p-2 bg-background border rounded-lg"
+                  />
+                </div>
+              </>
+            ) : notificationType === 'show' ? (
+              <div>
+                <label className="text-sm font-medium mb-1 block">Select Show</label>
+                <select
+                  value={selectedContentId || ''}
+                  onChange={(e) => setSelectedContentId(Number(e.target.value))}
+                  className="w-full p-2 bg-background border rounded-lg"
+                >
+                  <option value="">-- Select a show --</option>
+                  {shows.slice(0, 50).map((show) => (
+                    <option key={show.id} value={show.id}>
+                      {show.title} ({show.year})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <div>
+                <label className="text-sm font-medium mb-1 block">Select Movie</label>
+                <select
+                  value={selectedContentId || ''}
+                  onChange={(e) => setSelectedContentId(Number(e.target.value))}
+                  className="w-full p-2 bg-background border rounded-lg"
+                >
+                  <option value="">-- Select a movie --</option>
+                  {movies.slice(0, 50).map((movie) => (
+                    <option key={movie.id} value={movie.id}>
+                      {movie.title} ({movie.year})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <Button
+              onClick={handleSendNotification}
+              disabled={isSending || subscriberCount === 0}
+              className="w-full bg-primary"
+            >
+              <Send className="w-4 h-4 mr-2" />
+              {isSending ? "Sending..." : `Send Push to ${subscriberCount} Subscribers`}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
