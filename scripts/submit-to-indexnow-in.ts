@@ -1,12 +1,13 @@
 /**
- * IndexNow API - Automated URL Submission (streamvault.in)
+ * IndexNow API - Automated URL Submission (www.streamvault.in ONLY)
+ * Submits ONLY show/movie detail pages (not watch pages)
  */
 
 import { readFileSync } from "fs";
 import { join } from "path";
 
-// Configuration
-const SITE_URL = "https://streamvault.in"; // host where txt is live
+// Configuration - www.streamvault.in ONLY
+const SITE_URL = "https://www.streamvault.in";
 const FIXED_API_KEY = "d3f0e531922e4e1785c3e8617e27eee6";
 
 const API_KEY_FILE = join(process.cwd(), "indexnow-key-in.txt");
@@ -18,14 +19,14 @@ function getOrCreateApiKey(): string {
   try {
     const existing = readFileSync(API_KEY_FILE, "utf-8").trim();
     if (existing === FIXED_API_KEY) {
-      console.log("✅ Using existing IndexNow API key (.in)");
+      console.log("✅ Using existing IndexNow API key");
       return existing;
     }
   } catch {
     // ignore missing file
   }
 
-  console.log("✅ Using fixed IndexNow API key (.in):", FIXED_API_KEY);
+  console.log("✅ Using fixed IndexNow API key:", FIXED_API_KEY);
   return FIXED_API_KEY;
 }
 
@@ -39,10 +40,10 @@ async function submitBatchToIndexNow(
   }
 
   const payload = {
-    host: new URL(SITE_URL).hostname, // streamvault.in
+    host: new URL(SITE_URL).hostname, // www.streamvault.in
     key: apiKey,
     keyLocation: `${SITE_URL}/${apiKey}.txt`,
-    urlList: urls, // all must be https://streamvault.in/...
+    urlList: urls,
   };
 
   console.log(
@@ -75,10 +76,11 @@ async function submitBatchToIndexNow(
   }
 }
 
-async function generateAllUrls(): Promise<string[]> {
+async function generateDetailPageUrls(): Promise<string[]> {
   const urls: string[] = [];
   const { storage } = await import("../server/storage.js");
 
+  // Static pages
   const staticPages = [
     "",
     "/shows",
@@ -86,7 +88,6 @@ async function generateAllUrls(): Promise<string[]> {
     "/browse-shows",
     "/browse-movies",
     "/search",
-    "/watchlist",
     "/about",
     "/contact",
     "/help",
@@ -94,46 +95,54 @@ async function generateAllUrls(): Promise<string[]> {
     "/privacy",
     "/terms",
     "/dmca",
+    "/blog", // Blog index page
   ];
 
   staticPages.forEach((page) => {
     urls.push(`${SITE_URL}${page}`);
   });
 
+  // Add show DETAIL pages ONLY (not watch pages)
   console.log("📺 Fetching shows from database...");
   const shows = await storage.getAllShows();
   console.log(` Found ${shows.length} shows`);
 
   for (const show of shows) {
     urls.push(`${SITE_URL}/show/${show.slug}`);
-
-    const episodes = await storage.getEpisodesByShowId(show.id);
-    episodes.forEach((episode: any) => {
-      urls.push(
-        `${SITE_URL}/watch/${show.slug}?season=${episode.season}&episode=${episode.episodeNumber}`,
-      );
-    });
+    // NO watch pages - skip episodes
   }
 
+  // Add movie DETAIL pages ONLY (not watch-movie pages)
   console.log("🎬 Fetching movies from database...");
   const movies = await storage.getAllMovies();
   console.log(` Found ${movies.length} movies`);
 
   movies.forEach((movie: any) => {
     urls.push(`${SITE_URL}/movie/${movie.slug}`);
-    urls.push(`${SITE_URL}/watch-movie/${movie.slug}`);
+    // NO watch-movie pages
+  });
+
+  // Add blog post pages
+  console.log("📝 Fetching blog posts from database...");
+  const blogPosts = await storage.getAllBlogPosts();
+  console.log(` Found ${blogPosts.length} blog posts`);
+
+  blogPosts.forEach((post: any) => {
+    urls.push(`${SITE_URL}/blog/${post.slug}`);
   });
 
   return urls;
 }
 
 async function main() {
-  console.log("🚀 IndexNow URL Submission Tool for streamvault.in\n");
+  console.log("🚀 IndexNow URL Submission Tool for StreamVault\n");
+  console.log("📍 Domain: www.streamvault.in ONLY");
+  console.log("📄 Pages: Show/Movie DETAIL pages ONLY (no watch pages)\n");
 
   const apiKey = getOrCreateApiKey();
 
-  const allUrls = await generateAllUrls();
-  console.log(`📋 Total URLs available: ${allUrls.length}`);
+  const allUrls = await generateDetailPageUrls();
+  console.log(`📋 Total detail page URLs: ${allUrls.length}`);
 
   // FIRST: test with a very small batch
   const testUrls = allUrls.slice(0, 3);
