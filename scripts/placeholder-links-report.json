@@ -1,0 +1,1353 @@
+{
+  "generatedAt": "2025-12-29T09:09:31.790Z",
+  "showsWithPlaceholders": {
+    "The Crown": {
+      "slug": "the-crown",
+      "totalSeasons": 6,
+      "placeholderEpisodes": [
+        {
+          "season": 1,
+          "episode": 1,
+          "title": "Wolferton Splash"
+        },
+        {
+          "season": 1,
+          "episode": 2,
+          "title": "Hyde Park Corner"
+        },
+        {
+          "season": 1,
+          "episode": 3,
+          "title": "Windsor"
+        },
+        {
+          "season": 1,
+          "episode": 4,
+          "title": "Act of God"
+        },
+        {
+          "season": 1,
+          "episode": 5,
+          "title": "Smoke and Mirrors"
+        },
+        {
+          "season": 1,
+          "episode": 6,
+          "title": "Gelignite"
+        },
+        {
+          "season": 1,
+          "episode": 7,
+          "title": "Scientia Potentia Est"
+        },
+        {
+          "season": 1,
+          "episode": 8,
+          "title": "Pride & Joy"
+        },
+        {
+          "season": 2,
+          "episode": 1,
+          "title": "Misadventure"
+        },
+        {
+          "season": 2,
+          "episode": 2,
+          "title": "A Company of Men"
+        },
+        {
+          "season": 2,
+          "episode": 3,
+          "title": "Lisbon"
+        },
+        {
+          "season": 2,
+          "episode": 4,
+          "title": "Beryl"
+        },
+        {
+          "season": 2,
+          "episode": 5,
+          "title": "Marionettes"
+        },
+        {
+          "season": 2,
+          "episode": 6,
+          "title": "Vergangenheit"
+        }
+      ],
+      "totalEpisodes": 14
+    },
+    "Dark": {
+      "slug": "dark",
+      "totalSeasons": 3,
+      "placeholderEpisodes": [
+        {
+          "season": 1,
+          "episode": 1,
+          "title": "Secrets"
+        },
+        {
+          "season": 1,
+          "episode": 2,
+          "title": "Lies"
+        },
+        {
+          "season": 1,
+          "episode": 3,
+          "title": "Past and Present"
+        },
+        {
+          "season": 1,
+          "episode": 4,
+          "title": "Double Lives"
+        },
+        {
+          "season": 1,
+          "episode": 5,
+          "title": "Truths"
+        },
+        {
+          "season": 1,
+          "episode": 6,
+          "title": "Sic Mundus Creatus Est"
+        },
+        {
+          "season": 1,
+          "episode": 7,
+          "title": "Crossroads"
+        },
+        {
+          "season": 1,
+          "episode": 8,
+          "title": "As You Sow, So You Shall Reap"
+        },
+        {
+          "season": 2,
+          "episode": 1,
+          "title": "Beginnings and Endings"
+        },
+        {
+          "season": 2,
+          "episode": 2,
+          "title": "Dark Matter"
+        },
+        {
+          "season": 2,
+          "episode": 3,
+          "title": "Ghosts"
+        },
+        {
+          "season": 2,
+          "episode": 4,
+          "title": "The Travelers"
+        },
+        {
+          "season": 2,
+          "episode": 5,
+          "title": "Lost and Found"
+        },
+        {
+          "season": 2,
+          "episode": 6,
+          "title": "An Endless Cycle"
+        }
+      ],
+      "totalEpisodes": 14
+    },
+    "Band of Brothers": {
+      "slug": "band-of-brothers",
+      "totalSeasons": 1,
+      "placeholderEpisodes": [
+        {
+          "season": 1,
+          "episode": 1,
+          "title": "Currahee"
+        },
+        {
+          "season": 1,
+          "episode": 2,
+          "title": "Day of Days"
+        },
+        {
+          "season": 1,
+          "episode": 3,
+          "title": "Carentan"
+        },
+        {
+          "season": 1,
+          "episode": 4,
+          "title": "Replacements"
+        },
+        {
+          "season": 1,
+          "episode": 5,
+          "title": "Crossroads"
+        },
+        {
+          "season": 1,
+          "episode": 6,
+          "title": "Bastogne"
+        },
+        {
+          "season": 1,
+          "episode": 7,
+          "title": "The Breaking Point"
+        },
+        {
+          "season": 1,
+          "episode": 8,
+          "title": "The Last Patrol"
+        },
+        {
+          "season": 1,
+          "episode": 9,
+          "title": "Why We Fight"
+        },
+        {
+          "season": 1,
+          "episode": 10,
+          "title": "Points"
+        },
+        {
+          "season": 1,
+          "episode": 11,
+          "title": "Episode 11"
+        }
+      ],
+      "totalEpisodes": 11
+    },
+    "Berlin": {
+      "slug": "berlin",
+      "totalSeasons": 1,
+      "placeholderEpisodes": [
+        {
+          "season": 1,
+          "episode": 1,
+          "title": "The Energy of Love"
+        },
+        {
+          "season": 1,
+          "episode": 2,
+          "title": "Anchor and Lobo"
+        },
+        {
+          "season": 1,
+          "episode": 3,
+          "title": "Full House of Embryos"
+        },
+        {
+          "season": 1,
+          "episode": 4,
+          "title": "An Aquarium on Your Back"
+        },
+        {
+          "season": 1,
+          "episode": 5,
+          "title": "After Love"
+        },
+        {
+          "season": 1,
+          "episode": 6,
+          "title": "Night of the Lemons"
+        },
+        {
+          "season": 1,
+          "episode": 7,
+          "title": "The Last Virgin in the Western World"
+        },
+        {
+          "season": 1,
+          "episode": 8,
+          "title": "An Endangered Elephant"
+        }
+      ],
+      "totalEpisodes": 8
+    },
+    "Fallout": {
+      "slug": "fallout",
+      "totalSeasons": 2,
+      "placeholderEpisodes": [
+        {
+          "season": 2,
+          "episode": 3,
+          "title": "The Sandstorm"
+        },
+        {
+          "season": 2,
+          "episode": 4,
+          "title": "The Dog"
+        },
+        {
+          "season": 2,
+          "episode": 5,
+          "title": "The Enemy"
+        },
+        {
+          "season": 2,
+          "episode": 6,
+          "title": "The Knights"
+        },
+        {
+          "season": 2,
+          "episode": 7,
+          "title": "The Fall"
+        },
+        {
+          "season": 2,
+          "episode": 8,
+          "title": "The Mother"
+        }
+      ],
+      "totalEpisodes": 16
+    },
+    "Chernobyl": {
+      "slug": "chernobyl",
+      "totalSeasons": 1,
+      "placeholderEpisodes": [
+        {
+          "season": 1,
+          "episode": 1,
+          "title": "1:23:45"
+        },
+        {
+          "season": 1,
+          "episode": 2,
+          "title": "Please Remain Calm"
+        },
+        {
+          "season": 1,
+          "episode": 3,
+          "title": "Open Wide, O Earth"
+        },
+        {
+          "season": 1,
+          "episode": 4,
+          "title": "The Happiness of All Mankind"
+        },
+        {
+          "season": 1,
+          "episode": 5,
+          "title": "Vichnaya Pamyat"
+        }
+      ],
+      "totalEpisodes": 5
+    },
+    "Percy Jackson and the Olympians": {
+      "slug": "percy-jackson-and-the-olympians",
+      "totalSeasons": 2,
+      "placeholderEpisodes": [
+        {
+          "season": 2,
+          "episode": 5,
+          "title": "We Check In to C.C.'s Spa & Resort"
+        },
+        {
+          "season": 2,
+          "episode": 6,
+          "title": "Nobody Gets the Fleece"
+        },
+        {
+          "season": 2,
+          "episode": 7,
+          "title": "I Go Down with the Ship"
+        },
+        {
+          "season": 2,
+          "episode": 8,
+          "title": "The Fleece Works Its Magic Too Well"
+        }
+      ],
+      "totalEpisodes": 16
+    },
+    "Kin": {
+      "slug": "kin",
+      "totalSeasons": 2,
+      "placeholderEpisodes": [
+        {
+          "season": 2,
+          "episode": 7,
+          "title": "EP 128"
+        }
+      ],
+      "totalEpisodes": 16
+    },
+    "Locked Up": {
+      "slug": "locked-up",
+      "totalSeasons": 4,
+      "placeholderEpisodes": [
+        {
+          "season": 1,
+          "episode": 11,
+          "title": "The Turtle Principle"
+        }
+      ],
+      "totalEpisodes": 51
+    },
+    "Obsession": {
+      "slug": "obsession",
+      "totalSeasons": 1,
+      "placeholderEpisodes": [
+        {
+          "season": 1,
+          "episode": 1,
+          "title": "Episode 1"
+        }
+      ],
+      "totalEpisodes": 4
+    },
+    "Rome": {
+      "slug": "rome",
+      "totalSeasons": 2,
+      "placeholderEpisodes": [
+        {
+          "season": 1,
+          "episode": 2,
+          "title": "How Titus Pullo Brought Down the Republic"
+        }
+      ],
+      "totalEpisodes": 22
+    },
+    "Sherlock Holmes": {
+      "slug": "sherlock-holmes",
+      "totalSeasons": 7,
+      "placeholderEpisodes": [
+        {
+          "season": 6,
+          "episode": 3,
+          "title": "The Eligible Bachelor"
+        }
+      ],
+      "totalEpisodes": 41
+    },
+    "Sisyphus": {
+      "slug": "sisyphus",
+      "totalSeasons": 1,
+      "placeholderEpisodes": [
+        {
+          "season": 1,
+          "episode": 15,
+          "title": "Episode 15"
+        }
+      ],
+      "totalEpisodes": 16
+    }
+  },
+  "moviesWithPlaceholders": [
+    {
+      "title": "The Shawshank Redemption",
+      "slug": "the-shawshank-redemption",
+      "year": 1994
+    },
+    {
+      "title": "The Godfather",
+      "slug": "the-godfather",
+      "year": 1972
+    },
+    {
+      "title": "Pulp Fiction",
+      "slug": "pulp-fiction",
+      "year": 1994
+    },
+    {
+      "title": "Forrest Gump",
+      "slug": "forrest-gump",
+      "year": 1994
+    },
+    {
+      "title": "Fight Club",
+      "slug": "fight-club",
+      "year": 1999
+    },
+    {
+      "title": "GoodFellas",
+      "slug": "goodfellas",
+      "year": 1990
+    },
+    {
+      "title": "The Lord of the Rings: The Return of the King",
+      "slug": "the-lord-of-the-rings-the-return-of-the-king",
+      "year": 2003
+    },
+    {
+      "title": "Star Wars",
+      "slug": "star-wars",
+      "year": 1977
+    },
+    {
+      "title": "The Silence of the Lambs",
+      "slug": "the-silence-of-the-lambs",
+      "year": 1991
+    },
+    {
+      "title": "Saving Private Ryan",
+      "slug": "saving-private-ryan",
+      "year": 1998
+    },
+    {
+      "title": "The Green Mile",
+      "slug": "the-green-mile",
+      "year": 1999
+    },
+    {
+      "title": "Se7en",
+      "slug": "se7en",
+      "year": 1995
+    },
+    {
+      "title": "The Prestige",
+      "slug": "the-prestige",
+      "year": 2006
+    },
+    {
+      "title": "The Departed",
+      "slug": "the-departed",
+      "year": 2006
+    },
+    {
+      "title": "Gladiator",
+      "slug": "gladiator",
+      "year": 2000
+    },
+    {
+      "title": "The Lion King",
+      "slug": "the-lion-king",
+      "year": 1994
+    },
+    {
+      "title": "Back to the Future",
+      "slug": "back-to-the-future",
+      "year": 1985
+    },
+    {
+      "title": "The Usual Suspects",
+      "slug": "the-usual-suspects",
+      "year": 1995
+    },
+    {
+      "title": "The Pianist",
+      "slug": "the-pianist",
+      "year": 2002
+    },
+    {
+      "title": "Shocking Dark",
+      "slug": "shocking-dark",
+      "year": 1989
+    },
+    {
+      "title": "American History X",
+      "slug": "american-history-x",
+      "year": 1998
+    },
+    {
+      "title": "The Truman Show",
+      "slug": "the-truman-show",
+      "year": 1998
+    },
+    {
+      "title": "Braveheart",
+      "slug": "braveheart",
+      "year": 1995
+    },
+    {
+      "title": "The Sixth Sense",
+      "slug": "the-sixth-sense",
+      "year": 1999
+    },
+    {
+      "title": "Memento",
+      "slug": "memento",
+      "year": 2000
+    },
+    {
+      "title": "Django Unchained",
+      "slug": "django-unchained",
+      "year": 2012
+    },
+    {
+      "title": "Edge of the Wall",
+      "slug": "edge-of-the-wall",
+      "year": 1980
+    },
+    {
+      "title": "The Shining",
+      "slug": "the-shining",
+      "year": 1980
+    },
+    {
+      "title": "Alien",
+      "slug": "alien",
+      "year": 1979
+    },
+    {
+      "title": "Blade Runner",
+      "slug": "blade-runner",
+      "year": 1982
+    },
+    {
+      "title": "The Grand Budapest Hotel",
+      "slug": "the-grand-budapest-hotel",
+      "year": 2014
+    },
+    {
+      "title": "Whiplash",
+      "slug": "whiplash",
+      "year": 2014
+    },
+    {
+      "title": "La La Land",
+      "slug": "la-la-land",
+      "year": 2016
+    },
+    {
+      "title": "Parasite",
+      "slug": "parasite",
+      "year": 1982
+    },
+    {
+      "title": "Get Out",
+      "slug": "get-out",
+      "year": 2017
+    },
+    {
+      "title": "A Quiet Place",
+      "slug": "a-quiet-place",
+      "year": 2018
+    },
+    {
+      "title": "Dunkirk",
+      "slug": "dunkirk",
+      "year": 2017
+    },
+    {
+      "title": "1917",
+      "slug": "1917",
+      "year": 2019
+    },
+    {
+      "title": "Oppenheimer",
+      "slug": "oppenheimer",
+      "year": 2023
+    },
+    {
+      "title": "Everything Everywhere All at Once",
+      "slug": "everything-everywhere-all-at-once",
+      "year": 2022
+    },
+    {
+      "title": "Top Gun: Maverick",
+      "slug": "top-gun-maverick",
+      "year": 2022
+    },
+    {
+      "title": "Dune",
+      "slug": "dune",
+      "year": 2021
+    },
+    {
+      "title": "No Country for Old Men",
+      "slug": "no-country-for-old-men",
+      "year": 2007
+    },
+    {
+      "title": "There Will Be Blood",
+      "slug": "there-will-be-blood",
+      "year": 2007
+    },
+    {
+      "title": "The Social Network",
+      "slug": "the-social-network",
+      "year": 2010
+    },
+    {
+      "title": "Gone Girl",
+      "slug": "gone-girl",
+      "year": 2014
+    },
+    {
+      "title": "Zodiac",
+      "slug": "zodiac",
+      "year": 2007
+    },
+    {
+      "title": "Prisoners",
+      "slug": "prisoners",
+      "year": 2013
+    },
+    {
+      "title": "Arrival",
+      "slug": "arrival",
+      "year": 2016
+    },
+    {
+      "title": "Blade Runner 2049",
+      "slug": "blade-runner-2049",
+      "year": 2017
+    },
+    {
+      "title": "The Revenant",
+      "slug": "the-revenant",
+      "year": 2015
+    },
+    {
+      "title": "Birdman",
+      "slug": "birdman",
+      "year": 2015
+    },
+    {
+      "title": "12 Years a Slave",
+      "slug": "12-years-a-slave",
+      "year": 2013
+    },
+    {
+      "title": "Moonlight",
+      "slug": "moonlight",
+      "year": 2016
+    },
+    {
+      "title": "The Shape of Water",
+      "slug": "the-shape-of-water",
+      "year": 2017
+    },
+    {
+      "title": "Roma",
+      "slug": "roma",
+      "year": 1972
+    },
+    {
+      "title": "Nomadland",
+      "slug": "nomadland",
+      "year": 2021
+    },
+    {
+      "title": "The Father",
+      "slug": "the-father",
+      "year": 2020
+    },
+    {
+      "title": "CODA",
+      "slug": "coda",
+      "year": 2021
+    },
+    {
+      "title": "The Whale",
+      "slug": "the-whale",
+      "year": 2022
+    },
+    {
+      "title": "TÁR",
+      "slug": "t-r",
+      "year": 2022
+    },
+    {
+      "title": "The Fabelmans",
+      "slug": "the-fabelmans",
+      "year": 2022
+    },
+    {
+      "title": "Black Panther",
+      "slug": "black-panther",
+      "year": 2018
+    },
+    {
+      "title": "Thor: Ragnarok",
+      "slug": "thor-ragnarok",
+      "year": 2017
+    },
+    {
+      "title": "Guardians of the Galaxy",
+      "slug": "guardians-of-the-galaxy",
+      "year": 2014
+    },
+    {
+      "title": "Iron Man",
+      "slug": "iron-man",
+      "year": 2008
+    },
+    {
+      "title": "Doctor Strange",
+      "slug": "doctor-strange",
+      "year": 2016
+    },
+    {
+      "title": "Shang-Chi and the Legend of the Ten Rings",
+      "slug": "shang-chi-and-the-legend-of-the-ten-rings",
+      "year": 2021
+    },
+    {
+      "title": "Black Widow",
+      "slug": "black-widow",
+      "year": 2021
+    },
+    {
+      "title": "Eternals",
+      "slug": "eternals",
+      "year": 2021
+    },
+    {
+      "title": "The Batman",
+      "slug": "the-batman",
+      "year": 2022
+    },
+    {
+      "title": "The Suicide Squad",
+      "slug": "the-suicide-squad",
+      "year": 2021
+    },
+    {
+      "title": "Wonder Woman",
+      "slug": "wonder-woman",
+      "year": 2017
+    },
+    {
+      "title": "Shazam!",
+      "slug": "shazam",
+      "year": 2019
+    },
+    {
+      "title": "Man of Steel",
+      "slug": "man-of-steel",
+      "year": 2013
+    },
+    {
+      "title": "Justice League",
+      "slug": "justice-league",
+      "year": 2017
+    },
+    {
+      "title": "Birds of Prey",
+      "slug": "birds-of-prey",
+      "year": 1985
+    },
+    {
+      "title": "The Flash",
+      "slug": "the-flash",
+      "year": 2023
+    },
+    {
+      "title": "Blue Beetle",
+      "slug": "blue-beetle",
+      "year": 2023
+    },
+    {
+      "title": "Mission: Impossible - Fallout",
+      "slug": "mission-impossible-fallout",
+      "year": 2018
+    },
+    {
+      "title": "Top Gun",
+      "slug": "top-gun",
+      "year": 1986
+    },
+    {
+      "title": "Edge of Tomorrow",
+      "slug": "edge-of-tomorrow",
+      "year": 2014
+    },
+    {
+      "title": "Oblivion",
+      "slug": "oblivion",
+      "year": 2013
+    },
+    {
+      "title": "The Bourne Identity",
+      "slug": "the-bourne-identity",
+      "year": 2002
+    },
+    {
+      "title": "Casino Royale",
+      "slug": "casino-royale",
+      "year": 1967
+    },
+    {
+      "title": "Skyfall",
+      "slug": "skyfall",
+      "year": 2012
+    },
+    {
+      "title": "Spectre",
+      "slug": "spectre",
+      "year": 2015
+    },
+    {
+      "title": "No Time to Die",
+      "slug": "no-time-to-die",
+      "year": 2021
+    },
+    {
+      "title": "Atomic Blonde",
+      "slug": "atomic-blonde",
+      "year": 2017
+    },
+    {
+      "title": "Baby Driver",
+      "slug": "baby-driver",
+      "year": 2017
+    },
+    {
+      "title": "Drive",
+      "slug": "drive",
+      "year": 2011
+    },
+    {
+      "title": "Heat",
+      "slug": "heat",
+      "year": 1995
+    },
+    {
+      "title": "Collateral",
+      "slug": "collateral",
+      "year": 2004
+    },
+    {
+      "title": "The Town",
+      "slug": "the-town",
+      "year": 2010
+    },
+    {
+      "title": "3 Idiots",
+      "slug": "3-idiots",
+      "year": 2009
+    },
+    {
+      "title": "Dangal",
+      "slug": "dangal",
+      "year": 2016
+    },
+    {
+      "title": "PK",
+      "slug": "pk",
+      "year": 2023
+    },
+    {
+      "title": "Bajrangi Bhaijaan",
+      "slug": "bajrangi-bhaijaan",
+      "year": 2015
+    },
+    {
+      "title": "Lagaan: Once Upon a Time in India",
+      "slug": "lagaan-once-upon-a-time-in-india",
+      "year": 2001
+    },
+    {
+      "title": "Like Stars on Earth",
+      "slug": "like-stars-on-earth",
+      "year": 2007
+    },
+    {
+      "title": "Dil Chahta Hai",
+      "slug": "dil-chahta-hai",
+      "year": 2001
+    },
+    {
+      "title": "Zindagi Na Milegi Dobara",
+      "slug": "zindagi-na-milegi-dobara",
+      "year": 2011
+    },
+    {
+      "title": "Rang De Basanti",
+      "slug": "rang-de-basanti",
+      "year": 2006
+    },
+    {
+      "title": "Swades",
+      "slug": "swades",
+      "year": 2004
+    },
+    {
+      "title": "Chak De! India",
+      "slug": "chak-de-india",
+      "year": 2007
+    },
+    {
+      "title": "Queen",
+      "slug": "queen",
+      "year": 2014
+    },
+    {
+      "title": "Barfi!",
+      "slug": "barfi",
+      "year": 2012
+    },
+    {
+      "title": "Andhadhun",
+      "slug": "andhadhun",
+      "year": 2018
+    },
+    {
+      "title": "Drishyam",
+      "slug": "drishyam",
+      "year": 2024
+    },
+    {
+      "title": "Rocky Aur Rani Kii Prem Kahaani",
+      "slug": "rocky-aur-rani-kii-prem-kahaani",
+      "year": 2023
+    },
+    {
+      "title": "Gangs of Wasseypur - Part 1",
+      "slug": "gangs-of-wasseypur-part-1",
+      "year": 2012
+    },
+    {
+      "title": "Tumbbad",
+      "slug": "tumbbad",
+      "year": 2018
+    },
+    {
+      "title": "Haider",
+      "slug": "haider",
+      "year": 2014
+    },
+    {
+      "title": "Omkara",
+      "slug": "omkara",
+      "year": 2004
+    },
+    {
+      "title": "Maqbool",
+      "slug": "maqbool",
+      "year": 2003
+    },
+    {
+      "title": "Rockstar",
+      "slug": "rockstar",
+      "year": 2011
+    },
+    {
+      "title": "Tamasha",
+      "slug": "tamasha",
+      "year": 1952
+    },
+    {
+      "title": "Highway",
+      "slug": "highway",
+      "year": 2012
+    },
+    {
+      "title": "Udta Punjab",
+      "slug": "udta-punjab",
+      "year": 2016
+    },
+    {
+      "title": "Masaan",
+      "slug": "masaan",
+      "year": 2004
+    },
+    {
+      "title": "NEWTON",
+      "slug": "newton",
+      "year": 2009
+    },
+    {
+      "title": "Article 15",
+      "slug": "article-15",
+      "year": 2019
+    },
+    {
+      "title": "Thappad",
+      "slug": "thappad",
+      "year": 2020
+    },
+    {
+      "title": "Pink",
+      "slug": "pink",
+      "year": 2017
+    },
+    {
+      "title": "Mulk",
+      "slug": "mulk",
+      "year": 2018
+    },
+    {
+      "title": "Raazi",
+      "slug": "raazi",
+      "year": 2018
+    },
+    {
+      "title": "Uri: The Surgical Strike",
+      "slug": "uri-the-surgical-strike",
+      "year": 2019
+    },
+    {
+      "title": "Shershaah",
+      "slug": "shershaah",
+      "year": 2021
+    },
+    {
+      "title": "83",
+      "slug": "83",
+      "year": 2021
+    },
+    {
+      "title": "Chhapaak",
+      "slug": "chhapaak",
+      "year": 2020
+    },
+    {
+      "title": "Gully Boy",
+      "slug": "gully-boy",
+      "year": 2019
+    },
+    {
+      "title": "Dil Dhadakne Do",
+      "slug": "dil-dhadakne-do",
+      "year": 2015
+    },
+    {
+      "title": "Kapoor & Sons",
+      "slug": "kapoor-sons",
+      "year": 2016
+    },
+    {
+      "title": "Dear Zindagi",
+      "slug": "dear-zindagi",
+      "year": 2016
+    },
+    {
+      "title": "English Vinglish",
+      "slug": "english-vinglish",
+      "year": 2012
+    },
+    {
+      "title": "Piku",
+      "slug": "piku",
+      "year": 2015
+    },
+    {
+      "title": "October",
+      "slug": "october",
+      "year": 2018
+    },
+    {
+      "title": "Badhaai Ho",
+      "slug": "badhaai-ho",
+      "year": 2018
+    },
+    {
+      "title": "Stree",
+      "slug": "stree",
+      "year": 1961
+    },
+    {
+      "title": "Bala",
+      "slug": "bala",
+      "year": 1976
+    },
+    {
+      "title": "Luka Chuppi",
+      "slug": "luka-chuppi",
+      "year": 2019
+    },
+    {
+      "title": "Bareilly Ki Barfi",
+      "slug": "bareilly-ki-barfi",
+      "year": 2017
+    },
+    {
+      "title": "Shubh Mangal Saavdhan",
+      "slug": "shubh-mangal-saavdhan",
+      "year": 2017
+    },
+    {
+      "title": "Toilet: A Love Story",
+      "slug": "toilet-a-love-story",
+      "year": 2017
+    },
+    {
+      "title": "Pad Man",
+      "slug": "pad-man",
+      "year": 2018
+    },
+    {
+      "title": "Mission Mangal",
+      "slug": "mission-mangal",
+      "year": 2019
+    },
+    {
+      "title": "The King",
+      "slug": "the-king",
+      "year": 2023
+    },
+    {
+      "title": "Tanhaji: The Unsung Warrior",
+      "slug": "tanhaji-the-unsung-warrior",
+      "year": 2020
+    },
+    {
+      "title": "Bajirao Mastani",
+      "slug": "bajirao-mastani",
+      "year": 2015
+    },
+    {
+      "title": "Padmaavat",
+      "slug": "padmaavat",
+      "year": 2018
+    },
+    {
+      "title": "Goliyon Ki Raasleela Ram-Leela",
+      "slug": "goliyon-ki-raasleela-ram-leela",
+      "year": 2013
+    },
+    {
+      "title": "Sanju",
+      "slug": "sanju",
+      "year": 2018
+    },
+    {
+      "title": "War",
+      "slug": "war",
+      "year": 2019
+    },
+    {
+      "title": "Pathaan",
+      "slug": "pathaan",
+      "year": 2023
+    },
+    {
+      "title": "Tiger Zinda Hai",
+      "slug": "tiger-zinda-hai",
+      "year": 2017
+    },
+    {
+      "title": "Ek Tha Tiger",
+      "slug": "ek-tha-tiger",
+      "year": 2012
+    },
+    {
+      "title": "Jawan",
+      "slug": "jawan",
+      "year": 2023
+    },
+    {
+      "title": "Dunki",
+      "slug": "dunki",
+      "year": 2023
+    },
+    {
+      "title": "Brahmastra",
+      "slug": "brahmastra",
+      "year": 1986
+    },
+    {
+      "title": "RRR",
+      "slug": "rrr",
+      "year": 2022
+    },
+    {
+      "title": "K.G.F: Chapter 1",
+      "slug": "k-g-f-chapter-1",
+      "year": 2018
+    },
+    {
+      "title": "Pushpa 2 - The Rule",
+      "slug": "pushpa-2-the-rule",
+      "year": 2024
+    },
+    {
+      "title": "Bāhubali 2: The Conclusion",
+      "slug": "b-hubali-2-the-conclusion",
+      "year": 2017
+    },
+    {
+      "title": "Sri Bharatha Baahubali",
+      "slug": "sri-bharatha-baahubali",
+      "year": 2020
+    },
+    {
+      "title": "Singham",
+      "slug": "singham",
+      "year": 2011
+    },
+    {
+      "title": "Simmba",
+      "slug": "simmba",
+      "year": 2018
+    },
+    {
+      "title": "Sooryavanshi",
+      "slug": "sooryavanshi",
+      "year": 2021
+    },
+    {
+      "title": "Singham Returns",
+      "slug": "singham-returns",
+      "year": 2014
+    },
+    {
+      "title": "Golmaal",
+      "slug": "golmaal",
+      "year": 2003
+    },
+    {
+      "title": "Housefull",
+      "slug": "housefull",
+      "year": 2013
+    },
+    {
+      "title": "Welcome",
+      "slug": "welcome",
+      "year": 2007
+    },
+    {
+      "title": "Teriya Meriya Hera Pheriyan",
+      "slug": "teriya-meriya-hera-pheriyan",
+      "year": 2024
+    },
+    {
+      "title": "Phir Hera Pheri",
+      "slug": "phir-hera-pheri",
+      "year": 2006
+    },
+    {
+      "title": "Bhool Bhulaiyaa",
+      "slug": "bhool-bhulaiyaa",
+      "year": 2007
+    },
+    {
+      "title": "Bhool Bhulaiyaa 2",
+      "slug": "bhool-bhulaiyaa-2",
+      "year": 2022
+    },
+    {
+      "title": "Dhamaal",
+      "slug": "dhamaal",
+      "year": 2007
+    },
+    {
+      "title": "Total Dhamaal",
+      "slug": "total-dhamaal",
+      "year": 2019
+    },
+    {
+      "title": "Fukrey",
+      "slug": "fukrey",
+      "year": 2013
+    },
+    {
+      "title": "Fukrey Returns",
+      "slug": "fukrey-returns",
+      "year": 2017
+    },
+    {
+      "title": "Stree 2",
+      "slug": "stree-2",
+      "year": 2024
+    },
+    {
+      "title": "Bhediya",
+      "slug": "bhediya",
+      "year": 2022
+    },
+    {
+      "title": "Avengers: Doomsday",
+      "slug": "avengers-doomsday",
+      "year": 2026
+    }
+  ],
+  "summary": {
+    "showsCount": 13,
+    "placeholderEpisodesCount": 68,
+    "moviesCount": 182
+  }
+}
