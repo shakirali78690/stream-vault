@@ -20,7 +20,8 @@ import {
     Paperclip,
     Image,
     Video,
-    Music
+    Music,
+    Smartphone
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -162,9 +163,29 @@ function WatchTogetherContent() {
     const [isLoadingGifs, setIsLoadingGifs] = useState(false);
     const [selectedGif, setSelectedGif] = useState<string | null>(null);
     const [attachment, setAttachment] = useState<{ file: File; preview: string; type: 'image' | 'video' | 'audio' } | null>(null);
+    const [isPortrait, setIsPortrait] = useState(false);
+    const [dismissedLandscapeHint, setDismissedLandscapeHint] = useState(false);
     const chatEndRef = useRef<HTMLDivElement>(null);
     const videoRef = useRef<HTMLIFrameElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Detect portrait mode on mobile
+    useEffect(() => {
+        const checkOrientation = () => {
+            const isMobile = window.innerWidth < 768;
+            const isPortraitMode = window.innerHeight > window.innerWidth;
+            setIsPortrait(isMobile && isPortraitMode);
+        };
+
+        checkOrientation();
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', checkOrientation);
+
+        return () => {
+            window.removeEventListener('resize', checkOrientation);
+            window.removeEventListener('orientationchange', checkOrientation);
+        };
+    }, []);
 
     // Handle file attachment - convert to base64 for sharing
     const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -449,6 +470,26 @@ function WatchTogetherContent() {
             <Helmet>
                 <title>Watch Together: {title} | StreamVault</title>
             </Helmet>
+
+            {/* Landscape Mode Hint Overlay for Mobile */}
+            {isPortrait && !dismissedLandscapeHint && (
+                <div className="fixed inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center p-6 text-center">
+                    <div className="relative">
+                        <Smartphone className="w-16 h-16 text-primary rotate-90 animate-pulse" />
+                    </div>
+                    <h2 className="text-xl font-bold mt-6 text-white">Rotate Your Phone</h2>
+                    <p className="text-muted-foreground mt-2 max-w-xs">
+                        For the best Watch Together experience, please switch to landscape mode
+                    </p>
+                    <Button
+                        variant="outline"
+                        className="mt-6"
+                        onClick={() => setDismissedLandscapeHint(true)}
+                    >
+                        Continue Anyway
+                    </Button>
+                </div>
+            )}
 
             {/* Floating Reactions */}
             <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
