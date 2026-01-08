@@ -27,9 +27,36 @@ export function useVoiceChat({ socket, roomUsers, currentUserId, enabled = true 
     const localStreamRef = useRef<MediaStream | null>(null);
     const peersRef = useRef<Map<string, PeerConnection>>(new Map());
     const audioElementsRef = useRef<Map<string, HTMLAudioElement>>(new Map());
+    const pendingAudioRef = useRef<Set<HTMLAudioElement>>(new Set());
     const audioContextRef = useRef<AudioContext | null>(null);
     const analyserRef = useRef<AnalyserNode | null>(null);
     const animationFrameRef = useRef<number | null>(null);
+
+    // Resume all pending audio after user interaction
+    useEffect(() => {
+        const unlockAudio = () => {
+            console.log('🔓 Attempting to unlock pending audio...');
+            pendingAudioRef.current.forEach(audio => {
+                audio.play()
+                    .then(() => {
+                        console.log('🔊 Audio unlocked and playing!');
+                        pendingAudioRef.current.delete(audio);
+                    })
+                    .catch(err => console.error('Still blocked:', err));
+            });
+        };
+
+        // Add click listeners to unlock audio after user interaction
+        document.addEventListener('click', unlockAudio);
+        document.addEventListener('touchstart', unlockAudio);
+        document.addEventListener('keydown', unlockAudio);
+
+        return () => {
+            document.removeEventListener('click', unlockAudio);
+            document.removeEventListener('touchstart', unlockAudio);
+            document.removeEventListener('keydown', unlockAudio);
+        };
+    }, []);
 
     // Initialize microphone
     const initMicrophone = useCallback(async () => {
@@ -139,13 +166,19 @@ export function useVoiceChat({ socket, roomUsers, currentUserId, enabled = true 
                 audio.volume = 1.0;
 
                 // Try to play, handle autoplay restrictions
-                const playPromise = audio.play();
+                const audioElement = audio;
+                const playPromise = audioElement.play();
                 if (playPromise !== undefined) {
                     playPromise
-                        .then(() => console.log(`🔊 Audio playing for ${targetId}`))
+                        .then(() => {
+                            console.log(`🔊 Audio playing for ${targetId}`);
+                            pendingAudioRef.current.delete(audioElement);
+                        })
                         .catch(err => {
-                            console.error('Audio play failed:', err);
-                            // User interaction needed - will work after they click something
+                            console.error('Audio play failed (autoplay blocked):', err.message);
+                            console.log('🔒 Audio queued for unlock after user interaction');
+                            // Add to pending queue - will be played after user clicks/taps
+                            pendingAudioRef.current.add(audioElement);
                         });
                 }
             });
