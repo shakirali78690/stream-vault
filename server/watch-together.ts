@@ -256,9 +256,15 @@ export function setupWatchTogether(httpServer: HttpServer): Server {
         // Voice chat signaling (WebRTC)
         socket.on('voice:signal', (data: { targetId: string; signal: any }) => {
             const roomCode = userToRoom.get(socket.id);
-            if (!roomCode) return;
+            if (!roomCode) {
+                console.log(`🔇 Voice signal rejected: ${socket.id} not in a room`);
+                return;
+            }
 
-            socket.to(data.targetId).emit('voice:signal', {
+            console.log(`📡 Voice signal from ${socket.id} to ${data.targetId}`);
+
+            // Send signal directly to target socket using namespace
+            watchNamespace.to(data.targetId).emit('voice:signal', {
                 fromId: socket.id,
                 signal: data.signal
             });
