@@ -210,7 +210,11 @@ export function setupWatchTogether(httpServer: HttpServer): Server {
                 room.hostId = socket.id;
             }
 
-            // Check if this is a reconnection (same session ID already in room for non-host users)
+            // Check if this session was previously in this room (reconnection)
+            const previousRoom = sessionToRoom.get(data.sessionId);
+            const isReconnecting = previousRoom === room.code;
+
+            // Check if this is a reconnection (same session ID still in room for non-host users)
             let existingUser: User | undefined;
             room.users.forEach((user, oldSocketId) => {
                 if (user.sessionId === data.sessionId) {
@@ -247,11 +251,11 @@ export function setupWatchTogether(httpServer: HttpServer): Server {
                 user
             });
 
-            // Notify others in room
+            // Notify others in room - use isReconnecting OR existingUser to detect reconnection
             if (isHostReconnecting) {
                 console.log(`🎬 Host ${data.username} reconnected to room ${room.code}`);
                 socket.to(room.code).emit('room:host-reconnected', { user });
-            } else if (existingUser) {
+            } else if (existingUser || isReconnecting) {
                 console.log(`🎬 ${data.username} reconnected to room ${room.code}`);
                 socket.to(room.code).emit('room:user-reconnected', { user });
             } else {
@@ -474,13 +478,13 @@ export function setupWatchTogether(httpServer: HttpServer): Server {
                 }, HOST_GRACE_PERIOD_MS);
 
             } else if (user) {
-                // Non-host user left - just notify others
+                // Non-host user left - notify others but keep session mapping for reconnection
                 socket.to(roomCode).emit('room:user-left', {
                     userId: socket.id,
                     username: user.username
                 });
-                // Clean up their session mapping
-                sessionToRoom.delete(user.sessionId);
+                // DON'T delete sessionToRoom - we need it to detect reconnection
+                // sessionToRoom will be cleaned up when room is destroyed
             }
         }
     });
