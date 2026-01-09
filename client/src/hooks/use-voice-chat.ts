@@ -8,6 +8,8 @@ interface VoiceChatOptions {
     roomUsers: { id: string; username: string }[];
     currentUserId: string | null;
     enabled?: boolean;
+    onMutedByHost?: () => void; // Called when host mutes user
+    onUnmuteRequest?: (onAccept: () => void, onReject: () => void) => void; // Called when host asks to unmute
 }
 
 interface PeerConnection {
@@ -16,7 +18,7 @@ interface PeerConnection {
     stream?: MediaStream;
 }
 
-export function useVoiceChat({ socket, roomUsers, currentUserId, enabled = true }: VoiceChatOptions) {
+export function useVoiceChat({ socket, roomUsers, currentUserId, enabled = true, onMutedByHost, onUnmuteRequest }: VoiceChatOptions) {
     const [isMuted, setIsMuted] = useState(true);
     const [isVoiceEnabled, setIsVoiceEnabled] = useState(false);
     const [connectedPeers, setConnectedPeers] = useState<string[]>([]);
@@ -248,7 +250,7 @@ export function useVoiceChat({ socket, roomUsers, currentUserId, enabled = true 
 
         // Handle being muted/unmuted by host
         const handleMutedByHost = ({ isMuted: shouldMute }: { isMuted: boolean }) => {
-            console.log(`🔇 Host ${shouldMute ? 'muted' : 'unmuted'} you`);
+            console.log(`🔇 Host ${shouldMute ? 'muted' : 'requested unmute from'} you`);
 
             if (shouldMute) {
                 // Host muting - force mute immediately
@@ -258,18 +260,23 @@ export function useVoiceChat({ socket, roomUsers, currentUserId, enabled = true 
                     });
                 }
                 setIsMuted(true);
-                alert('The host has muted you');
+                // Call custom callback instead of alert
+                onMutedByHost?.();
             } else {
-                // Host asking to unmute - prompt user for permission
-                const acceptUnmute = confirm('The host is asking you to unmute. Do you want to unmute your microphone?');
-                if (acceptUnmute) {
+                // Host asking to unmute - call custom callback with accept/reject handlers
+                const onAccept = () => {
                     if (localStreamRef.current) {
                         localStreamRef.current.getAudioTracks().forEach(track => {
                             track.enabled = true;
                         });
                     }
                     setIsMuted(false);
-                }
+                };
+                const onReject = () => {
+                    // User declined - keep muted
+                    console.log('User declined unmute request');
+                };
+                onUnmuteRequest?.(onAccept, onReject);
             }
         };
 

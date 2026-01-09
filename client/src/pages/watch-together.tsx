@@ -135,7 +135,12 @@ function WatchTogetherContent() {
         clearError
     } = useWatchTogether();
 
-    // Voice chat
+    // Custom modal state for mute/unmute notifications
+    const [showMuteNotification, setShowMuteNotification] = useState(false);
+    const [showUnmuteRequest, setShowUnmuteRequest] = useState(false);
+    const [unmuteHandlers, setUnmuteHandlers] = useState<{ onAccept: () => void; onReject: () => void } | null>(null);
+
+    // Voice chat with custom modal callbacks
     const {
         isMuted,
         isVoiceEnabled,
@@ -148,7 +153,15 @@ function WatchTogetherContent() {
     } = useVoiceChat({
         socket,
         roomUsers: users,
-        currentUserId: currentUser?.id ?? null
+        currentUserId: currentUser?.id ?? null,
+        onMutedByHost: () => {
+            setShowMuteNotification(true);
+            setTimeout(() => setShowMuteNotification(false), 3000);
+        },
+        onUnmuteRequest: (onAccept, onReject) => {
+            setUnmuteHandlers({ onAccept, onReject });
+            setShowUnmuteRequest(true);
+        }
     });
 
     const [username, setUsername] = useState('');
@@ -514,6 +527,57 @@ function WatchTogetherContent() {
                     >
                         Continue Anyway
                     </Button>
+                </div>
+            )}
+
+            {/* Custom Mute Notification */}
+            {showMuteNotification && (
+                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[100]">
+                    <div className="bg-red-600 text-white px-8 py-4 rounded-lg shadow-2xl flex items-center gap-3 animate-pulse">
+                        <MicOff className="w-6 h-6" />
+                        <span className="font-semibold">The host has muted you</span>
+                    </div>
+                </div>
+            )}
+
+            {/* Custom Unmute Request Modal */}
+            {showUnmuteRequest && (
+                <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4">
+                    <div className="bg-card border border-border rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+                        <div className="text-center">
+                            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+                                <Mic className="w-8 h-8 text-primary" />
+                            </div>
+                            <h3 className="text-xl font-bold text-white">Unmute Request</h3>
+                            <p className="text-muted-foreground mt-2">
+                                The host is asking you to unmute your microphone. Do you want to speak?
+                            </p>
+                        </div>
+                        <div className="flex gap-3 mt-6">
+                            <Button
+                                variant="outline"
+                                className="flex-1"
+                                onClick={() => {
+                                    unmuteHandlers?.onReject();
+                                    setShowUnmuteRequest(false);
+                                    setUnmuteHandlers(null);
+                                }}
+                            >
+                                Stay Muted
+                            </Button>
+                            <Button
+                                className="flex-1"
+                                onClick={() => {
+                                    unmuteHandlers?.onAccept();
+                                    setShowUnmuteRequest(false);
+                                    setUnmuteHandlers(null);
+                                }}
+                            >
+                                <Mic className="w-4 h-4 mr-2" />
+                                Unmute
+                            </Button>
+                        </div>
+                    </div>
                 </div>
             )}
 
