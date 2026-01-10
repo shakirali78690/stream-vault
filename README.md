@@ -65,6 +65,8 @@ A professional Netflix-inspired streaming platform for both TV shows and movies,
 
 ### 🎬 **Watch Together (NEW!)**
 - **Real-time co-watching** - Watch shows/movies with friends
+- **Video Sync** - Host controls sync play, pause, seek for all viewers
+- **Change Episode** - Host can switch episodes without leaving room
 - **Live chat** with emojis, GIFs (Tenor API), and file attachments
 - **Voice chat** - WebRTC-powered real-time audio communication
 - **Floating reactions** - React with emojis visible to all viewers
@@ -413,6 +415,8 @@ MIT License - feel free to use for personal or commercial projects
 
 ### Latest Updates (v4.0) - January 2026
 - ✅ **Watch Together** - Real-time co-watching with friends
+- ✅ **Video Sync** - Host-controlled playback sync (play, pause, seek, speed)
+- ✅ **Change Episode** - Switch episodes in Watch Together without leaving room
 - ✅ **Voice Chat** - WebRTC audio communication in watch rooms
 - ✅ **Live Chat** - Emojis, GIFs (Tenor API), file attachments
 - ✅ **Floating Reactions** - Emoji reactions visible to all viewers
