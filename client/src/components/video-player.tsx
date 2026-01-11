@@ -51,6 +51,20 @@ const isEmbedUrl = (url: string): boolean => {
         url.includes('iframe');
 };
 
+// Check if URL requires proxy (protected external URLs)
+const isProxyRequiredUrl = (url: string): boolean => {
+    const proxyDomains = ['worthcrete.com', 'www.worthcrete.com'];
+    return proxyDomains.some(domain => url.includes(domain));
+};
+
+// Get proxied URL for external videos
+const getProxiedUrl = (url: string): string => {
+    if (isProxyRequiredUrl(url)) {
+        return `/api/proxy-video?url=${encodeURIComponent(url)}`;
+    }
+    return url;
+};
+
 // Extract Google Drive file ID
 const extractDriveId = (url: string): string => {
     const match = url.match(/\/d\/([^/]+)/);
@@ -164,8 +178,10 @@ const JWPlayerWrapper = forwardRef<VideoPlayerRef, JWPlayerWrapperProps>(({
         const playerId = playerIdRef.current;
 
         // Initialize JW Player with full settings
+        // Use proxy for protected external URLs
+        const finalVideoUrl = getProxiedUrl(videoUrl);
         const player = window.jwplayer(playerId).setup({
-            file: videoUrl,
+            file: finalVideoUrl,
             width: '100%',
             height: '100%',
             autostart: autoplay,

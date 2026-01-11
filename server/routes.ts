@@ -1,5 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import http from "http";
+import https from "https";
 import { storage } from "./storage";
 import { z } from "zod";
 import { watchlistSchema, viewingProgressSchema, insertBlogPostSchema } from "@shared/schema";
@@ -10,6 +12,20 @@ import { fileURLToPath } from "url";
 import { setupSitemaps } from "./sitemap";
 import { sendContentRequestEmail, sendIssueReportEmail } from "./email-service";
 import webpush from "web-push";
+
+// Helper to convert ReadableStream to async iterable for Node.js
+async function* streamToAsyncIterable(stream: ReadableStream<Uint8Array>) {
+  const reader = stream.getReader();
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) return;
+      yield value;
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
 
 // ESM compatible __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -2071,6 +2087,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Newsletter send error:", error);
       res.status(500).json({ error: "Failed to send newsletter" });
+    }
+  });
+
+  // ========== VIDEO PROXY ==========
+  // Proxy endpoint to stream external videos with correct headers
+  app.get("/api/proxy-video", async (req, res) => {
+    try {
+      const videoUrl = req.query.url as string;
+
+      if (!videoUrl) {
+        return res.status(400).json({ error: "URL parameter required" });
+      }
+
+      // Only allow whitelisted domains for security
+      const allowedDomains = [
+        'worthcrete.com',
+        'www.worthcrete.com'
+      ];
+
+      let urlOrigin: string;
+      try {
+        const parsedUrl = new URL(videoUrl);
+        urlOrigin = parsedUrl.hostname;
+      } catch {
+        return res.status(400).json({ error: "Invalid URL" });
+      }
+
+      if (!allowedDomains.some(domain => urlOrigin.includes(domain))) {
+        return res.status(403).json({ error: "Domain not allowed" });
+      }
+
+      console.log(`📹 Proxying video: ${videoUrl}`);
+
+      // Use https module for proper streaming
+      const protocol = videoUrl.startsWith('https') ? https : http;
+
+      const requestOptions = {
+        headers: {
+          'Referer': 'https://www.worthcrete.com/',
+          'Origin': 'https://www.worthcrete.com',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': '*/*',
+          'Accept-Language': 'en-US,en;q=0.5',
+          ...(req.headers.range && { 'Range': req.headers.range })
+        }
+      };
+
+      protocol.get(videoUrl, requestOptions, (proxyRes: any) => {
+        console.log(`📹 Proxy response: ${proxyRes.statusCode}`);
+
+        // Forward status and headers
+        res.status(proxyRes.statusCode);
+
+        if (proxyRes.headers['content-type']) {
+          res.setHeader('Content-Type', proxyRes.headers['content-type']);
+        }
+        if (proxyRes.headers['content-length']) {
+          res.setHeader('Content-Length', proxyRes.headers['content-length']);
+        }
+        if (proxyRes.headers['content-range']) {
+          res.setHeader('Content-Range', proxyRes.headers['content-range']);
+        }
+        if (proxyRes.headers['accept-ranges']) {
+          res.setHeader('Accept-Ranges', proxyRes.headers['accept-ranges']);
+        }
+        res.setHeader('Access-Control-Allow-Origin', '*');
+
+        // Pipe the response
+        proxyRes.pipe(res);
+      }).on('error', (err: any) => {
+        console.error("❌ Video proxy error:", err.message);
+        res.status(500).json({ error: "Proxy failed", details: err.message });
+      });
+    } catch (error: any) {
+      console.error("❌ Video proxy error:", error.message);
+      res.status(500).json({ error: "Proxy failed", details: error.message });
     }
   });
 
