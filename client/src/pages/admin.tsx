@@ -94,10 +94,15 @@ export default function AdminPage() {
             <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
             <p className="text-muted-foreground">Manage your StreamVault content</p>
           </div>
-          <Button variant="outline" onClick={handleLogout}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setLocation('/admin/widget')}>
+              📊 Widget Analytics
+            </Button>
+            <Button variant="outline" onClick={handleLogout}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>

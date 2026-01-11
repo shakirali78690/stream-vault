@@ -280,6 +280,30 @@
             </div>
         </a>
     </div>
+
+    <script>
+        // Analytics tracking - dynamic API URL
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:5000'
+            : 'https://streamvault.live';
+
+        // Track view (impression) on load
+        fetch(API_BASE + '/api/widget/view', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ referrer: document.referrer || window.location.href })
+        }).catch(() => { });
+
+        // Track click
+        document.querySelector('.streamvault-widget').addEventListener('click', function (e) {
+            // Don't prevent default - let link work
+            fetch(API_BASE + '/api/widget/click', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ referrer: document.referrer || window.location.href })
+            }).catch(() => { });
+        });
+    </script>
 </body>
 
 </html>

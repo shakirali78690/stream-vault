@@ -2165,6 +2165,129 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Proxy failed", details: error.message });
     }
   });
+  // ============================================
+  // Widget Analytics - Track clicks from WorthCrete
+  // ============================================
+
+  // In-memory storage for widget analytics (use database in production)
+  interface WidgetClick {
+    timestamp: Date;
+    referrer: string;
+    userAgent: string;
+    ip: string;
+  }
+
+  const widgetAnalytics = {
+    clicks: [] as WidgetClick[],
+    views: [] as { timestamp: Date; referrer: string }[]
+  };
+
+  // Track widget click
+  app.post("/api/widget/click", (req, res) => {
+    try {
+      const referrer = req.headers.referer || req.body.referrer || "direct";
+      const userAgent = req.headers["user-agent"] || "unknown";
+      const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown";
+
+      widgetAnalytics.clicks.push({
+        timestamp: new Date(),
+        referrer: referrer as string,
+        userAgent: userAgent as string,
+        ip: ip as string
+      });
+
+      console.log(`📊 Widget click from: ${referrer}`);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to track click" });
+    }
+  });
+
+  // Track widget view (impression)
+  app.post("/api/widget/view", (req, res) => {
+    try {
+      const referrer = req.headers.referer || req.body.referrer || "direct";
+
+      widgetAnalytics.views.push({
+        timestamp: new Date(),
+        referrer: referrer as string
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to track view" });
+    }
+  });
+
+  // Get widget analytics (admin only)
+  app.get("/api/widget/analytics", requireAdmin, (req, res) => {
+    try {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+      // Calculate stats
+      const todayClicks = widgetAnalytics.clicks.filter(c => c.timestamp >= today).length;
+      const weekClicks = widgetAnalytics.clicks.filter(c => c.timestamp >= weekAgo).length;
+      const monthClicks = widgetAnalytics.clicks.filter(c => c.timestamp >= monthAgo).length;
+      const totalClicks = widgetAnalytics.clicks.length;
+
+      const todayViews = widgetAnalytics.views.filter(v => v.timestamp >= today).length;
+      const weekViews = widgetAnalytics.views.filter(v => v.timestamp >= weekAgo).length;
+      const monthViews = widgetAnalytics.views.filter(v => v.timestamp >= monthAgo).length;
+      const totalViews = widgetAnalytics.views.length;
+
+      // Group by referrer
+      const clicksByReferrer: Record<string, number> = {};
+      widgetAnalytics.clicks.forEach(c => {
+        try {
+          const url = new URL(c.referrer);
+          const domain = url.hostname;
+          clicksByReferrer[domain] = (clicksByReferrer[domain] || 0) + 1;
+        } catch {
+          clicksByReferrer["direct"] = (clicksByReferrer["direct"] || 0) + 1;
+        }
+      });
+
+      // Daily clicks for chart (last 7 days)
+      const dailyClicks: { date: string; clicks: number }[] = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
+        const nextDate = new Date(date.getTime() + 24 * 60 * 60 * 1000);
+        const clicks = widgetAnalytics.clicks.filter(
+          c => c.timestamp >= date && c.timestamp < nextDate
+        ).length;
+        dailyClicks.push({
+          date: date.toISOString().split("T")[0],
+          clicks
+        });
+      }
+
+      // Recent clicks
+      const recentClicks = widgetAnalytics.clicks
+        .slice(-20)
+        .reverse()
+        .map(c => ({
+          timestamp: c.timestamp,
+          referrer: c.referrer,
+          userAgent: c.userAgent.substring(0, 50)
+        }));
+
+      res.json({
+        summary: {
+          clicks: { today: todayClicks, week: weekClicks, month: monthClicks, total: totalClicks },
+          views: { today: todayViews, week: weekViews, month: monthViews, total: totalViews },
+          ctr: totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(2) + "%" : "N/A"
+        },
+        clicksByReferrer,
+        dailyClicks,
+        recentClicks
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get analytics" });
+    }
+  });
 
   const httpServer = createServer(app);
 
