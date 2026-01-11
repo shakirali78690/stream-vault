@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamVault Widget</title>
+    <style>
+        /* StreamVault 300x250 Animated Widget */
+        .streamvault-widget {
+            width: 300px;
+            height: 250px;
+            background: linear-gradient(135deg, #141414 0%, #1a1a1a 50%, #141414 100%);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .streamvault-widget:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(220, 38, 38, 0.3);
+        }
+
+        /* Animated gradient border */
+        .streamvault-widget::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 12px;
+            padding: 2px;
+            background: linear-gradient(45deg, #DC2626, #ff4444, #DC2626, #991b1b);
+            background-size: 300% 300%;
+            animation: borderGlow 3s ease infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
+
+        @keyframes borderGlow {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        /* Content container */
+        .widget-content {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Logo section */
+        .widget-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .widget-logo h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #FAFAFA;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        /* Animated play button */
+        .play-icon {
+            width: 28px;
+            height: 28px;
+            background: #DC2626;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .play-icon svg {
+            width: 14px;
+            height: 14px;
+            fill: white;
+            margin-left: 2px;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        /* Tagline */
+        .widget-tagline {
+            font-size: 14px;
+            color: #a0a0a0;
+            margin: 0 0 20px 0;
+            text-align: center;
+        }
+
+        /* Feature badges */
+        .widget-features {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .feature-badge {
+            background: rgba(220, 38, 38, 0.15);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            color: #ff6b6b;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .feature-badge:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .feature-badge:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .feature-badge:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* CTA Button */
+        .widget-cta {
+            background: #DC2626;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 10px 30px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .widget-cta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                left: -100%;
+            }
+
+            50%,
+            100% {
+                left: 100%;
+            }
+        }
+
+        .streamvault-widget:hover .widget-cta {
+            background: #ef4444;
+            transform: scale(1.05);
+        }
+
+        /* URL footer */
+        .widget-url {
+            position: absolute;
+            bottom: 12px;
+            font-size: 11px;
+            color: #666;
+        }
+
+        /* Floating particles animation */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #DC2626;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .particle:nth-child(1) {
+            left: 10%;
+            top: 20%;
+            animation-delay: 0s;
+        }
+
+        .particle:nth-child(2) {
+            left: 80%;
+            top: 30%;
+            animation-delay: 1s;
+        }
+
+        .particle:nth-child(3) {
+            left: 20%;
+            top: 70%;
+            animation-delay: 2s;
+        }
+
+        .particle:nth-child(4) {
+            left: 70%;
+            top: 80%;
+            animation-delay: 3s;
+        }
+
+        .particle:nth-child(5) {
+            left: 90%;
+            top: 50%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 0.3;
+            }
+
+            50% {
+                transform: translateY(-20px) scale(1.5);
+                opacity: 0.6;
+            }
+        }
+    </style>
+</head>
+
+<body
+    style="background: #333; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0;">
+
+    <!-- StreamVault Widget - Copy from here -->
+    <a href="https://streamvault.live" target="_blank" class="streamvault-widget" rel="noopener">
+        <!-- Floating particles -->
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+
+        <div class="widget-content">
+            <div class="widget-logo">
+                <h1>StreamVault</h1>
+                <div class="play-icon">
+                    <svg viewBox="0 0 24 24">
+                        <polygon points="5,3 19,12 5,21" />
+                    </svg>
+                </div>
+            </div>
+
+            <p class="widget-tagline">Stream Movies & TV Shows Free</p>
+
+            <div class="widget-features">
+                <span class="feature-badge">🎬 HD Quality</span>
+                <span class="feature-badge">📺 No Ads</span>
+                <span class="feature-badge">✨ Free</span>
+            </div>
+
+            <span class="widget-cta">Watch Now →</span>
+
+            <span class="widget-url">streamvault.live</span>
+        </div>
+    </a>
+    <!-- End of StreamVault Widget -->
+
+</body>
+
+</html>
