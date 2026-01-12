@@ -144,6 +144,168 @@ export function serveStatic(app: Express) {
 
     console.log(`[Meta Tags] Checking path: ${requestPath}`);
 
+    // === HIGH PRIORITY: Homepage ===
+    if (requestPath === '/' || requestPath === '') {
+      console.log(`[Meta Tags] Homepage`);
+      let html = fs.readFileSync(indexPath, 'utf-8');
+      const metaTags = `
+    <meta property="og:title" content="StreamVault - Free Movies & TV Shows | Watch Online HD">
+    <meta property="og:description" content="Watch 200+ movies & TV shows free in HD. No registration required. Stream Hollywood, Bollywood & international content instantly on any device.">
+    <meta property="og:image" content="https://i.ibb.co/N2jssrLd/17e34644-29fb-4a5d-a2e8-e96bee27756f.png">
+    <meta property="og:url" content="https://streamvault.live">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="StreamVault">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="StreamVault - Free Movies & TV Shows">
+    <meta name="twitter:description" content="Watch 200+ movies & TV shows free in HD. No registration required.">
+    <meta name="twitter:image" content="https://i.ibb.co/N2jssrLd/17e34644-29fb-4a5d-a2e8-e96bee27756f.png">
+    <meta name="description" content="Watch 200+ movies & TV shows free in HD. No registration required. Stream Hollywood, Bollywood & international content instantly on any device.">
+    <title>StreamVault - Free Movies & TV Shows | Watch Online HD</title>`;
+      injectMetaAndServe(html, metaTags);
+      return;
+    }
+
+    // === HIGH PRIORITY: Browse pages ===
+    if (requestPath === '/browse' || requestPath === '/browse-shows') {
+      console.log(`[Meta Tags] Browse Shows page`);
+      let html = fs.readFileSync(indexPath, 'utf-8');
+      const metaTags = `
+    <meta property="og:title" content="Browse TV Shows - Free Streaming | StreamVault">
+    <meta property="og:description" content="Browse our complete collection of TV shows. From drama to comedy, find your next binge-worthy series and stream free in HD.">
+    <meta property="og:image" content="https://i.ibb.co/N2jssrLd/17e34644-29fb-4a5d-a2e8-e96bee27756f.png">
+    <meta property="og:url" content="https://streamvault.live${requestPath}">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Browse TV Shows | StreamVault">
+    <meta name="twitter:description" content="Browse our complete collection of TV shows and stream free in HD.">
+    <meta name="twitter:image" content="https://i.ibb.co/N2jssrLd/17e34644-29fb-4a5d-a2e8-e96bee27756f.png">
+    <meta name="description" content="Browse our complete collection of TV shows. From drama to comedy, find your next binge-worthy series and stream free in HD.">
+    <title>Browse TV Shows - Free Streaming | StreamVault</title>`;
+      injectMetaAndServe(html, metaTags);
+      return;
+    }
+
+    if (requestPath === '/browse-movies' || requestPath === '/movies') {
+      console.log(`[Meta Tags] Movies page`);
+      let html = fs.readFileSync(indexPath, 'utf-8');
+      const metaTags = `
+    <meta property="og:title" content="Browse Movies - Free HD Streaming | StreamVault">
+    <meta property="og:description" content="Watch the latest movies free in HD. Action, comedy, drama, horror and more. No registration required. Stream instantly.">
+    <meta property="og:image" content="https://i.ibb.co/N2jssrLd/17e34644-29fb-4a5d-a2e8-e96bee27756f.png">
+    <meta property="og:url" content="https://streamvault.live${requestPath}">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Browse Movies | StreamVault">
+    <meta name="twitter:description" content="Watch the latest movies free in HD. No registration required.">
+    <meta name="twitter:image" content="https://i.ibb.co/N2jssrLd/17e34644-29fb-4a5d-a2e8-e96bee27756f.png">
+    <meta name="description" content="Watch the latest movies free in HD. Action, comedy, drama, horror and more. No registration required.">
+    <title>Browse Movies - Free HD Streaming | StreamVault</title>`;
+      injectMetaAndServe(html, metaTags);
+      return;
+    }
+
+    // === HIGH PRIORITY: Trending page ===
+    if (requestPath === '/trending') {
+      console.log(`[Meta Tags] Trending page`);
+      let html = fs.readFileSync(indexPath, 'utf-8');
+      const metaTags = `
+    <meta property="og:title" content="Trending Now - Popular Movies & TV Shows | StreamVault">
+    <meta property="og:description" content="Discover what's trending! Watch the most popular movies and TV shows everyone is streaming right now. Free HD quality.">
+    <meta property="og:image" content="https://i.ibb.co/N2jssrLd/17e34644-29fb-4a5d-a2e8-e96bee27756f.png">
+    <meta property="og:url" content="https://streamvault.live/trending">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Trending Now | StreamVault">
+    <meta name="twitter:description" content="Discover what's trending! Watch the most popular movies and TV shows.">
+    <meta name="twitter:image" content="https://i.ibb.co/N2jssrLd/17e34644-29fb-4a5d-a2e8-e96bee27756f.png">
+    <meta name="description" content="Discover what's trending! Watch the most popular movies and TV shows everyone is streaming right now.">
+    <title>Trending Now - Popular Movies & TV Shows | StreamVault</title>`;
+      injectMetaAndServe(html, metaTags);
+      return;
+    }
+
+    // === HIGH PRIORITY: Search page ===
+    if (requestPath === '/search') {
+      const query = req.query.q as string || '';
+      console.log(`[Meta Tags] Search page: ${query}`);
+      let html = fs.readFileSync(indexPath, 'utf-8');
+      const searchTitle = query ? `Search: ${escapeHtml(query)}` : 'Search Movies & TV Shows';
+      const metaTags = `
+    <meta property="og:title" content="${searchTitle} | StreamVault">
+    <meta property="og:description" content="Search our library of 200+ movies & TV shows. Find and stream your favorites free in HD.">
+    <meta property="og:image" content="https://i.ibb.co/N2jssrLd/17e34644-29fb-4a5d-a2e8-e96bee27756f.png">
+    <meta property="og:url" content="https://streamvault.live/search${query ? '?q=' + encodeURIComponent(query) : ''}">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${searchTitle} | StreamVault">
+    <meta name="twitter:description" content="Search and stream movies & TV shows free in HD.">
+    <meta name="twitter:image" content="https://i.ibb.co/N2jssrLd/17e34644-29fb-4a5d-a2e8-e96bee27756f.png">
+    <meta name="description" content="Search our library of 200+ movies & TV shows. Find and stream your favorites free in HD.">
+    <title>${searchTitle} | StreamVault</title>`;
+      injectMetaAndServe(html, metaTags);
+      return;
+    }
+
+    // === MEDIUM PRIORITY: Static pages ===
+    const staticPages: Record<string, { title: string; description: string }> = {
+      '/about': { title: 'About Us', description: 'Learn about StreamVault - your free streaming destination for movies and TV shows.' },
+      '/contact': { title: 'Contact Us', description: 'Get in touch with StreamVault. We\'re here to help with any questions or concerns.' },
+      '/privacy': { title: 'Privacy Policy', description: 'StreamVault privacy policy. Learn how we protect your data and privacy.' },
+      '/terms': { title: 'Terms of Service', description: 'StreamVault terms of service. Read our usage terms and conditions.' },
+      '/dmca': { title: 'DMCA', description: 'StreamVault DMCA policy. Information about copyright and content removal.' },
+      '/faq': { title: 'FAQ', description: 'Frequently asked questions about StreamVault. Get answers to common questions.' },
+      '/help': { title: 'Help Center', description: 'StreamVault help center. Find solutions and tips for using our platform.' },
+      '/request': { title: 'Request Content', description: 'Request movies or TV shows to be added to StreamVault.' },
+      '/report': { title: 'Report Issue', description: 'Report broken links or issues with StreamVault content.' },
+      '/watchlist': { title: 'My Watchlist', description: 'Your saved movies and TV shows on StreamVault.' },
+      '/continue-watching': { title: 'Continue Watching', description: 'Pick up where you left off. Your recently watched content on StreamVault.' },
+      '/blog': { title: 'Blog - Movie & TV News', description: 'StreamVault blog - Latest news, reviews, and updates about movies and TV shows.' },
+      '/create-room': { title: 'Create Watch Party', description: 'Create a watch party room to watch movies and TV shows together with friends.' },
+    };
+
+    if (staticPages[requestPath]) {
+      const page = staticPages[requestPath];
+      console.log(`[Meta Tags] Static page: ${requestPath}`);
+      let html = fs.readFileSync(indexPath, 'utf-8');
+      const metaTags = `
+    <meta property="og:title" content="${page.title} | StreamVault">
+    <meta property="og:description" content="${page.description}">
+    <meta property="og:image" content="https://i.ibb.co/N2jssrLd/17e34644-29fb-4a5d-a2e8-e96bee27756f.png">
+    <meta property="og:url" content="https://streamvault.live${requestPath}">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${page.title} | StreamVault">
+    <meta name="twitter:description" content="${page.description}">
+    <meta name="twitter:image" content="https://i.ibb.co/N2jssrLd/17e34644-29fb-4a5d-a2e8-e96bee27756f.png">
+    <meta name="description" content="${page.description}">
+    <title>${page.title} | StreamVault</title>`;
+      injectMetaAndServe(html, metaTags);
+      return;
+    }
+
+    // === Category pages ===
+    const categoryMatch = requestPath.match(/^\/category\/([^\/]+)/);
+    if (categoryMatch) {
+      const category = categoryMatch[1];
+      const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1).replace(/-/g, ' ');
+      console.log(`[Meta Tags] Category page: ${category}`);
+      let html = fs.readFileSync(indexPath, 'utf-8');
+      const metaTags = `
+    <meta property="og:title" content="${escapeHtml(categoryTitle)} Movies & Shows | StreamVault">
+    <meta property="og:description" content="Browse ${escapeHtml(categoryTitle.toLowerCase())} movies and TV shows. Stream free in HD on StreamVault.">
+    <meta property="og:image" content="https://i.ibb.co/N2jssrLd/17e34644-29fb-4a5d-a2e8-e96bee27756f.png">
+    <meta property="og:url" content="https://streamvault.live/category/${category}">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${escapeHtml(categoryTitle)} | StreamVault">
+    <meta name="twitter:description" content="Browse ${escapeHtml(categoryTitle.toLowerCase())} content on StreamVault.">
+    <meta name="twitter:image" content="https://i.ibb.co/N2jssrLd/17e34644-29fb-4a5d-a2e8-e96bee27756f.png">
+    <meta name="description" content="Browse ${escapeHtml(categoryTitle.toLowerCase())} movies and TV shows. Stream free in HD on StreamVault.">
+    <title>${escapeHtml(categoryTitle)} Movies & Shows | StreamVault</title>`;
+      injectMetaAndServe(html, metaTags);
+      return;
+    }
+
     // Handle show detail pages
     const showMatch = requestPath.match(/^\/show\/([^\/]+)/);
     if (showMatch) {
