@@ -204,6 +204,16 @@ const JWPlayerWrapper = forwardRef<VideoPlayerRef, JWPlayerWrapperProps>(({
                 windowColor: '#000000',
                 windowOpacity: 0
             },
+            // Add a placeholder track to ensure CC button is always visible
+            // JW Player will show the button when tracks array exists
+            tracks: [
+                {
+                    file: 'data:text/vtt,WEBVTT',
+                    label: 'No Subtitles Available',
+                    kind: 'captions',
+                    'default': false
+                }
+            ],
             // Show captions button in controlbar even if no tracks (allows user to toggle if available)
             renderCaptionsNatively: false,
             skin: {
