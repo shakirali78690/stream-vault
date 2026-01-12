@@ -192,6 +192,20 @@ const JWPlayerWrapper = forwardRef<VideoPlayerRef, JWPlayerWrapperProps>(({
             playbackRates: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2],
             displaytitle: false,
             displaydescription: false,
+            // Enable captions button and auto-detect captions
+            captions: {
+                color: '#FFFFFF',
+                fontSize: 14,
+                fontFamily: 'Arial, sans-serif',
+                fontOpacity: 100,
+                backgroundColor: '#000000',
+                backgroundOpacity: 75,
+                edgeStyle: 'uniform',
+                windowColor: '#000000',
+                windowOpacity: 0
+            },
+            // Show captions button in controlbar even if no tracks (allows user to toggle if available)
+            renderCaptionsNatively: false,
             skin: {
                 name: 'seven'
             }
