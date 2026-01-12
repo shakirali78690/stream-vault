@@ -16,7 +16,7 @@ export interface VideoPlayerRef {
 interface VideoPlayerProps {
     videoUrl: string | null | undefined;
     className?: string;
-    onTimeUpdate?: (currentTime: number) => void;
+    onTimeUpdate?: (currentTime: number, duration: number) => void;
     onPlay?: () => void;
     onPause?: () => void;
     onSeek?: (time: number) => void;
@@ -89,7 +89,7 @@ declare global {
 interface JWPlayerWrapperProps {
     videoUrl: string;
     className?: string;
-    onTimeUpdate?: (currentTime: number) => void;
+    onTimeUpdate?: (currentTime: number, duration: number) => void;
     onPlay?: () => void;
     onPause?: () => void;
     onSeek?: (time: number) => void;
@@ -224,8 +224,8 @@ const JWPlayerWrapper = forwardRef<VideoPlayerRef, JWPlayerWrapperProps>(({
         playerRef.current = player;
 
         // Attach event listeners using refs to avoid stale closures
-        player.on('time', (e: { position: number }) => {
-            callbacksRef.current.onTimeUpdate?.(e.position);
+        player.on('time', (e: { position: number; duration: number }) => {
+            callbacksRef.current.onTimeUpdate?.(e.position, e.duration);
         });
 
         // Only emit control events if host or not in sync mode

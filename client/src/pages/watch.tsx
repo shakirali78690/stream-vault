@@ -1,12 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute, useLocation, Link } from "wouter";
 import { useEffect, useState, useRef } from "react";
-import { ChevronLeft, Play } from "lucide-react";
+import { ChevronLeft, Play, SkipForward } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CommentsSection } from "@/components/comments-section";
-import { VideoPlayer } from "@/components/video-player";
+import { VideoPlayer, VideoPlayerRef } from "@/components/video-player";
 import { Helmet } from "react-helmet-async";
 import type { Show, Episode } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -47,6 +47,52 @@ export default function Watch() {
       return a.episodeNumber - b.episodeNumber;
     })
     .slice(0, 10) || [];
+
+  // Next episode for the "Next Episode" button
+  const nextEpisode = upNextEpisodes[0];
+
+  // Video player ref
+  const videoPlayerRef = useRef<VideoPlayerRef>(null);
+
+  // State for Next Episode button (only for direct video/JWPlayer)
+  const [showNextEpisode, setShowNextEpisode] = useState(false);
+  const [secondsRemaining, setSecondsRemaining] = useState(0);
+
+  // Helper to check if URL is a direct video (JWPlayer compatible)
+  const isDirectVideoUrl = (url: string | undefined): boolean => {
+    if (!url) return false;
+    const videoExtensions = ['.mp4', '.webm', '.ogg', '.m3u8', '.mpd'];
+    const isGoogleDrive = url.includes('drive.google.com') || url.includes('docs.google.com');
+    const isEmbed = url.includes('/embed') || url.includes('/e/') || url.includes('player.');
+    return !isGoogleDrive && !isEmbed && videoExtensions.some(ext => url.toLowerCase().includes(ext));
+  };
+
+  // Navigate to next episode
+  const goToNextEpisode = () => {
+    if (nextEpisode && slug) {
+      const url = `/watch/${slug}?season=${nextEpisode.season}&episode=${nextEpisode.episodeNumber}`;
+      window.location.replace(url);
+    }
+  };
+
+  // Handle time update from video player - shows Next Episode button 20s before end
+  const handleTimeUpdate = (currentTime: number, duration: number) => {
+    if (!nextEpisode || duration <= 0) return;
+
+    const remaining = duration - currentTime;
+
+    // Show button 20 seconds before end
+    if (remaining <= 20 && remaining > 0) {
+      setShowNextEpisode(true);
+      setSecondsRemaining(Math.ceil(remaining));
+    } else if (remaining <= 0) {
+      // Keep showing after video ends
+      setShowNextEpisode(true);
+      setSecondsRemaining(0);
+    } else {
+      setShowNextEpisode(false);
+    }
+  };
 
   const queryClient = useQueryClient();
   const progressUpdated = useRef(false);
@@ -171,8 +217,31 @@ export default function Watch() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Video Player */}
           <div className="lg:col-span-2">
-            <div className="aspect-video bg-black rounded-md overflow-hidden">
-              <VideoPlayer videoUrl={videoUrl} />
+            <div className="aspect-video bg-black rounded-md overflow-hidden relative">
+              <VideoPlayer
+                ref={videoPlayerRef}
+                videoUrl={videoUrl}
+                onTimeUpdate={handleTimeUpdate}
+              />
+
+              {/* Netflix-style Next Episode Button - Only for direct video players */}
+              {isDirectVideoUrl(videoUrl) && showNextEpisode && nextEpisode && (
+                <div className="absolute bottom-20 right-4 z-50 animate-in slide-in-from-right duration-300">
+                  <button
+                    onClick={goToNextEpisode}
+                    className="flex items-center gap-3 bg-white text-black px-5 py-2.5 rounded-md font-semibold text-base hover:bg-gray-100 transition-all shadow-xl hover:scale-105"
+                  >
+                    <Play className="w-5 h-5 fill-current" />
+                    <div className="flex flex-col items-start">
+                      <span>Next Episode</span>
+                      <span className="text-xs font-normal opacity-60">
+                        S{nextEpisode.season} E{nextEpisode.episodeNumber} {secondsRemaining > 0 ? `• ${secondsRemaining}s` : ''}
+                      </span>
+                    </div>
+                    <SkipForward className="w-4 h-4 ml-1" />
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Episode Info */}
