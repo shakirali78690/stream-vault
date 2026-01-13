@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -24,6 +24,95 @@ export default function WatchMovie() {
   const { data: allMovies } = useQuery<Movie[]>({
     queryKey: ["/api/movies"],
   });
+
+  // Fetch blog posts to get IMDB links for subtitles
+  const { data: blogPosts = [] } = useQuery<any[]>({
+    queryKey: ["/api/blog"],
+    enabled: !!movie?.id,
+  });
+
+  // Find matching blog post for this movie to get external links
+  const blogPost = movie ? blogPosts.find(
+    (post) => post.contentId === movie.id || post.slug === movie.slug
+  ) : null;
+
+  // State for subtitle tracks
+  const [subtitleTracks, setSubtitleTracks] = useState<Array<{
+    file: string;
+    label: string;
+    kind: 'captions' | 'subtitles';
+    default?: boolean;
+  }>>([]);
+
+  // Fetch subtitles when movie loads
+  useEffect(() => {
+    const fetchSubtitles = async () => {
+      if (!movie || !blogPost) return;
+
+      try {
+        // Parse IMDB ID from blog post external links
+        const externalLinks = blogPost.externalLinks
+          ? (typeof blogPost.externalLinks === 'string'
+            ? JSON.parse(blogPost.externalLinks)
+            : blogPost.externalLinks)
+          : null;
+
+        const imdbLink = externalLinks?.imdb;
+        if (!imdbLink) {
+          console.log('No IMDB link found for movie subtitle search');
+          return;
+        }
+
+        // Extract just the IMDB ID (tt1234567) from the link
+        const imdbMatch = imdbLink.match(/tt\d+/);
+        if (!imdbMatch) {
+          console.log('Invalid IMDB ID format');
+          return;
+        }
+
+        console.log(`🔍 Fetching subtitles for movie ${imdbMatch[0]}`);
+
+        const response = await fetch(
+          `/api/subtitles/search?imdbId=${imdbMatch[0]}&language=en`
+        );
+
+        if (!response.ok) {
+          console.error('Movie subtitle search failed');
+          return;
+        }
+
+        const data = await response.json();
+
+        if (data.subtitles && data.subtitles.length > 0) {
+          console.log(`✅ Found ${data.subtitles.length} movie subtitles`);
+
+          // Language code to full name mapping
+          const langNames: Record<string, string> = {
+            'en': 'English', 'es': 'Spanish', 'fr': 'French', 'de': 'German',
+            'it': 'Italian', 'pt': 'Portuguese', 'ru': 'Russian', 'ja': 'Japanese',
+            'ko': 'Korean', 'zh': 'Chinese', 'ar': 'Arabic', 'hi': 'Hindi',
+            'tr': 'Turkish', 'pl': 'Polish', 'nl': 'Dutch', 'sv': 'Swedish'
+          };
+
+          // Convert to VideoPlayer format (use first 10 subtitles)
+          const tracks = data.subtitles.slice(0, 10).map((sub: any, index: number) => ({
+            file: sub.downloadUrl,
+            label: langNames[sub.lang] || sub.language || sub.lang || 'Unknown',
+            kind: 'subtitles' as const,
+            default: index === 0
+          }));
+
+          setSubtitleTracks(tracks);
+        } else {
+          console.log('No movie subtitles found');
+        }
+      } catch (error) {
+        console.error('Error fetching movie subtitles:', error);
+      }
+    };
+
+    fetchSubtitles();
+  }, [movie?.id, blogPost]);
 
   // Track watch event for analytics
   useEffect(() => {
@@ -134,7 +223,7 @@ export default function WatchMovie() {
           {/* Video Player */}
           <div className="bg-card rounded-lg overflow-hidden shadow-lg">
             <div className="aspect-video bg-black">
-              <VideoPlayer videoUrl={movie.googleDriveUrl} />
+              <VideoPlayer videoUrl={movie.googleDriveUrl} subtitleTracks={subtitleTracks} />
             </div>
 
             {/* Movie Info Below Player */}

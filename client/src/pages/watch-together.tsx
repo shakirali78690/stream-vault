@@ -137,6 +137,7 @@ function WatchTogetherContent() {
         videoPause,
         videoSeek,
         videoPlaybackRate,
+        videoSubtitle,
         hostMuteUser,
         changeContent,
         clearError
@@ -297,6 +298,100 @@ function WatchTogetherContent() {
     // Find the episode by ID from the episodes array
     const episode = episodes?.find(ep => ep.id === roomInfo?.episodeId);
 
+    // Fetch blog posts to get IMDB links for subtitles
+    const { data: blogPosts = [] } = useQuery<any[]>({
+        queryKey: ['/api/blog'],
+        enabled: !!(show?.id || movie?.id)
+    });
+
+    // Find matching blog post for this content to get external links
+    const blogPost = (show || movie) ? blogPosts.find(
+        (post) => post.contentId === (show?.id || movie?.id) || post.slug === (show?.slug || movie?.slug)
+    ) : null;
+
+    // State for subtitle tracks
+    const [subtitleTracks, setSubtitleTracks] = useState<Array<{
+        file: string;
+        label: string;
+        kind: 'captions' | 'subtitles';
+        default?: boolean;
+    }>>([]);
+
+    // Fetch subtitles when content loads
+    useEffect(() => {
+        const fetchSubtitles = async () => {
+            if (!blogPost) return;
+
+            try {
+                // Parse IMDB ID from blog post external links
+                const externalLinks = blogPost.externalLinks
+                    ? (typeof blogPost.externalLinks === 'string'
+                        ? JSON.parse(blogPost.externalLinks)
+                        : blogPost.externalLinks)
+                    : null;
+
+                const imdbLink = externalLinks?.imdb;
+                if (!imdbLink) {
+                    console.log('No IMDB link found for Watch Together subtitle search');
+                    return;
+                }
+
+                // Extract just the IMDB ID (tt1234567) from the link
+                const imdbMatch = imdbLink.match(/tt\d+/);
+                if (!imdbMatch) {
+                    console.log('Invalid IMDB ID format');
+                    return;
+                }
+
+                // For shows, include season and episode
+                const season = episode?.seasonNumber;
+                const ep = episode?.episodeNumber;
+                const searchUrl = roomInfo?.contentType === 'show' && season && ep
+                    ? `/api/subtitles/search?imdbId=${imdbMatch[0]}&season=${season}&episode=${ep}&language=en`
+                    : `/api/subtitles/search?imdbId=${imdbMatch[0]}&language=en`;
+
+                console.log(`🔍 Fetching subtitles for Watch Together: ${imdbMatch[0]}`);
+
+                const response = await fetch(searchUrl);
+
+                if (!response.ok) {
+                    console.error('Watch Together subtitle search failed');
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.subtitles && data.subtitles.length > 0) {
+                    console.log(`✅ Found ${data.subtitles.length} subtitles for Watch Together`);
+
+                    // Language code to full name mapping
+                    const langNames: Record<string, string> = {
+                        'en': 'English', 'es': 'Spanish', 'fr': 'French', 'de': 'German',
+                        'it': 'Italian', 'pt': 'Portuguese', 'ru': 'Russian', 'ja': 'Japanese',
+                        'ko': 'Korean', 'zh': 'Chinese', 'ar': 'Arabic', 'hi': 'Hindi',
+                        'tr': 'Turkish', 'pl': 'Polish', 'nl': 'Dutch', 'sv': 'Swedish'
+                    };
+
+                    // Convert to VideoPlayer format (use first 10 subtitles)
+                    const tracks = data.subtitles.slice(0, 10).map((sub: any, index: number) => ({
+                        file: sub.downloadUrl,
+                        label: langNames[sub.lang] || sub.language || sub.lang || 'Unknown',
+                        kind: 'subtitles' as const,
+                        default: index === 0
+                    }));
+
+                    setSubtitleTracks(tracks);
+                } else {
+                    console.log('No Watch Together subtitles found');
+                }
+            } catch (error) {
+                console.error('Error fetching Watch Together subtitles:', error);
+            }
+        };
+
+        fetchSubtitles();
+    }, [blogPost, episode?.id, roomInfo?.contentType]);
+
     const content = roomInfo?.contentType === 'show' ? show : movie;
     const title = content?.title || 'Watch Together';
 
@@ -436,9 +531,23 @@ function WatchTogetherContent() {
         console.log('🎬 Attaching video:sync listener for viewer');
         socket.on('video:sync', handleVideoSync);
 
+        // Listen for subtitle sync from host
+        const handleSubtitleSync = (data: { subtitleIndex: number }) => {
+            console.log('🎬 Received subtitle sync:', data.subtitleIndex, '(index -1 means off)');
+            const player = videoPlayerRef.current;
+            if (player) {
+                console.log('🎬 Setting captions to index:', data.subtitleIndex);
+                player.setCaptions(data.subtitleIndex);
+            } else {
+                console.log('🎬 VideoPlayer ref not ready for subtitle sync');
+            }
+        };
+        socket.on('video:subtitle', handleSubtitleSync);
+
         return () => {
             console.log('🎬 Removing video:sync listener');
             socket.off('video:sync', handleVideoSync);
+            socket.off('video:subtitle', handleSubtitleSync);
         };
     }, [socket, isHost]);
 
@@ -768,6 +877,7 @@ function WatchTogetherContent() {
                                 className="w-full h-full"
                                 isHost={isHost}
                                 syncMode={true}
+                                subtitleTracks={subtitleTracks}
                                 onPlay={() => {
                                     console.log('🎬 onPlay handler called - isHost:', isHost);
                                     if (isHost) {
@@ -794,6 +904,12 @@ function WatchTogetherContent() {
                                     console.log('🎬 onPlaybackRateChange handler called - isHost:', isHost, 'rate:', rate);
                                     if (isHost) {
                                         videoPlaybackRate(rate);
+                                    }
+                                }}
+                                onSubtitleChange={(subtitleIndex) => {
+                                    console.log('🎬 onSubtitleChange handler called - isHost:', isHost, 'index:', subtitleIndex);
+                                    if (isHost) {
+                                        videoSubtitle(subtitleIndex);
                                     }
                                 }}
                             />

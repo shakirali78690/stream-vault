@@ -8,6 +8,7 @@ export interface VideoPlayerRef {
     pause: () => void;
     seek: (time: number) => void;
     setPlaybackRate: (rate: number) => void;
+    setCaptions: (index: number) => void; // -1 = off, 0+ = track index
     getCurrentTime: () => number;
     getPlaybackRate: () => number;
     isPaused: () => boolean;
@@ -28,6 +29,7 @@ interface VideoPlayerProps {
     onPause?: () => void;
     onSeek?: (time: number) => void;
     onPlaybackRateChange?: (rate: number) => void;
+    onSubtitleChange?: (subtitleIndex: number) => void; // Called when user changes subtitle
     autoplay?: boolean;
     isHost?: boolean; // If true, shows controls; if false, hide controls for viewers
     syncMode?: boolean; // If true, disables local controls for non-hosts
@@ -102,6 +104,7 @@ interface JWPlayerWrapperProps {
     onPause?: () => void;
     onSeek?: (time: number) => void;
     onPlaybackRateChange?: (rate: number) => void;
+    onSubtitleChange?: (subtitleIndex: number) => void;
     autoplay?: boolean;
     isHost?: boolean;
     syncMode?: boolean;
@@ -116,6 +119,7 @@ const JWPlayerWrapper = forwardRef<VideoPlayerRef, JWPlayerWrapperProps>(({
     onPause,
     onSeek,
     onPlaybackRateChange,
+    onSubtitleChange,
     autoplay = false,
     isHost = true,
     syncMode = false,
@@ -132,6 +136,7 @@ const JWPlayerWrapper = forwardRef<VideoPlayerRef, JWPlayerWrapperProps>(({
         onPause,
         onSeek,
         onPlaybackRateChange,
+        onSubtitleChange,
         onTimeUpdate,
         isHost,
         syncMode
@@ -143,6 +148,7 @@ const JWPlayerWrapper = forwardRef<VideoPlayerRef, JWPlayerWrapperProps>(({
         onPause,
         onSeek,
         onPlaybackRateChange,
+        onSubtitleChange,
         onTimeUpdate,
         isHost,
         syncMode
@@ -166,6 +172,12 @@ const JWPlayerWrapper = forwardRef<VideoPlayerRef, JWPlayerWrapperProps>(({
         setPlaybackRate: (rate: number) => {
             console.log('🎬 VideoPlayer.setPlaybackRate() called:', rate);
             playerRef.current?.setPlaybackRate(rate);
+        },
+        setCaptions: (index: number) => {
+            console.log('🎬 VideoPlayer.setCaptions() called:', index);
+            // JWPlayer uses setCurrentCaptions - index 0 = off, 1+ = track index
+            // Our index: -1 = off, 0+ = track. So we add 1
+            playerRef.current?.setCurrentCaptions?.(index + 1);
         },
         getCurrentTime: () => {
             return playerRef.current?.getPosition?.() || 0;
@@ -202,6 +214,14 @@ const JWPlayerWrapper = forwardRef<VideoPlayerRef, JWPlayerWrapperProps>(({
             playbackRates: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2],
             displaytitle: false,
             displaydescription: false,
+            // Force highest quality for HLS/adaptive streams
+            qualityLabels: {
+                // Map bitrates to quality labels
+            },
+            // Always start with highest quality level (0 = auto, -1 = highest)
+            hlshtml: true,
+            // Set default quality to highest available
+            defaultBandwidthEstimate: 50000000, // 50 Mbps - forces highest quality selection
             // Enable captions button and auto-detect captions
             captions: {
                 color: '#FFFFFF',
@@ -279,6 +299,32 @@ const JWPlayerWrapper = forwardRef<VideoPlayerRef, JWPlayerWrapperProps>(({
             }
         });
 
+        // Caption/subtitle changed - notify for sync in watch together
+        player.on('captionsList', (e: { tracks: any[]; track: number }) => {
+            console.log('🎬 JW Player captionsList:', e);
+        });
+
+        player.on('captionsChanged', (e: { track: number }) => {
+            const { isHost, syncMode, onSubtitleChange } = callbacksRef.current;
+            // JWPlayer track: 0 = off, 1+ = track index. Convert to our format: -1 = off, 0+ = track
+            const subtitleIndex = e.track - 1;
+            console.log('🎬 JW Player captions changed to track:', e.track, '(our index:', subtitleIndex, ') - isHost:', isHost);
+            if (isHost || !syncMode) {
+                onSubtitleChange?.(subtitleIndex);
+            }
+        });
+
+        // Force highest quality when quality levels are loaded (for HLS streams)
+        player.on('levels', (e: { levels: Array<{ label: string; bitrate: number }> }) => {
+            if (e.levels && e.levels.length > 1) {
+                console.log('🎬 Quality levels available:', e.levels.length);
+                // Set to highest quality (last level is usually highest)
+                const highestLevel = e.levels.length - 1;
+                player.setCurrentQuality(highestLevel);
+                console.log(`🎬 Forced quality to level ${highestLevel}:`, e.levels[highestLevel]?.label);
+            }
+        });
+
         return () => {
             playerRef.current = null;
             try {
@@ -308,6 +354,7 @@ export const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(({
     onPause,
     onSeek,
     onPlaybackRateChange,
+    onSubtitleChange,
     autoplay = false,
     isHost = true,
     syncMode = false,
@@ -323,6 +370,7 @@ export const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(({
         pause: () => jwPlayerRef.current?.pause(),
         seek: (time: number) => jwPlayerRef.current?.seek(time),
         setPlaybackRate: (rate: number) => jwPlayerRef.current?.setPlaybackRate(rate),
+        setCaptions: (index: number) => jwPlayerRef.current?.setCaptions(index),
         getCurrentTime: () => jwPlayerRef.current?.getCurrentTime() || 0,
         getPlaybackRate: () => jwPlayerRef.current?.getPlaybackRate() || 1,
         isPaused: () => jwPlayerRef.current?.isPaused() ?? true
@@ -463,6 +511,7 @@ export const VideoPlayer = forwardRef<VideoPlayerRef, VideoPlayerProps>(({
                 onPause={onPause}
                 onSeek={onSeek}
                 onPlaybackRateChange={onPlaybackRateChange}
+                onSubtitleChange={onSubtitleChange}
                 autoplay={autoplay}
                 isHost={isHost}
                 syncMode={syncMode}

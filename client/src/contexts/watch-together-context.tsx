@@ -13,6 +13,7 @@ export interface VideoState {
     isPlaying: boolean;
     currentTime: number;
     lastUpdate: number;
+    currentSubtitleIndex: number; // -1 = off, 0+ = subtitle track index
 }
 
 export interface ChatMessage {
@@ -63,6 +64,7 @@ interface WatchTogetherContextType {
     videoPause: (currentTime: number) => void;
     videoSeek: (currentTime: number) => void;
     videoPlaybackRate: (rate: number) => void;
+    videoSubtitle: (subtitleIndex: number) => void; // -1 = off, 0+ = track index
     requestVideoState: () => void;
     hostMuteUser: (targetUserId: string, isMuted: boolean) => void;
     changeContent: (episodeId?: string, contentId?: string, contentType?: 'show' | 'movie') => void;
@@ -281,6 +283,12 @@ export function WatchTogetherProvider({ children }: Props) {
             setVideoState(data.videoState);
         });
 
+        // Subtitle sync - update subtitle index when host changes
+        newSocket.on('video:subtitle', ({ subtitleIndex }: { subtitleIndex: number }) => {
+            console.log('🎬 Subtitle sync received:', subtitleIndex);
+            setVideoState(prev => prev ? { ...prev, currentSubtitleIndex: subtitleIndex } : prev);
+        });
+
         // Chat
         newSocket.on('chat:receive', (msg: ChatMessage) => {
             setMessages(prev => [...prev, msg]);
@@ -397,6 +405,11 @@ export function WatchTogetherProvider({ children }: Props) {
         socket?.emit('video:playbackRate', { rate });
     }, [socket]);
 
+    const videoSubtitle = useCallback((subtitleIndex: number) => {
+        console.log('🎬 Context videoSubtitle - emitting video:subtitle to server, index:', subtitleIndex);
+        socket?.emit('video:subtitle', { subtitleIndex });
+    }, [socket]);
+
     const requestVideoState = useCallback(() => {
         socket?.emit('video:request-state');
     }, [socket]);
@@ -439,6 +452,7 @@ export function WatchTogetherProvider({ children }: Props) {
             videoPause,
             videoSeek,
             videoPlaybackRate,
+            videoSubtitle,
             requestVideoState,
             hostMuteUser,
             changeContent,

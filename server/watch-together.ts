@@ -343,6 +343,18 @@ export function setupWatchTogether(httpServer: HttpServer): Server {
             socket.emit('video:sync', room.videoState);
         });
 
+        // Subtitle sync (host only) - broadcast subtitle changes to all room users
+        socket.on('video:subtitle', (data: { subtitleIndex: number }) => {
+            const roomCode = userToRoom.get(socket.id);
+            if (!roomCode) return;
+            const room = rooms.get(roomCode);
+            if (!room || room.hostId !== socket.id) return;
+
+            console.log(`🎬 Host changed subtitle to index ${data.subtitleIndex} in room ${roomCode}`);
+            // Broadcast to all other users in room
+            socket.to(roomCode).emit('video:subtitle', { subtitleIndex: data.subtitleIndex });
+        });
+
         // Change content (episode/movie) - host only
         socket.on('video:change-content', (data: { episodeId?: string; contentId?: string; contentType?: 'show' | 'movie' }) => {
             const roomCode = userToRoom.get(socket.id);
