@@ -75,14 +75,14 @@ export default function Watch() {
     }
   };
 
-  // Handle time update from video player - shows Next Episode button 20s before end
+  // Handle time update from video player - shows Next Episode button 30s before end
   const handleTimeUpdate = (currentTime: number, duration: number) => {
     if (!nextEpisode || duration <= 0) return;
 
     const remaining = duration - currentTime;
 
-    // Show button 20 seconds before end
-    if (remaining <= 20 && remaining > 0) {
+    // Show button 30 seconds before end
+    if (remaining <= 30 && remaining > 0) {
       setShowNextEpisode(true);
       setSecondsRemaining(Math.ceil(remaining));
     } else if (remaining <= 0) {
@@ -224,22 +224,32 @@ export default function Watch() {
                 onTimeUpdate={handleTimeUpdate}
               />
 
-              {/* Netflix-style Next Episode Button - Only for direct video players */}
+              {/* Netflix-style Next Episode Button with Progress Bar - Only for direct video players */}
               {isDirectVideoUrl(videoUrl) && showNextEpisode && nextEpisode && (
                 <div className="absolute bottom-20 right-4 z-50 animate-in slide-in-from-right duration-300">
                   <button
                     onClick={goToNextEpisode}
-                    className="flex items-center gap-3 bg-white text-black px-5 py-2.5 rounded-md font-semibold text-base hover:bg-gray-100 transition-all shadow-xl hover:scale-105"
+                    className="relative flex items-center gap-3 bg-gray-300 text-black px-5 py-2.5 rounded-md font-semibold text-base shadow-xl overflow-hidden"
                   >
-                    <Play className="w-5 h-5 fill-current" />
-                    <div className="flex flex-col items-start">
+                    {/* Netflix-style progress bar with smooth CSS animation */}
+                    <div
+                      className="absolute top-0 left-0 bottom-0 bg-white"
+                      style={{
+                        animation: 'nextEpFill 30s linear forwards'
+                      }}
+                    />
+                    {/* Button content (above progress bar) */}
+                    <div className="relative z-10 flex items-center gap-3">
+                      <Play className="w-5 h-5 fill-current" />
                       <span>Next Episode</span>
-                      <span className="text-xs font-normal opacity-60">
-                        S{nextEpisode.season} E{nextEpisode.episodeNumber} {secondsRemaining > 0 ? `• ${secondsRemaining}s` : ''}
-                      </span>
                     </div>
-                    <SkipForward className="w-4 h-4 ml-1" />
                   </button>
+                  <style>{`
+                    @keyframes nextEpFill {
+                      from { width: 0%; }
+                      to { width: 100%; }
+                    }
+                  `}</style>
                 </div>
               )}
             </div>
