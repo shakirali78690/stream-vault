@@ -50,6 +50,7 @@ export function Footer() {
 
   const quickLinks = [
     { name: "Browse", path: "/browse" },
+    { name: "Anime", path: "/anime" },
     { name: "Blog", path: "/blog" },
     { name: "About Us", path: "/about" },
     { name: "Contact", path: "/contact" },

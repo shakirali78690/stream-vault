@@ -32,6 +32,9 @@ import FAQ from "@/pages/faq";
 import Report from "@/pages/report";
 import Request from "@/pages/request";
 import Movies from "@/pages/movies";
+import Anime from "@/pages/anime";
+import AnimeDetail from "@/pages/anime-detail";
+import WatchAnime from "@/pages/watch-anime";
 import BrowseShows from "@/pages/browse-shows";
 import BrowseMovies from "@/pages/browse-movies";
 import Trending from "@/pages/trending";
@@ -62,6 +65,9 @@ function Router() {
           <Route path="/watch/:slug" component={Watch} />
           <Route path="/movie/:slug" component={MovieDetail} />
           <Route path="/watch-movie/:slug" component={WatchMovie} />
+          <Route path="/anime" component={Anime} />
+          <Route path="/anime/:slug" component={AnimeDetail} />
+          <Route path="/watch-anime/:slug" component={WatchAnime} />
           <Route path="/search" component={Search} />
           <Route path="/category/:slug" component={Category} />
           <Route path="/watchlist" component={Watchlist} />

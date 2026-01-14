@@ -63,12 +63,56 @@ export const movies = pgTable("movies", {
   category: text("category"), // "action", "drama", "comedy", etc.
 });
 
+// Anime table (similar structure to Shows, for anime content)
+export const anime = pgTable("anime", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  alternativeTitles: text("alternative_titles"), // Japanese title, romaji, etc.
+  description: text("description").notNull(),
+  posterUrl: text("poster_url").notNull(),
+  backdropUrl: text("backdrop_url").notNull(),
+  year: integer("year").notNull(),
+  rating: text("rating").notNull(), // "TV-14", "TV-MA", "PG"
+  imdbRating: text("imdb_rating"),
+  malRating: text("mal_rating"), // MyAnimeList rating
+  genres: text("genres").notNull(), // comma-separated string
+  language: text("language").notNull().default("Japanese"),
+  totalSeasons: integer("total_seasons").notNull(),
+  totalEpisodes: integer("total_episodes"),
+  status: text("status"), // "Ongoing", "Completed", "Upcoming"
+  studio: text("studio"), // Animation studio
+  cast: text("cast"), // Voice actors
+  castDetails: text("cast_details"), // JSON string with cast photos and character names
+  creators: text("creators"), // Directors/creators
+  featured: boolean("featured").default(false),
+  trending: boolean("trending").default(false),
+  category: text("category"), // "action", "romance", "shonen", etc.
+});
+
+// Anime Episodes table
+export const animeEpisodes = pgTable("anime_episodes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  animeId: varchar("anime_id").notNull(),
+  season: integer("season").notNull(),
+  episodeNumber: integer("episode_number").notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  thumbnailUrl: text("thumbnail_url").notNull(),
+  duration: integer("duration").notNull(), // in minutes
+  googleDriveUrl: text("google_drive_url").notNull(),
+  videoUrl: text("video_url"), // Archive.org or other video URLs
+  airDate: text("air_date"),
+  dubbed: boolean("dubbed").default(false), // English dub available
+});
+
 // Comments table
 export const comments = pgTable("comments", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   episodeId: varchar("episode_id"), // null if it's a movie comment
   movieId: varchar("movie_id"), // null if it's an episode comment
-  parentId: varchar("parent_id"), // null if it's a top-level comment, otherwise the id of the parent comment
+  animeEpisodeId: varchar("anime_episode_id"), // null if not anime comment
+  parentId: varchar("parent_id"), // null if it's a top-level comment
   userName: text("user_name").notNull(),
   comment: text("comment").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -78,9 +122,10 @@ export const comments = pgTable("comments", {
 export const watchlistSchema = z.object({
   showId: z.string().optional(),
   movieId: z.string().optional(),
+  animeId: z.string().optional(),
   addedAt: z.string(),
-}).refine(data => data.showId || data.movieId, {
-  message: "Either showId or movieId must be provided"
+}).refine(data => data.showId || data.movieId || data.animeId, {
+  message: "Either showId, movieId, or animeId must be provided"
 });
 
 // Viewing progress (localStorage for MVP)
@@ -97,16 +142,22 @@ export const viewingProgressSchema = z.object({
 export const insertShowSchema = createInsertSchema(shows).omit({ id: true });
 export const insertEpisodeSchema = createInsertSchema(episodes).omit({ id: true });
 export const insertMovieSchema = createInsertSchema(movies).omit({ id: true });
+export const insertAnimeSchema = createInsertSchema(anime).omit({ id: true });
+export const insertAnimeEpisodeSchema = createInsertSchema(animeEpisodes).omit({ id: true });
 export const insertCommentSchema = createInsertSchema(comments).omit({ id: true, createdAt: true });
 
 // Select types
 export type Show = typeof shows.$inferSelect;
 export type Episode = typeof episodes.$inferSelect;
 export type Movie = typeof movies.$inferSelect;
+export type Anime = typeof anime.$inferSelect;
+export type AnimeEpisode = typeof animeEpisodes.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
 export type InsertShow = z.infer<typeof insertShowSchema>;
 export type InsertEpisode = z.infer<typeof insertEpisodeSchema>;
 export type InsertMovie = z.infer<typeof insertMovieSchema>;
+export type InsertAnime = z.infer<typeof insertAnimeSchema>;
+export type InsertAnimeEpisode = z.infer<typeof insertAnimeEpisodeSchema>;
 export type InsertComment = z.infer<typeof insertCommentSchema>;
 export type WatchlistItem = z.infer<typeof watchlistSchema>;
 export type ViewingProgress = z.infer<typeof viewingProgressSchema>;
@@ -116,8 +167,8 @@ export const blogPosts = pgTable("blog_posts", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),
-  contentType: text("content_type").notNull(), // "movie" or "show"
-  contentId: varchar("content_id"), // Reference to movie or show ID (optional)
+  contentType: text("content_type").notNull(), // "movie", "show", or "anime"
+  contentId: varchar("content_id"), // Reference to movie, show, or anime ID (optional)
   featuredImage: text("featured_image").notNull(),
   excerpt: text("excerpt").notNull(), // Short description for cards
   content: text("content").notNull(), // Full HTML/Markdown content

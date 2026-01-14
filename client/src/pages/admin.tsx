@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, Edit, Plus, Save, X, Upload, FileJson, LogOut, Mail, Send } from "lucide-react";
-import type { Show, Episode, Movie, BlogPost } from "@shared/schema";
+import type { Show, Episode, Movie, BlogPost, Anime, AnimeEpisode } from "@shared/schema";
 import { getAuthHeaders, logout as authLogout } from "@/lib/auth";
 
 export default function AdminPage() {
@@ -74,6 +74,11 @@ export default function AdminPage() {
     queryKey: ["/api/movies"],
   });
 
+  // Fetch all anime
+  const { data: anime = [] } = useQuery<Anime[]>({
+    queryKey: ["/api/anime"],
+  });
+
   if (isChecking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -109,9 +114,10 @@ export default function AdminPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-11 mb-8">
+          <TabsList className="grid w-full grid-cols-12 mb-8">
             <TabsTrigger value="shows">Shows</TabsTrigger>
             <TabsTrigger value="movies">Movies</TabsTrigger>
+            <TabsTrigger value="anime">Anime</TabsTrigger>
             <TabsTrigger value="blog">Blog</TabsTrigger>
             <TabsTrigger value="comments">Comments</TabsTrigger>
             <TabsTrigger value="requests">Requests</TabsTrigger>
@@ -131,6 +137,11 @@ export default function AdminPage() {
           {/* Manage Movies Tab */}
           <TabsContent value="movies">
             <ManageMovies movies={movies} />
+          </TabsContent>
+
+          {/* Manage Anime Tab */}
+          <TabsContent value="anime">
+            <ManageAnime anime={anime} />
           </TabsContent>
 
           {/* Blog Management Tab */}
@@ -1501,6 +1512,106 @@ function ManageMovies({ movies }: { movies: Movie[] }) {
                         deleteMovieMutation.mutate(movie.id);
                       }
                     }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Manage Anime Component
+function ManageAnime({ anime }: { anime: Anime[] }) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const deleteAnimeMutation = useMutation({
+    mutationFn: async (animeId: string) => {
+      const res = await fetch(`/api/admin/anime/${animeId}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+      if (!res.ok) throw new Error("Failed to delete anime");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/anime"] });
+      toast({
+        title: "Success",
+        description: "Anime deleted successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete anime",
+        variant: "destructive",
+      });
+    },
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>All Anime ({anime.length})</CardTitle>
+            <CardDescription>Manage your anime library</CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {anime.length === 0 ? (
+            <p className="text-muted-foreground text-center py-8">
+              No anime found. Use the add-anime.cjs script to add anime from TMDB.
+            </p>
+          ) : (
+            anime.map((a) => (
+              <div
+                key={a.id}
+                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <img
+                    src={a.posterUrl}
+                    alt={a.title}
+                    className="w-16 h-24 object-cover rounded"
+                  />
+                  <div>
+                    <h3 className="font-semibold text-lg">{a.title}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {a.year} • {a.totalSeasons} Season(s) • {a.status || 'Ongoing'}
+                    </p>
+                    {a.studio && (
+                      <p className="text-xs text-muted-foreground">Studio: {a.studio}</p>
+                    )}
+                    <div className="flex gap-2 mt-2">
+                      {a.genres?.split(',').slice(0, 3).map((genre) => (
+                        <Badge key={genre.trim()} variant="secondary">
+                          {genre.trim()}
+                        </Badge>
+                      ))}
+                      {a.featured && <Badge variant="default">Featured</Badge>}
+                      {a.trending && <Badge variant="outline">Trending</Badge>}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => {
+                      if (confirm(`Delete "${a.title}" and all its episodes?`)) {
+                        deleteAnimeMutation.mutate(a.id);
+                      }
+                    }}
+                    disabled={deleteAnimeMutation.isPending}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>

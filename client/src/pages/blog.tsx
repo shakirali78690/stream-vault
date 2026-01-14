@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { Calendar, User, ArrowRight, Film, Tv, Search, X } from "lucide-react";
+import { Calendar, User, ArrowRight, Film, Tv, Search, X, Sparkles } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/seo";
-import type { Show, Movie } from "@shared/schema";
+import type { Show, Movie, Anime } from "@shared/schema";
 
 interface ContentPost {
-  type: "movie" | "show";
+  type: "movie" | "show" | "anime";
   slug: string;
   title: string;
   description: string;
@@ -25,7 +25,7 @@ interface ContentPost {
 
 export default function Blog() {
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   const { data: shows, isLoading: showsLoading } = useQuery<Show[]>({
     queryKey: ["/api/shows"],
   });
@@ -34,7 +34,11 @@ export default function Blog() {
     queryKey: ["/api/movies"],
   });
 
-  const isLoading = showsLoading || moviesLoading;
+  const { data: anime, isLoading: animeLoading } = useQuery<Anime[]>({
+    queryKey: ["/api/anime"],
+  });
+
+  const isLoading = showsLoading || moviesLoading || animeLoading;
 
   // Convert shows and movies to content posts (no custom blog posts - they're used for detailed content only)
   const allPosts: ContentPost[] = [
@@ -66,6 +70,20 @@ export default function Blog() {
       imdbRating: show.imdbRating,
       cast: show.cast,
     })) || []),
+    // Anime
+    ...(anime?.map((a) => ({
+      type: "anime" as const,
+      slug: a.slug,
+      title: a.title,
+      description: a.description || '',
+      posterUrl: a.posterUrl || '',
+      backdropUrl: a.backdropUrl || '',
+      year: a.year,
+      genres: a.genres || '',
+      rating: a.rating || '',
+      imdbRating: a.imdbRating,
+      cast: a.cast,
+    })) || []),
   ];
 
   // Sort by year (newest first), but put Dhurandhar at the top as featured
@@ -78,10 +96,10 @@ export default function Blog() {
   // Filter posts based on search query
   const filteredPosts = searchQuery.trim()
     ? sortedPosts.filter((post) =>
-        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.genres.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.genres.toLowerCase().includes(searchQuery.toLowerCase())
+    )
     : sortedPosts;
 
   return (
@@ -99,7 +117,7 @@ export default function Blog() {
           <p className="text-lg text-muted-foreground max-w-2xl mb-6">
             Discover in-depth reviews, cast details, box office numbers, and everything you need to know about your favorite movies and TV shows.
           </p>
-          
+
           {/* Search Bar */}
           <div className="max-w-xl flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-2">
             <Search className="w-5 h-5 text-muted-foreground flex-shrink-0" />
@@ -129,7 +147,7 @@ export default function Blog() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           <div className="bg-card border border-border rounded-lg p-4 text-center">
             <Film className="w-6 h-6 mx-auto mb-2 text-primary" />
             <p className="text-2xl font-bold">{movies?.length || 0}</p>
@@ -139,6 +157,11 @@ export default function Blog() {
             <Tv className="w-6 h-6 mx-auto mb-2 text-primary" />
             <p className="text-2xl font-bold">{shows?.length || 0}</p>
             <p className="text-sm text-muted-foreground">TV Shows</p>
+          </div>
+          <div className="bg-card border border-border rounded-lg p-4 text-center">
+            <Sparkles className="w-6 h-6 mx-auto mb-2 text-primary" />
+            <p className="text-2xl font-bold">{anime?.length || 0}</p>
+            <p className="text-sm text-muted-foreground">Anime</p>
           </div>
           <div className="bg-card border border-border rounded-lg p-4 text-center">
             <User className="w-6 h-6 mx-auto mb-2 text-primary" />
@@ -168,7 +191,7 @@ export default function Blog() {
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-6">
                   <Badge className="mb-3">
-                    {filteredPosts[0].type === "movie" ? "Movie" : "TV Show"}
+                    {filteredPosts[0].type === "movie" ? "Movie" : filteredPosts[0].type === "anime" ? "Anime" : "TV Show"}
                   </Badge>
                   <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
                     {filteredPosts[0].title} ({filteredPosts[0].year})
@@ -226,7 +249,7 @@ export default function Blog() {
                     />
                     <div className="absolute top-3 left-3">
                       <Badge variant="secondary">
-                        {post.type === "movie" ? "Movie" : "TV Show"}
+                        {post.type === "movie" ? "Movie" : post.type === "anime" ? "Anime" : "TV Show"}
                       </Badge>
                     </div>
                     {post.imdbRating && (

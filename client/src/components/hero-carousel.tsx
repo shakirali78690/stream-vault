@@ -2,18 +2,22 @@ import { useState, useEffect, useRef } from "react";
 import { Play, Info, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import type { Show, Movie } from "@shared/schema";
+import type { Show, Movie, Anime } from "@shared/schema";
 import { Link } from "wouter";
 
-type ContentItem = Show | Movie;
+type ContentItem = Show | Movie | Anime;
 
 interface HeroCarouselProps {
   shows: ContentItem[];
 }
 
-// Helper to check if item is a movie
+// Helper to check content type
 function isMovie(item: ContentItem): item is Movie {
-  return 'googleDriveUrl' in item;
+  return 'googleDriveUrl' in item && !('totalSeasons' in item);
+}
+
+function isAnime(item: ContentItem): item is Anime {
+  return 'malRating' in item || 'studio' in item;
 }
 
 export function HeroCarousel({ shows }: HeroCarouselProps) {
@@ -73,7 +77,7 @@ export function HeroCarousel({ shows }: HeroCarouselProps) {
   const currentShow = shows[currentIndex];
 
   return (
-    <div 
+    <div
       className="relative w-full h-[70vh] min-h-[500px] max-h-[800px] overflow-hidden"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -82,7 +86,7 @@ export function HeroCarousel({ shows }: HeroCarouselProps) {
       {/* Background Image with Gradient - Poster on mobile, Backdrop on desktop */}
       <div
         className="absolute inset-0 bg-cover bg-center transition-all duration-700"
-        style={{ 
+        style={{
           backgroundImage: `url(${currentShow.posterUrl})`,
         }}
       >
@@ -150,7 +154,7 @@ export function HeroCarousel({ shows }: HeroCarouselProps) {
 
           {/* CTAs */}
           <div className="flex flex-wrap gap-3 pt-2">
-            <Link href={isMovie(currentShow) ? `/watch-movie/${currentShow.slug}` : `/watch/${currentShow.slug}`}>
+            <Link href={isAnime(currentShow) ? `/watch-anime/${currentShow.slug}` : isMovie(currentShow) ? `/watch-movie/${currentShow.slug}` : `/watch/${currentShow.slug}`}>
               <Button
                 size="lg"
                 className="gap-2 min-h-11"
@@ -160,7 +164,7 @@ export function HeroCarousel({ shows }: HeroCarouselProps) {
                 Play Now
               </Button>
             </Link>
-            <Link href={isMovie(currentShow) ? `/movie/${currentShow.slug}` : `/show/${currentShow.slug}`}>
+            <Link href={isAnime(currentShow) ? `/anime/${currentShow.slug}` : isMovie(currentShow) ? `/movie/${currentShow.slug}` : `/show/${currentShow.slug}`}>
               <Button
                 size="lg"
                 variant="outline"
@@ -181,11 +185,10 @@ export function HeroCarousel({ shows }: HeroCarouselProps) {
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`w-2 h-2 rounded-full transition-all ${
-              index === currentIndex
-                ? "bg-primary w-8"
-                : "bg-foreground/40 hover:bg-foreground/60"
-            }`}
+            className={`w-2 h-2 rounded-full transition-all ${index === currentIndex
+              ? "bg-primary w-8"
+              : "bg-foreground/40 hover:bg-foreground/60"
+              }`}
             aria-label={`Go to slide ${index + 1}`}
             data-testid={`button-hero-dot-${index}`}
           />

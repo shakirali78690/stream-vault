@@ -14,9 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Show, Movie } from "@shared/schema";
+import type { Show, Movie, Anime } from "@shared/schema";
+import { Sparkles } from "lucide-react";
 
-type ContentType = "all" | "shows" | "movies";
+type ContentType = "all" | "shows" | "movies" | "anime";
 type SortOption = "title" | "year" | "rating";
 
 export default function Browse() {
@@ -34,9 +35,13 @@ export default function Browse() {
     queryKey: ["/api/movies"],
   });
 
-  const isLoading = showsLoading || moviesLoading;
+  const { data: anime, isLoading: animeLoading } = useQuery<Anime[]>({
+    queryKey: ["/api/anime"],
+  });
 
-  // Extract all unique genres (filter out empty strings)
+  const isLoading = showsLoading || moviesLoading || animeLoading;
+
+  // Extract all unique genres
   const allGenres = useMemo(() => {
     const genres = new Set<string>();
     shows?.forEach((show) => {
@@ -51,18 +56,27 @@ export default function Browse() {
         if (trimmed) genres.add(trimmed);
       });
     });
+    anime?.forEach((a) => {
+      a.genres?.split(",").forEach((g) => {
+        const trimmed = g.trim();
+        if (trimmed) genres.add(trimmed);
+      });
+    });
     return Array.from(genres).filter(g => g.length > 0).sort();
-  }, [shows, movies]);
+  }, [shows, movies, anime]);
 
   // Filter and sort content
   const filteredContent = useMemo(() => {
-    let content: (Show | Movie)[] = [];
+    let content: (Show | Movie | Anime)[] = [];
 
     if (contentType === "all" || contentType === "shows") {
       content = [...content, ...(shows || [])];
     }
     if (contentType === "all" || contentType === "movies") {
       content = [...content, ...(movies || [])];
+    }
+    if (contentType === "all" || contentType === "anime") {
+      content = [...content, ...(anime || [])];
     }
 
     // Search filter
@@ -101,11 +115,16 @@ export default function Browse() {
     });
 
     return content;
-  }, [shows, movies, contentType, searchQuery, selectedGenre, sortBy]);
+  }, [shows, movies, anime, contentType, searchQuery, selectedGenre, sortBy]);
 
   // Helper to check if item is a movie
-  const isMovie = (item: Show | Movie): item is Movie => {
-    return "googleDriveUrl" in item;
+  const isMovie = (item: Show | Movie | Anime): item is Movie => {
+    return "googleDriveUrl" in item && !("studio" in item);
+  };
+
+  // Helper to check if item is anime
+  const isAnime = (item: Show | Movie | Anime): item is Anime => {
+    return "studio" in item || "malRating" in item;
   };
 
   const clearFilters = () => {
@@ -135,12 +154,12 @@ export default function Browse() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEO 
+      <SEO
         title="Browse All Movies & TV Shows | StreamVault"
         description="Browse our complete collection of movies and TV shows. Filter by genre, sort by rating, and find your next favorite content."
         canonical="https://streamvault.live/browse"
       />
-      
+
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -193,6 +212,15 @@ export default function Browse() {
               >
                 <Film className="w-4 h-4" />
                 Movies
+              </Button>
+              <Button
+                size="sm"
+                variant={contentType === "anime" ? "default" : "ghost"}
+                onClick={() => setContentType("anime")}
+                className="gap-1"
+              >
+                <Sparkles className="w-4 h-4" />
+                Anime
               </Button>
             </div>
 
@@ -277,7 +305,7 @@ export default function Browse() {
             {filteredContent.map((item) => (
               <Link
                 key={item.id}
-                href={isMovie(item) ? `/movie/${item.slug}` : `/show/${item.slug}`}
+                href={isAnime(item) ? `/anime/${item.slug}` : isMovie(item) ? `/movie/${item.slug}` : `/show/${item.slug}`}
               >
                 <div className="group cursor-pointer">
                   <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-card mb-2">
@@ -292,7 +320,7 @@ export default function Browse() {
                       className="absolute top-2 right-2 text-xs"
                       variant="secondary"
                     >
-                      {isMovie(item) ? "Movie" : "TV"}
+                      {isAnime(item) ? "Anime" : isMovie(item) ? "Movie" : "TV"}
                     </Badge>
                   </div>
                   <h3 className="font-medium text-sm line-clamp-1 group-hover:text-primary transition-colors">
@@ -311,7 +339,7 @@ export default function Browse() {
             {filteredContent.map((item) => (
               <Link
                 key={item.id}
-                href={isMovie(item) ? `/movie/${item.slug}` : `/show/${item.slug}`}
+                href={isAnime(item) ? `/anime/${item.slug}` : isMovie(item) ? `/movie/${item.slug}` : `/show/${item.slug}`}
               >
                 <div className="flex gap-4 p-3 rounded-lg bg-card hover:bg-card/80 transition-colors cursor-pointer">
                   <img
@@ -324,12 +352,13 @@ export default function Browse() {
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-medium truncate">{item.title}</h3>
                       <Badge variant="secondary" className="text-xs shrink-0">
-                        {isMovie(item) ? "Movie" : "TV"}
+                        {isAnime(item) ? "Anime" : isMovie(item) ? "Movie" : "TV"}
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">
                       {item.year}
-                      {!isMovie(item) && ` • ${item.totalSeasons} Season${item.totalSeasons > 1 ? "s" : ""}`}
+                      {!isMovie(item) && !isAnime(item) && ` • ${(item as Show).totalSeasons} Season${(item as Show).totalSeasons > 1 ? "s" : ""}`}
+                      {isAnime(item) && (item as Anime).studio && ` • ${(item as Anime).studio}`}
                       {item.imdbRating && ` • ⭐ ${item.imdbRating}`}
                     </p>
                     <p className="text-sm text-muted-foreground line-clamp-2">

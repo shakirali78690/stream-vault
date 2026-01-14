@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ShowCard } from "@/components/show-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo";
-import type { Show, Movie } from "@shared/schema";
+import type { Show, Movie, Anime } from "@shared/schema";
 import { Flame } from "lucide-react";
 
 export default function Trending() {
@@ -14,7 +14,11 @@ export default function Trending() {
     queryKey: ["/api/movies"],
   });
 
-  const isLoading = showsLoading || moviesLoading;
+  const { data: anime, isLoading: animeLoading } = useQuery<Anime[]>({
+    queryKey: ["/api/anime"],
+  });
+
+  const isLoading = showsLoading || moviesLoading || animeLoading;
 
   if (isLoading) {
     return (
@@ -29,18 +33,18 @@ export default function Trending() {
     );
   }
 
-  // Combine shows and movies, filter trending
-  const allContent: (Show | Movie)[] = [...(shows || []), ...(movies || [])];
+  // Combine shows, movies, and anime, filter trending
+  const allContent: (Show | Movie | Anime)[] = [...(shows || []), ...(movies || []), ...(anime || [])];
   const trendingContent = allContent.filter((item) => item.trending);
 
   return (
     <div className="min-h-screen container mx-auto px-4 py-8">
-      <SEO 
+      <SEO
         title="Trending Movies & TV Shows | What's Popular Now"
         description="Discover the most popular movies and TV shows streaming right now. Updated daily with trending content."
         canonical="https://streamvault.live/trending"
       />
-      
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">

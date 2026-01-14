@@ -1,11 +1,11 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, useState } from "react";
 import { ShowCard } from "./show-card";
-import type { Show, Movie } from "@shared/schema";
+import type { Show, Movie, Anime } from "@shared/schema";
 
 interface ContentRowProps {
   title: string;
-  shows: (Show | Movie)[];
+  shows: (Show | Movie | Anime)[];
   orientation?: "portrait" | "landscape";
   showProgress?: Map<string, number>;
 }
@@ -77,9 +77,8 @@ export function ContentRow({
           {shows.map((show) => (
             <div
               key={show.id}
-              className={`flex-shrink-0 ${
-                orientation === "portrait" ? "w-40 md:w-48" : "w-72 md:w-80"
-              }`}
+              className={`flex-shrink-0 ${orientation === "portrait" ? "w-40 md:w-48" : "w-72 md:w-80"
+                }`}
             >
               <ShowCard
                 show={show}

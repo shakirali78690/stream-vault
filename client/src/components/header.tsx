@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useTheme } from "./theme-provider";
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { Show, Movie } from "@shared/schema";
+import type { Show, Movie, Anime } from "@shared/schema";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,10 +30,15 @@ export function Header() {
     queryKey: ["/api/movies"],
   });
 
+  const { data: anime } = useQuery<Anime[]>({
+    queryKey: ["/api/anime"],
+  });
+
   const navigation = [
     { name: "Home", path: "/" },
     { name: "Web Series", path: "/series" },
     { name: "Movies", path: "/movies" },
+    { name: "Anime", path: "/anime" },
     { name: "Trending", path: "/trending" },
   ];
 
@@ -44,16 +49,19 @@ export function Header() {
     { name: "Horror & Mystery", path: "/category/horror" },
   ];
 
-  // Filter shows and movies based on search query
+  // Filter shows, movies, and anime based on search query
   const searchResults = searchQuery.trim()
     ? [
-        ...(shows?.filter((show) =>
-          show.title.toLowerCase().includes(searchQuery.toLowerCase())
-        ).map(show => ({ ...show, type: 'show' as const })) || []),
-        ...(movies?.filter((movie) =>
-          movie.title.toLowerCase().includes(searchQuery.toLowerCase())
-        ).map(movie => ({ ...movie, type: 'movie' as const })) || [])
-      ].slice(0, 8)
+      ...(shows?.filter((show) =>
+        show.title.toLowerCase().includes(searchQuery.toLowerCase())
+      ).map(show => ({ ...show, type: 'show' as const })) || []),
+      ...(movies?.filter((movie) =>
+        movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+      ).map(movie => ({ ...movie, type: 'movie' as const })) || []),
+      ...(anime?.filter((a) =>
+        a.title.toLowerCase().includes(searchQuery.toLowerCase())
+      ).map(a => ({ ...a, type: 'anime' as const })) || [])
+    ].slice(0, 8)
     : [];
 
   // Close dropdown when clicking outside
@@ -102,11 +110,10 @@ export function Header() {
           {navigation.map((item) => (
             <Link key={item.path} href={item.path}>
               <div
-                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors hover-elevate active-elevate-2 cursor-pointer ${
-                  location === item.path
-                    ? "text-foreground"
-                    : "text-muted-foreground"
-                }`}
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors hover-elevate active-elevate-2 cursor-pointer ${location === item.path
+                  ? "text-foreground"
+                  : "text-muted-foreground"
+                  }`}
                 data-testid={`link-nav-${item.name.toLowerCase().replace(/\s+/g, "-")}`}
               >
                 {item.name}
@@ -192,7 +199,7 @@ export function Header() {
               {showResults && searchResults.length > 0 && (
                 <div className="absolute top-full mt-2 w-96 bg-background border border-border rounded-lg shadow-lg overflow-hidden z-50">
                   {searchResults.map((item) => (
-                    <Link key={item.id} href={item.type === 'show' ? `/show/${item.slug}` : `/movie/${item.slug}`}>
+                    <Link key={item.id} href={item.type === 'anime' ? `/anime/${item.slug}` : item.type === 'show' ? `/show/${item.slug}` : `/movie/${item.slug}`}>
                       <div
                         className="flex items-center gap-3 p-3 hover:bg-accent cursor-pointer transition-colors"
                         onClick={() => {
@@ -208,7 +215,7 @@ export function Header() {
                         <div className="flex-1 min-w-0">
                           <p className="font-medium truncate">{item.title}</p>
                           <p className="text-sm text-muted-foreground truncate">
-                            {item.year} • {item.type === 'show' ? 'TV Series' : 'Movie'}
+                            {item.year} • {item.type === 'anime' ? 'Anime' : item.type === 'show' ? 'TV Series' : 'Movie'}
                           </p>
                         </div>
                       </div>
@@ -337,11 +344,10 @@ export function Header() {
             {navigation.map((item) => (
               <Link key={item.path} href={item.path}>
                 <div
-                  className={`block px-3 py-2 text-sm font-medium rounded-md hover-elevate active-elevate-2 cursor-pointer ${
-                    location === item.path
-                      ? "text-foreground bg-accent"
-                      : "text-muted-foreground"
-                  }`}
+                  className={`block px-3 py-2 text-sm font-medium rounded-md hover-elevate active-elevate-2 cursor-pointer ${location === item.path
+                    ? "text-foreground bg-accent"
+                    : "text-muted-foreground"
+                    }`}
                   onClick={() => setMobileMenuOpen(false)}
                   data-testid={`link-mobile-${item.name.toLowerCase().replace(/\s+/g, "-")}`}
                 >
@@ -353,11 +359,10 @@ export function Header() {
             {/* Watchlist Link */}
             <Link href="/watchlist">
               <div
-                className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md hover-elevate active-elevate-2 cursor-pointer ${
-                  location === "/watchlist"
-                    ? "text-foreground bg-accent"
-                    : "text-muted-foreground"
-                }`}
+                className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md hover-elevate active-elevate-2 cursor-pointer ${location === "/watchlist"
+                  ? "text-foreground bg-accent"
+                  : "text-muted-foreground"
+                  }`}
                 onClick={() => setMobileMenuOpen(false)}
                 data-testid="link-mobile-watchlist"
               >

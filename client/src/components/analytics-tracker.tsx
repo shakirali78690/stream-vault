@@ -29,7 +29,7 @@ async function trackPageView(path: string) {
 }
 
 // Track a watch event
-export async function trackWatch(contentType: 'show' | 'movie', contentId: string, contentTitle: string, episodeId?: string, duration: number = 0) {
+export async function trackWatch(contentType: 'show' | 'movie' | 'anime', contentId: string, contentTitle: string, episodeId?: string, duration: number = 0) {
     try {
         await fetch('/api/analytics/watch', {
             method: 'POST',

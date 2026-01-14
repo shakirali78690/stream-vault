@@ -86,7 +86,7 @@ const extractDriveId = (url: string): string => {
 };
 
 // Placeholder IDs to check
-const PLACEHOLDER_IDS = ['1zcFHiGEOwgq2-j6hMqpsE0ov7qcIUqCd', 'PLACEHOLDER'];
+const PLACEHOLDER_IDS = ['1zcFHiGEOwgq2-j6hMqpsE0ov7qcIUqCd', 'PLACEHOLDER', 'placeholder'];
 
 // Declare global jwplayer type
 declare global {

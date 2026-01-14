@@ -1,6 +1,6 @@
 import type { Express, Request } from "express";
 import type { IStorage } from "./storage";
-import type { Show, Category } from "@shared/schema";
+import type { Show, Movie, Anime, Category } from "@shared/schema";
 
 // Get base URL from request host
 function getBaseUrl(req: Request): string {
@@ -40,6 +40,7 @@ Allow: /sitemap
 # Content Detail Pages (main canonical pages)
 Allow: /show/*
 Allow: /movie/*
+Allow: /anime/*
 Allow: /category/*
 
 # Blog & Articles (SEO content)
@@ -62,6 +63,7 @@ Allow: /faq
 # Block watch pages (thin content, use canonical to detail pages)
 Disallow: /watch/*
 Disallow: /watch-movie/*
+Disallow: /watch-anime/*
 
 # Block admin and API endpoints
 Disallow: /admin
@@ -99,6 +101,8 @@ Crawl-delay: 1
         { url: "/browse", priority: "0.8", changefreq: "daily" },
         { url: "/browse/shows", priority: "0.8", changefreq: "daily" },
         { url: "/browse/movies", priority: "0.8", changefreq: "daily" },
+        // Anime
+        { url: "/anime", priority: "0.9", changefreq: "daily" },
         // User features
         { url: "/watchlist", priority: "0.7", changefreq: "weekly" },
         { url: "/continue-watching", priority: "0.7", changefreq: "weekly" },
@@ -282,6 +286,75 @@ Crawl-delay: 1
 
         // NOTE: Removed watch-movie URLs - robots.txt disallows them
         // Watch pages have canonical tags pointing to movie detail pages
+      }
+
+      // Add anime (detail pages and blog)
+      const allAnime = await storage.getAllAnime();
+      for (const anime of allAnime) {
+        const title = (anime.title || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&apos;");
+
+        const description = (anime.description || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&apos;");
+
+        const posterUrl = (anime.posterUrl || "").replace(/&/g, "&amp;");
+        const backdropUrl = (anime.backdropUrl || "").replace(/&/g, "&amp;");
+
+        // Anime detail page (canonical)
+        let animeUrl = `
+  <url>
+    <loc>${baseUrl}/anime/${anime.slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>`;
+
+        if (posterUrl && posterUrl.startsWith('http')) {
+          animeUrl += `
+    <image:image>
+      <image:loc>${posterUrl}</image:loc>
+      <image:title>${title}</image:title>
+      <image:caption>${description}</image:caption>
+    </image:image>`;
+        }
+        if (backdropUrl && backdropUrl.startsWith('http')) {
+          animeUrl += `
+    <image:image>
+      <image:loc>${backdropUrl}</image:loc>
+      <image:title>${title} - Backdrop</image:title>
+    </image:image>`;
+        }
+
+        animeUrl += `
+  </url>`;
+        allUrls.push(animeUrl);
+
+        // Blog article page for anime
+        let blogAnimeUrl = `
+  <url>
+    <loc>${baseUrl}/blog/anime/${anime.slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>`;
+
+        if (backdropUrl && backdropUrl.startsWith('http')) {
+          blogAnimeUrl += `
+    <image:image>
+      <image:loc>${backdropUrl}</image:loc>
+      <image:title>${title} - Complete Guide, Cast &amp; Reviews</image:title>
+    </image:image>`;
+        }
+
+        blogAnimeUrl += `
+  </url>`;
+        allUrls.push(blogAnimeUrl);
       }
 
       const xml = `<?xml version="1.0" encoding="UTF-8"?>

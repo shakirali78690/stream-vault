@@ -159,6 +159,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Anime routes
+  // Get all anime
+  app.get("/api/anime", async (_req, res) => {
+    try {
+      const anime = await storage.getAllAnime();
+      res.json(anime);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch anime" });
+    }
+  });
+
+  // Search anime
+  app.get("/api/anime/search", async (req, res) => {
+    try {
+      const query = req.query.q as string;
+      if (!query) {
+        return res.status(400).json({ error: "Query parameter required" });
+      }
+      const anime = await storage.searchAnime(query);
+      res.json(anime);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to search anime" });
+    }
+  });
+
+  // Get anime by slug
+  app.get("/api/anime/:slug", async (req, res) => {
+    try {
+      const anime = await storage.getAnimeBySlug(req.params.slug);
+      if (!anime) {
+        return res.status(404).json({ error: "Anime not found" });
+      }
+      res.json(anime);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch anime" });
+    }
+  });
+
+  // Get all anime episodes (for admin)
+  app.get("/api/all-anime-episodes", requireAdmin, async (_req, res) => {
+    try {
+      const episodes = await storage.getAllAnimeEpisodes();
+      res.json(episodes);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch all anime episodes" });
+    }
+  });
+
+  // Get anime episodes by anime ID
+  app.get("/api/anime-episodes/:animeId", async (req, res) => {
+    try {
+      const { animeId } = req.params;
+      const episodes = await storage.getAnimeEpisodesByAnimeId(animeId);
+      res.json(episodes);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch anime episodes" });
+    }
+  });
+
   // Get all categories
   app.get("/api/categories", async (_req, res) => {
     try {
@@ -368,6 +427,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete movie" });
+    }
+  });
+
+  // Admin anime routes
+  // Add new anime
+  app.post("/api/admin/anime", requireAdmin, async (req, res) => {
+    try {
+      const anime = await storage.createAnime(req.body);
+      res.json(anime);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create anime" });
+    }
+  });
+
+  // Update anime
+  app.put("/api/admin/anime/:animeId", requireAdmin, async (req, res) => {
+    try {
+      const { animeId } = req.params;
+      const anime = await storage.updateAnime(animeId, req.body);
+      res.json(anime);
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to update anime", details: error.message });
+    }
+  });
+
+  // Delete anime (and its episodes)
+  app.delete("/api/admin/anime/:animeId", requireAdmin, async (req, res) => {
+    try {
+      const { animeId } = req.params;
+      // Delete all anime episodes first
+      const episodes = await storage.getAnimeEpisodesByAnimeId(animeId);
+      for (const ep of episodes) {
+        await storage.deleteAnimeEpisode(ep.id);
+      }
+      // Then delete the anime
+      await storage.deleteAnime(animeId);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete anime" });
+    }
+  });
+
+  // Add anime episode
+  app.post("/api/admin/anime-episodes", requireAdmin, async (req, res) => {
+    try {
+      const episode = await storage.createAnimeEpisode(req.body);
+      res.json(episode);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create anime episode" });
+    }
+  });
+
+  // Delete anime episode
+  app.delete("/api/admin/anime-episodes/:episodeId", requireAdmin, async (req, res) => {
+    try {
+      const { episodeId } = req.params;
+      await storage.deleteAnimeEpisode(episodeId);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete anime episode" });
     }
   });
 

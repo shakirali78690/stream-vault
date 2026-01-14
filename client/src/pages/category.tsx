@@ -5,7 +5,7 @@ import { MovieCard } from "@/components/movie-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SEO } from "@/components/seo";
-import type { Show, Movie } from "@shared/schema";
+import type { Show, Movie, Anime } from "@shared/schema";
 
 const categoryMap: Record<string, string> = {
   action: "Action & Thriller",
@@ -19,6 +19,7 @@ const categoryMap: Record<string, string> = {
   adventure: "Adventure",
   mystery: "Mystery",
   medical: "Medical",
+  animation: "Animation",
 };
 
 const genreKeywords: Record<string, string[]> = {
@@ -33,6 +34,7 @@ const genreKeywords: Record<string, string[]> = {
   adventure: ["adventure"],
   mystery: ["mystery"],
   medical: ["medical"],
+  animation: ["animation", "anime"],
 };
 
 export default function Category() {
@@ -47,7 +49,11 @@ export default function Category() {
     queryKey: ["/api/movies"],
   });
 
-  const isLoading = showsLoading || moviesLoading;
+  const { data: anime, isLoading: animeLoading } = useQuery<Anime[]>({
+    queryKey: ["/api/anime"],
+  });
+
+  const isLoading = showsLoading || moviesLoading || animeLoading;
   const categoryName = categoryMap[slug];
   const keywords = genreKeywords[slug] || [];
 
@@ -58,6 +64,11 @@ export default function Category() {
 
   const categoryMovies = movies?.filter((movie) => {
     const genres = movie.genres?.toLowerCase() || "";
+    return keywords.some(keyword => genres.includes(keyword.toLowerCase()));
+  }) || [];
+
+  const categoryAnime = anime?.filter((a) => {
+    const genres = a.genres?.toLowerCase() || "";
     return keywords.some(keyword => genres.includes(keyword.toLowerCase()));
   }) || [];
 
@@ -86,11 +97,13 @@ export default function Category() {
     );
   }
 
+  const totalCount = categoryShows.length + categoryMovies.length + categoryAnime.length;
+
   return (
     <div className="min-h-screen">
-      <SEO 
-        title={`${categoryName} Movies & TV Shows`}
-        description={`Watch the best ${categoryName} movies and TV shows free in HD on StreamVault. Stream ${categoryName.toLowerCase()} content instantly.`}
+      <SEO
+        title={`${categoryName} Movies, TV Shows & Anime`}
+        description={`Watch the best ${categoryName} movies, TV shows, and anime free in HD on StreamVault. Stream ${categoryName.toLowerCase()} content instantly.`}
         canonical={`https://streamvault.live/category/${slug}`}
       />
       <div className="container mx-auto px-4 py-8">
@@ -104,7 +117,7 @@ export default function Category() {
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="mb-6">
             <TabsTrigger value="all">
-              All ({categoryShows.length + categoryMovies.length})
+              All ({totalCount})
             </TabsTrigger>
             <TabsTrigger value="shows">
               Shows ({categoryShows.length})
@@ -112,17 +125,23 @@ export default function Category() {
             <TabsTrigger value="movies">
               Movies ({categoryMovies.length})
             </TabsTrigger>
+            <TabsTrigger value="anime">
+              Anime ({categoryAnime.length})
+            </TabsTrigger>
           </TabsList>
 
           {/* All Tab */}
           <TabsContent value="all">
-            {categoryShows.length + categoryMovies.length > 0 ? (
+            {totalCount > 0 ? (
               <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4">
                 {categoryShows.map((show) => (
                   <ShowCard key={`show-${show.id}`} show={show} />
                 ))}
                 {categoryMovies.map((movie) => (
                   <MovieCard key={`movie-${movie.id}`} movie={movie} />
+                ))}
+                {categoryAnime.map((a) => (
+                  <ShowCard key={`anime-${a.id}`} show={a as any} contentType="anime" />
                 ))}
               </div>
             ) : (
@@ -163,6 +182,23 @@ export default function Category() {
               <div className="text-center py-12">
                 <p className="text-muted-foreground">
                   No movies found in this category.
+                </p>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Anime Tab */}
+          <TabsContent value="anime">
+            {categoryAnime.length > 0 ? (
+              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4">
+                {categoryAnime.map((a) => (
+                  <ShowCard key={a.id} show={a as any} contentType="anime" />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">
+                  No anime found in this category.
                 </p>
               </div>
             )}

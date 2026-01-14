@@ -2,14 +2,14 @@ import { Link, useLocation } from "wouter";
 import { Play, Plus, Check, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import type { Show, Movie } from "@shared/schema";
+import type { Show, Movie, Anime } from "@shared/schema";
 import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { getHeaders } from "@/lib/api";
 
 interface ShowCardProps {
-  show: Show | Movie;
+  show: Show | Movie | Anime;
   orientation?: "portrait" | "landscape";
   showProgress?: number;
 }
@@ -27,12 +27,20 @@ export function ShowCard({
     queryKey: ["/api/watchlist"],
   });
 
-  const isInWatchlist = watchlist.some((item) => item.showId === show.id);
+  // Determine content type: movie (has googleDriveUrl but no totalSeasons), anime (has animeId pattern), show (default)
+  const isMovie = 'googleDriveUrl' in show && !('totalSeasons' in show);
+  const isAnime = 'malRating' in show || 'studio' in show;
+
+  const isInWatchlist = watchlist.some((item) =>
+    isAnime ? item.animeId === show.id :
+      isMovie ? item.movieId === show.id :
+        item.showId === show.id
+  );
 
   const addToWatchlistMutation = useMutation({
     mutationFn: () =>
       apiRequest("POST", "/api/watchlist", {
-        showId: show.id,
+        ...(isAnime ? { animeId: show.id } : isMovie ? { movieId: show.id } : { showId: show.id }),
         addedAt: new Date().toISOString(),
       }),
     onSuccess: () => {
@@ -41,7 +49,7 @@ export function ShowCard({
   });
 
   const removeFromWatchlistMutation = useMutation({
-    mutationFn: () => apiRequest("DELETE", `/api/watchlist/${show.id}`, undefined),
+    mutationFn: () => apiRequest("DELETE", `/api/watchlist/${show.id}${isAnime ? '?type=anime' : isMovie ? '?type=movie' : ''}`, undefined),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/watchlist"] });
     },
@@ -58,19 +66,26 @@ export function ShowCard({
     }
   };
 
-  const isMovie = 'googleDriveUrl' in show;
-  
   const handlePlayClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setLocation(isMovie ? `/watch-movie/${show.slug}` : `/watch/${show.slug}`);
+    if (isAnime) {
+      setLocation(`/watch-anime/${show.slug}`);
+    } else if (isMovie) {
+      setLocation(`/watch-movie/${show.slug}`);
+    } else {
+      setLocation(`/watch/${show.slug}`);
+    }
   };
 
   const imageUrl = orientation === "portrait" ? show.posterUrl : show.backdropUrl;
   const aspectRatio = orientation === "portrait" ? "aspect-[2/3]" : "aspect-video";
 
+  // Get detail page link
+  const detailLink = isAnime ? `/anime/${show.slug}` : isMovie ? `/movie/${show.slug}` : `/show/${show.slug}`;
+
   return (
-    <Link href={isMovie ? `/movie/${show.slug}` : `/show/${show.slug}`}>
+    <Link href={detailLink}>
       <div
         className="group relative overflow-visible cursor-pointer"
         onMouseEnter={() => setIsHovered(true)}
@@ -78,9 +93,8 @@ export function ShowCard({
         data-testid={`card-show-${show.id}`}
       >
         <div
-          className={`relative ${aspectRatio} rounded-md overflow-hidden bg-muted transition-all duration-300 ${
-            isHovered ? "scale-105 shadow-xl" : ""
-          }`}
+          className={`relative ${aspectRatio} rounded-md overflow-hidden bg-muted transition-all duration-300 ${isHovered ? "scale-105 shadow-xl" : ""
+            }`}
         >
           {/* Poster Image */}
           <img
@@ -99,9 +113,8 @@ export function ShowCard({
 
           {/* Hover Overlay */}
           <div
-            className={`absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent transition-opacity duration-300 ${
-              isHovered ? "opacity-100" : "opacity-0"
-            }`}
+            className={`absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent transition-opacity duration-300 ${isHovered ? "opacity-100" : "opacity-0"
+              }`}
           >
             <div className="absolute inset-0 flex flex-col justify-end p-4">
               {/* Title */}

@@ -1,4 +1,4 @@
-import type { Show, Episode, Movie, Comment, InsertShow, InsertEpisode, InsertMovie, InsertComment, WatchlistItem, ViewingProgress, Category, BlogPost, InsertBlogPost } from "@shared/schema";
+import type { Show, Episode, Movie, Anime, AnimeEpisode, Comment, InsertShow, InsertEpisode, InsertMovie, InsertAnime, InsertAnimeEpisode, InsertComment, WatchlistItem, ViewingProgress, Category, BlogPost, InsertBlogPost } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
@@ -62,6 +62,23 @@ export interface IStorage {
   deleteMovie(id: string): Promise<void>;
   searchMovies(query: string): Promise<Movie[]>;
 
+  // Anime
+  getAllAnime(): Promise<Anime[]>;
+  getAnimeById(id: string): Promise<Anime | undefined>;
+  getAnimeBySlug(slug: string): Promise<Anime | undefined>;
+  createAnime(anime: InsertAnime): Promise<Anime>;
+  updateAnime(id: string, updates: Partial<Anime>): Promise<Anime>;
+  deleteAnime(id: string): Promise<void>;
+  searchAnime(query: string): Promise<Anime[]>;
+
+  // Anime Episodes
+  getAllAnimeEpisodes(): Promise<AnimeEpisode[]>;
+  getAnimeEpisodesByAnimeId(animeId: string): Promise<AnimeEpisode[]>;
+  getAnimeEpisodeById(id: string): Promise<AnimeEpisode | undefined>;
+  createAnimeEpisode(episode: InsertAnimeEpisode): Promise<AnimeEpisode>;
+  updateAnimeEpisode(id: string, updates: Partial<AnimeEpisode>): Promise<AnimeEpisode>;
+  deleteAnimeEpisode(id: string): Promise<void>;
+
   // Categories
   getAllCategories(): Promise<Category[]>;
 
@@ -104,6 +121,8 @@ export class MemStorage implements IStorage {
   private shows: Map<string, Show>;
   private episodes: Map<string, Episode>;
   private movies: Map<string, Movie>;
+  private anime: Map<string, Anime>;
+  private animeEpisodes: Map<string, AnimeEpisode>;
   private comments: Map<string, Comment>;
   private watchlists: Map<string, Map<string, WatchlistEntry>>;
   private viewingProgress: Map<string, Map<string, ProgressEntry>>;
@@ -118,6 +137,8 @@ export class MemStorage implements IStorage {
     this.shows = new Map();
     this.episodes = new Map();
     this.movies = new Map();
+    this.anime = new Map();
+    this.animeEpisodes = new Map();
     this.comments = new Map();
     this.watchlists = new Map();
     this.viewingProgress = new Map();
@@ -144,25 +165,37 @@ export class MemStorage implements IStorage {
       if (existsSync(this.dataFile)) {
         console.log("📂 Loading data from file...");
         const data = JSON.parse(readFileSync(this.dataFile, "utf-8"));
-        
+
         // Restore shows
         if (data.shows) {
           data.shows.forEach((show: Show) => this.shows.set(show.id, show));
           console.log(`✅ Loaded ${data.shows.length} shows`);
         }
-        
+
         // Restore episodes
         if (data.episodes) {
           data.episodes.forEach((episode: Episode) => this.episodes.set(episode.id, episode));
           console.log(`✅ Loaded ${data.episodes.length} episodes`);
         }
-        
+
         // Restore movies
         if (data.movies) {
           data.movies.forEach((movie: Movie) => this.movies.set(movie.id, movie));
           console.log(`✅ Loaded ${data.movies.length} movies`);
         }
-        
+
+        // Restore anime
+        if (data.anime) {
+          data.anime.forEach((a: Anime) => this.anime.set(a.id, a));
+          console.log(`✅ Loaded ${data.anime.length} anime`);
+        }
+
+        // Restore anime episodes
+        if (data.animeEpisodes) {
+          data.animeEpisodes.forEach((ep: AnimeEpisode) => this.animeEpisodes.set(ep.id, ep));
+          console.log(`✅ Loaded ${data.animeEpisodes.length} anime episodes`);
+        }
+
         // Restore comments
         if (data.comments) {
           data.comments.forEach((comment: any) => {
@@ -175,19 +208,19 @@ export class MemStorage implements IStorage {
           });
           console.log(`✅ Loaded ${data.comments.length} comments`);
         }
-        
+
         // Restore content requests
         if (data.contentRequests) {
           data.contentRequests.forEach((request: ContentRequest) => this.contentRequests.set(request.id, request));
           console.log(`✅ Loaded ${data.contentRequests.length} content requests`);
         }
-        
+
         // Restore issue reports
         if (data.issueReports) {
           data.issueReports.forEach((report: IssueReport) => this.issueReports.set(report.id, report));
           console.log(`✅ Loaded ${data.issueReports.length} issue reports`);
         }
-        
+
         // Restore blog posts
         if (data.blogPosts) {
           data.blogPosts.forEach((post: BlogPost) => this.blogPosts.set(post.id, post));
@@ -212,6 +245,8 @@ export class MemStorage implements IStorage {
         shows: Array.from(this.shows.values()),
         episodes: Array.from(this.episodes.values()),
         movies: Array.from(this.movies.values()),
+        anime: Array.from(this.anime.values()),
+        animeEpisodes: Array.from(this.animeEpisodes.values()),
         comments: Array.from(this.comments.values()),
         contentRequests: Array.from(this.contentRequests.values()),
         issueReports: Array.from(this.issueReports.values()),
@@ -247,8 +282,8 @@ export class MemStorage implements IStorage {
 
   async createShow(insertShow: InsertShow): Promise<Show> {
     const id = randomUUID();
-    const show: Show = { 
-      ...insertShow, 
+    const show: Show = {
+      ...insertShow,
       id,
       imdbRating: insertShow.imdbRating || null,
       category: insertShow.category || null,
@@ -267,7 +302,7 @@ export class MemStorage implements IStorage {
     if (!existingShow) {
       throw new Error("Show not found");
     }
-    
+
     // Merge updates with existing show, ensuring all required fields are present
     const updatedShow: Show = {
       id: existingShow.id, // Never change ID
@@ -288,7 +323,7 @@ export class MemStorage implements IStorage {
       trending: updates.trending !== undefined ? updates.trending : existingShow.trending,
       category: updates.category !== undefined ? updates.category : existingShow.category,
     };
-    
+
     this.shows.set(id, updatedShow);
     this.saveData(); // Persist to file
     return updatedShow;
@@ -331,8 +366,8 @@ export class MemStorage implements IStorage {
 
   async createEpisode(insertEpisode: InsertEpisode): Promise<Episode> {
     const id = randomUUID();
-    const episode: Episode = { 
-      ...insertEpisode, 
+    const episode: Episode = {
+      ...insertEpisode,
       id,
       airDate: insertEpisode.airDate || null
     };
@@ -379,7 +414,7 @@ export class MemStorage implements IStorage {
 
   async createMovie(insertMovie: InsertMovie): Promise<Movie> {
     const id = randomUUID();
-    const movie: Movie = { 
+    const movie: Movie = {
       id,
       title: insertMovie.title,
       slug: insertMovie.slug,
@@ -428,6 +463,133 @@ export class MemStorage implements IStorage {
         movie.description.toLowerCase().includes(lowerQuery) ||
         movie.genres?.toLowerCase().includes(lowerQuery)
     );
+  }
+
+  // Anime methods
+  async getAllAnime(): Promise<Anime[]> {
+    return Array.from(this.anime.values());
+  }
+
+  async getAnimeById(id: string): Promise<Anime | undefined> {
+    return this.anime.get(id);
+  }
+
+  async getAnimeBySlug(slug: string): Promise<Anime | undefined> {
+    return Array.from(this.anime.values()).find((a) => a.slug === slug);
+  }
+
+  async createAnime(insertAnime: InsertAnime): Promise<Anime> {
+    const id = randomUUID();
+    const animeEntry: Anime = {
+      id,
+      title: insertAnime.title,
+      slug: insertAnime.slug,
+      alternativeTitles: insertAnime.alternativeTitles || null,
+      description: insertAnime.description,
+      posterUrl: insertAnime.posterUrl,
+      backdropUrl: insertAnime.backdropUrl,
+      year: insertAnime.year,
+      rating: insertAnime.rating,
+      imdbRating: insertAnime.imdbRating || null,
+      malRating: insertAnime.malRating || null,
+      genres: insertAnime.genres,
+      language: insertAnime.language || "Japanese",
+      totalSeasons: insertAnime.totalSeasons,
+      totalEpisodes: insertAnime.totalEpisodes || null,
+      status: insertAnime.status || null,
+      studio: insertAnime.studio || null,
+      cast: insertAnime.cast || null,
+      castDetails: insertAnime.castDetails || null,
+      creators: insertAnime.creators || null,
+      featured: insertAnime.featured ?? false,
+      trending: insertAnime.trending ?? false,
+      category: insertAnime.category || null,
+    };
+    this.anime.set(id, animeEntry);
+    this.saveData();
+    return animeEntry;
+  }
+
+  async updateAnime(id: string, updates: Partial<Anime>): Promise<Anime> {
+    const existing = this.anime.get(id);
+    if (!existing) {
+      throw new Error(`Anime with id ${id} not found`);
+    }
+    const updated = { ...existing, ...updates, id };
+    this.anime.set(id, updated);
+    this.saveData();
+    return updated;
+  }
+
+  async deleteAnime(id: string): Promise<void> {
+    this.anime.delete(id);
+    // Also delete all episodes for this anime
+    const episodes = await this.getAnimeEpisodesByAnimeId(id);
+    episodes.forEach(ep => this.animeEpisodes.delete(ep.id));
+    this.saveData();
+  }
+
+  async searchAnime(query: string): Promise<Anime[]> {
+    const lowerQuery = query.toLowerCase();
+    return Array.from(this.anime.values()).filter(
+      (a) =>
+        a.title.toLowerCase().includes(lowerQuery) ||
+        a.description.toLowerCase().includes(lowerQuery) ||
+        a.genres?.toLowerCase().includes(lowerQuery) ||
+        a.alternativeTitles?.toLowerCase().includes(lowerQuery)
+    );
+  }
+
+  // Anime Episodes methods
+  async getAllAnimeEpisodes(): Promise<AnimeEpisode[]> {
+    return Array.from(this.animeEpisodes.values());
+  }
+
+  async getAnimeEpisodesByAnimeId(animeId: string): Promise<AnimeEpisode[]> {
+    return Array.from(this.animeEpisodes.values()).filter(
+      (ep) => ep.animeId === animeId
+    );
+  }
+
+  async getAnimeEpisodeById(id: string): Promise<AnimeEpisode | undefined> {
+    return this.animeEpisodes.get(id);
+  }
+
+  async createAnimeEpisode(insertEp: InsertAnimeEpisode): Promise<AnimeEpisode> {
+    const id = randomUUID();
+    const episode: AnimeEpisode = {
+      id,
+      animeId: insertEp.animeId,
+      season: insertEp.season,
+      episodeNumber: insertEp.episodeNumber,
+      title: insertEp.title,
+      description: insertEp.description,
+      thumbnailUrl: insertEp.thumbnailUrl,
+      duration: insertEp.duration,
+      googleDriveUrl: insertEp.googleDriveUrl,
+      videoUrl: insertEp.videoUrl || null,
+      airDate: insertEp.airDate || null,
+      dubbed: insertEp.dubbed ?? false,
+    };
+    this.animeEpisodes.set(id, episode);
+    this.saveData();
+    return episode;
+  }
+
+  async updateAnimeEpisode(id: string, updates: Partial<AnimeEpisode>): Promise<AnimeEpisode> {
+    const existing = this.animeEpisodes.get(id);
+    if (!existing) {
+      throw new Error(`Anime episode with id ${id} not found`);
+    }
+    const updated = { ...existing, ...updates, id, animeId: existing.animeId };
+    this.animeEpisodes.set(id, updated);
+    this.saveData();
+    return updated;
+  }
+
+  async deleteAnimeEpisode(id: string): Promise<void> {
+    this.animeEpisodes.delete(id);
+    this.saveData();
   }
 
   // Categories methods
@@ -680,8 +842,8 @@ export class MemStorage implements IStorage {
     // Create shows
     shows.forEach((show) => {
       const id = randomUUID();
-      this.shows.set(id, { 
-        ...show, 
+      this.shows.set(id, {
+        ...show,
         id,
         imdbRating: show.imdbRating || null,
         category: show.category || null,
@@ -710,8 +872,8 @@ export class MemStorage implements IStorage {
           };
 
           const id = randomUUID();
-          this.episodes.set(id, { 
-            ...episode, 
+          this.episodes.set(id, {
+            ...episode,
             id,
             airDate: episode.airDate || null
           });
@@ -869,7 +1031,7 @@ export class MemStorage implements IStorage {
     if (!existingPost) {
       throw new Error("Blog post not found");
     }
-    
+
     const updatedPost: BlogPost = {
       ...existingPost,
       ...updates,
@@ -877,7 +1039,7 @@ export class MemStorage implements IStorage {
       createdAt: existingPost.createdAt,
       updatedAt: new Date(),
     };
-    
+
     this.blogPosts.set(id, updatedPost);
     this.saveData();
     return updatedPost;

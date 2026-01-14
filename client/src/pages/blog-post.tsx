@@ -3,14 +3,14 @@ import { useRoute, Link } from "wouter";
 import {
   Calendar, Clock, Star, Users, DollarSign, Globe,
   Film, Tv, ChevronLeft, Share2, Play, Award, Lightbulb, Clapperboard, FileText, Youtube,
-  ExternalLink, Building2
+  ExternalLink, Building2, Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEO } from "@/components/seo";
 import { useToast } from "@/hooks/use-toast";
-import type { Show, Movie, BlogPost as BlogPostType } from "@shared/schema";
+import type { Show, Movie, Anime, BlogPost as BlogPostType } from "@shared/schema";
 
 interface CastMember {
   name: string;
@@ -21,7 +21,7 @@ interface CastMember {
 
 export default function BlogPost() {
   const [, params] = useRoute("/blog/:type/:slug");
-  const type = params?.type as "movie" | "show";
+  const type = params?.type as "movie" | "show" | "anime";
   const slug = params?.slug;
   const { toast } = useToast();
 
@@ -35,13 +35,18 @@ export default function BlogPost() {
     enabled: type === "show" && !!slug,
   });
 
+  const { data: anime, isLoading: animeLoading } = useQuery<Anime>({
+    queryKey: [`/api/anime/${slug}`],
+    enabled: type === "anime" && !!slug,
+  });
+
   // Fetch blog post content for this movie/show if it exists
   const { data: blogPosts = [] } = useQuery<BlogPostType[]>({
     queryKey: ["/api/blog"],
   });
 
-  const isLoading = movieLoading || showLoading;
-  const content = type === "movie" ? movie : show;
+  const isLoading = movieLoading || showLoading || animeLoading;
+  const content = type === "movie" ? movie : type === "anime" ? anime : show;
 
   const handleShare = async () => {
     if (!content) return;
@@ -81,7 +86,7 @@ export default function BlogPost() {
 
   // Find matching blog post for this content
   const blogPost = blogPosts.find(
-    (post) => post.contentId === (type === "movie" ? movie?.id : show?.id) ||
+    (post) => post.contentId === (type === "movie" ? movie?.id : type === "anime" ? anime?.id : show?.id) ||
       post.slug.startsWith(slug + "-") ||
       post.slug === slug
   );
@@ -201,8 +206,10 @@ export default function BlogPost() {
   }
 
   const isMovie = type === "movie";
+  const isAnime = type === "anime";
   const movieData = content as Movie;
   const showData = content as Show;
+  const animeData = content as Anime;
 
   return (
     <div className="min-h-screen">
@@ -239,8 +246,8 @@ export default function BlogPost() {
         <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
           <div className="container mx-auto">
             <Badge className="mb-3" variant="default">
-              {isMovie ? <Film className="w-3 h-3 mr-1" /> : <Tv className="w-3 h-3 mr-1" />}
-              {isMovie ? "Movie" : "TV Show"}
+              {isMovie ? <Film className="w-3 h-3 mr-1" /> : isAnime ? <Sparkles className="w-3 h-3 mr-1" /> : <Tv className="w-3 h-3 mr-1" />}
+              {isMovie ? "Movie" : isAnime ? "Anime" : "TV Show"}
             </Badge>
             <h1 className="text-3xl md:text-5xl font-bold mb-2">
               {content.title}
@@ -256,10 +263,16 @@ export default function BlogPost() {
                   {movieData.duration} min
                 </span>
               )}
-              {!isMovie && showData.totalSeasons && (
+              {!isMovie && !isAnime && showData.totalSeasons && (
                 <span className="flex items-center gap-1">
                   <Tv className="w-4 h-4" />
                   {showData.totalSeasons} Season{showData.totalSeasons > 1 ? "s" : ""}
+                </span>
+              )}
+              {isAnime && animeData.totalSeasons && (
+                <span className="flex items-center gap-1">
+                  <Tv className="w-4 h-4" />
+                  {animeData.totalSeasons} Season{animeData.totalSeasons > 1 ? "s" : ""}
                 </span>
               )}
               {content.imdbRating && (
@@ -280,10 +293,10 @@ export default function BlogPost() {
           <div className="lg:col-span-2 space-y-8">
             {/* Action Buttons */}
             <div className="flex gap-3">
-              <Link href={isMovie ? `/watch-movie/${slug}` : `/show/${slug}`}>
+              <Link href={isMovie ? `/watch-movie/${slug}` : isAnime ? `/anime/${slug}` : `/show/${slug}`}>
                 <Button size="lg" className="gap-2">
                   <Play className="w-5 h-5" />
-                  {isMovie ? "Watch Movie" : "Watch Now"}
+                  {isMovie ? "Watch Movie" : isAnime ? "Watch Anime" : "Watch Now"}
                 </Button>
               </Link>
               <Button variant="outline" size="lg" onClick={handleShare} className="gap-2">

@@ -14,20 +14,20 @@ A professional Netflix-inspired streaming platform for both TV shows and movies,
 
 ### 🎥 **Video Streaming**
 - Netflix-style video player with Google Drive integration
-- Support for both TV shows and movies
+- Support for TV shows, movies, **and anime**
 - Progress tracking with resume functionality
-- Auto-play next episode for shows
+- Auto-play next episode for shows and anime
 - Continue watching section
 - Episode selection with season navigation
 - Season-level trailers from TMDB
 
 ### 📝 **SEO Blog System**
-- Auto-generated blog articles for every show/movie
+- Auto-generated blog articles for every show, movie, **and anime**
 - Rich content: plot summaries, cast info, trivia, awards
 - Production company logos and website backlinks
-- External links: IMDb, Facebook, Twitter, Instagram
+- External links: IMDb, MAL, Facebook, Twitter, Instagram
 - SEO-optimized meta tags and structured data
-- Season details with trailers for TV shows
+- Season details with trailers for TV shows and anime
 
 ### 🔍 **Advanced SEO**
 - Dynamic sitemap for multi-domain support (.live and .in)
@@ -48,8 +48,8 @@ A professional Netflix-inspired streaming platform for both TV shows and movies,
 ### 🔍 **Discovery**
 - Advanced search with filters (genre, year range)
 - Live search in header with instant results
-- Category/genre filtering
-- Separate browse pages for shows and movies
+- Category/genre filtering with anime support
+- Separate browse pages for shows, movies, **and anime**
 - Trending content sections
 - Featured hero carousel with auto-play
 - TMDB integration for rich metadata
@@ -266,6 +266,11 @@ Edit `server/storage.ts` - add shows to the `shows` array
 ### Episodes
 - `GET /api/episodes/:showId` - Get episodes for a show
 
+### Anime
+- `GET /api/anime` - Get all anime
+- `GET /api/anime/:slug` - Get anime by slug
+- `GET /api/anime-episodes/:animeId` - Get episodes for an anime
+
 ### Watchlist
 - `GET /api/watchlist` - Get user watchlist (shows + movies)
 - `POST /api/watchlist` - Add to watchlist (showId or movieId)
@@ -413,7 +418,16 @@ MIT License - feel free to use for personal or commercial projects
 
 ## 🎉 What's New
 
-### Latest Updates (v4.0) - January 2026
+### Latest Updates (v5.0) - January 2026
+- ✅ **Anime Support** - Full anime integration with 98+ titles
+- ✅ **Anime Streaming** - Dedicated anime pages with episode players
+- ✅ **Anime Blog Posts** - Rich blog content with season trailers
+- ✅ **Category Integration** - Anime in all genre category pages
+- ✅ **Anime Search** - Global search includes anime titles
+- ✅ **Browse & Filter** - Anime tab in browse page
+- ✅ **Sitemap & SEO** - Anime URLs in sitemap and robots.txt
+
+### Previous Updates (v4.0) - January 2026
 - ✅ **Watch Together** - Real-time co-watching with friends
 - ✅ **Video Sync** - Host-controlled playback sync (play, pause, seek, speed)
 - ✅ **Change Episode** - Switch episodes in Watch Together without leaving room
