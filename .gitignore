@@ -101,3 +101,10 @@ indexnow-key.txt
 # Archive folder (old docs and scripts)
 _archive/
 bulk-imports/
+
+# Script result files
+scripts/*.json
+scripts/*.txt
+
+# Cached subtitles
+data/subtitles/

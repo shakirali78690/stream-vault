@@ -1,51 +1,35 @@
 {
   "success": true,
-  "identifier": "lost-in-space-s01-720p",
-  "details_url": "https://archive.org/details/lost-in-space-s01-720p",
-  "embed_url": "https://archive.org/embed/lost-in-space-s01-720p",
-  "total_files": 10,
-  "uploaded": 10,
+  "identifier": "the-night-manager-s01-streamvaultlive-20260114",
+  "details_url": "https://archive.org/details/the-night-manager-s01-streamvaultlive-20260114",
+  "embed_url": "https://archive.org/embed/the-night-manager-s01-streamvaultlive-20260114",
+  "total_files": 6,
+  "uploaded": 6,
   "failed": 0,
   "videos": [
     {
-      "filename": "Lost.in.Space.S01E01.mkv",
-      "video_url": "https://archive.org/download/lost-in-space-s01-720p/Lost.in.Space.S01E01.mkv"
+      "filename": "The.Night.Manager.S01E01.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4",
+      "video_url": "https://archive.org/download/the-night-manager-s01-streamvaultlive-20260114/The.Night.Manager.S01E01.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4"
     },
     {
-      "filename": "Lost.in.Space.S01E010.mkv",
-      "video_url": "https://archive.org/download/lost-in-space-s01-720p/Lost.in.Space.S01E010.mkv"
+      "filename": "The.Night.Manager.S01E02.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4",
+      "video_url": "https://archive.org/download/the-night-manager-s01-streamvaultlive-20260114/The.Night.Manager.S01E02.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4"
     },
     {
-      "filename": "Lost.in.Space.S01E02.mkv",
-      "video_url": "https://archive.org/download/lost-in-space-s01-720p/Lost.in.Space.S01E02.mkv"
+      "filename": "The.Night.Manager.S01E03.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4",
+      "video_url": "https://archive.org/download/the-night-manager-s01-streamvaultlive-20260114/The.Night.Manager.S01E03.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4"
     },
     {
-      "filename": "Lost.in.Space.S01E03.mkv",
-      "video_url": "https://archive.org/download/lost-in-space-s01-720p/Lost.in.Space.S01E03.mkv"
+      "filename": "The.Night.Manager.S01E04.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4",
+      "video_url": "https://archive.org/download/the-night-manager-s01-streamvaultlive-20260114/The.Night.Manager.S01E04.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4"
     },
     {
-      "filename": "Lost.in.Space.S01E04.mkv",
-      "video_url": "https://archive.org/download/lost-in-space-s01-720p/Lost.in.Space.S01E04.mkv"
+      "filename": "The.Night.Manager.S01E05.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4",
+      "video_url": "https://archive.org/download/the-night-manager-s01-streamvaultlive-20260114/The.Night.Manager.S01E05.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4"
     },
     {
-      "filename": "Lost.in.Space.S01E05.mkv",
-      "video_url": "https://archive.org/download/lost-in-space-s01-720p/Lost.in.Space.S01E05.mkv"
-    },
-    {
-      "filename": "Lost.in.Space.S01E06.mkv",
-      "video_url": "https://archive.org/download/lost-in-space-s01-720p/Lost.in.Space.S01E06.mkv"
-    },
-    {
-      "filename": "Lost.in.Space.S01E07.mkv",
-      "video_url": "https://archive.org/download/lost-in-space-s01-720p/Lost.in.Space.S01E07.mkv"
-    },
-    {
-      "filename": "Lost.in.Space.S01E08.mkv",
-      "video_url": "https://archive.org/download/lost-in-space-s01-720p/Lost.in.Space.S01E08.mkv"
-    },
-    {
-      "filename": "Lost.in.Space.S01E09.mkv",
-      "video_url": "https://archive.org/download/lost-in-space-s01-720p/Lost.in.Space.S01E09.mkv"
+      "filename": "The.Night.Manager.S01E06.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4",
+      "video_url": "https://archive.org/download/the-night-manager-s01-streamvaultlive-20260114/The.Night.Manager.S01E06.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4"
     }
   ],
   "failed_files": []
