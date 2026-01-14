@@ -141,7 +141,7 @@ export default function Category() {
                   <MovieCard key={`movie-${movie.id}`} movie={movie} />
                 ))}
                 {categoryAnime.map((a) => (
-                  <ShowCard key={`anime-${a.id}`} show={a as any} contentType="anime" />
+                  <ShowCard key={`anime-${a.id}`} show={a} />
                 ))}
               </div>
             ) : (
@@ -192,7 +192,7 @@ export default function Category() {
             {categoryAnime.length > 0 ? (
               <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4">
                 {categoryAnime.map((a) => (
-                  <ShowCard key={a.id} show={a as any} contentType="anime" />
+                  <ShowCard key={a.id} show={a} />
                 ))}
               </div>
             ) : (

@@ -344,9 +344,9 @@ function WatchTogetherContent() {
                 }
 
                 // For shows, include season and episode
-                const season = episode?.seasonNumber;
+                const season = episode?.season;
                 const ep = episode?.episodeNumber;
-                const searchUrl = roomInfo?.contentType === 'show' && season && ep
+                const searchUrl = (roomInfo?.contentType === 'show' || roomInfo?.contentType === 'anime') && season && ep
                     ? `/api/subtitles/search?imdbId=${imdbMatch[0]}&season=${season}&episode=${ep}&language=en`
                     : `/api/subtitles/search?imdbId=${imdbMatch[0]}&language=en`;
 

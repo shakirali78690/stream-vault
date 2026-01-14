@@ -32,7 +32,7 @@ export interface Reaction {
 export interface RoomInfo {
     roomId: string;
     roomCode: string;
-    contentType: 'show' | 'movie';
+    contentType: 'show' | 'movie' | 'anime';
     contentId: string;
     episodeId?: string;
     users: User[];
@@ -55,7 +55,7 @@ interface WatchTogetherContextType {
     hostDisconnected: boolean;
     reconnectCountdown: number | null;
     // Actions
-    createRoom: (contentType: 'show' | 'movie', contentId: string, username: string, episodeId?: string) => void;
+    createRoom: (contentType: 'show' | 'movie' | 'anime', contentId: string, username: string, episodeId?: string) => void;
     joinRoom: (roomCode: string, username: string) => void;
     leaveRoom: () => void;
     sendMessage: (message: string) => void;
@@ -67,7 +67,7 @@ interface WatchTogetherContextType {
     videoSubtitle: (subtitleIndex: number) => void; // -1 = off, 0+ = track index
     requestVideoState: () => void;
     hostMuteUser: (targetUserId: string, isMuted: boolean) => void;
-    changeContent: (episodeId?: string, contentId?: string, contentType?: 'show' | 'movie') => void;
+    changeContent: (episodeId?: string, contentId?: string, contentType?: 'show' | 'movie' | 'anime') => void;
     clearError: () => void;
 }
 
@@ -352,7 +352,7 @@ export function WatchTogetherProvider({ children }: Props) {
 
     // Actions
     const createRoom = useCallback((
-        contentType: 'show' | 'movie',
+        contentType: 'show' | 'movie' | 'anime',
         contentId: string,
         username: string,
         episodeId?: string
@@ -422,8 +422,8 @@ export function WatchTogetherProvider({ children }: Props) {
         socket?.emit('voice:host-mute', { targetUserId, isMuted });
     }, [socket]);
 
-    // Change content (episode/movie) in room
-    const changeContent = useCallback((episodeId?: string, contentId?: string, contentType?: 'show' | 'movie') => {
+    // Change content (episode/movie/anime) in room
+    const changeContent = useCallback((episodeId?: string, contentId?: string, contentType?: 'show' | 'movie' | 'anime') => {
         console.log('🎬 Context changeContent - emitting video:change-content', { episodeId, contentId, contentType });
         socket?.emit('video:change-content', { episodeId, contentId, contentType });
     }, [socket]);

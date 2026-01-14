@@ -204,6 +204,26 @@ export function serveStatic(app: Express) {
       return;
     }
 
+    // === HIGH PRIORITY: Browse Anime page ===
+    if (requestPath === '/browse-anime' || requestPath === '/anime') {
+      console.log(`[Meta Tags] Anime page`);
+      let html = fs.readFileSync(indexPath, 'utf-8');
+      const metaTags = `
+    <meta property="og:title" content="Browse Anime - Free HD Streaming | StreamVault">
+    <meta property="og:description" content="Watch the best anime free in HD. Action, romance, fantasy, isekai and more. No registration required. Stream instantly.">
+    <meta property="og:image" content="https://i.ibb.co/N2jssrLd/17e34644-29fb-4a5d-a2e8-e96bee27756f.png">
+    <meta property="og:url" content="https://streamvault.live${requestPath}">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Browse Anime | StreamVault">
+    <meta name="twitter:description" content="Watch the best anime free in HD. No registration required.">
+    <meta name="twitter:image" content="https://i.ibb.co/N2jssrLd/17e34644-29fb-4a5d-a2e8-e96bee27756f.png">
+    <meta name="description" content="Watch the best anime free in HD. Action, romance, fantasy, isekai and more. No registration required.">
+    <title>Browse Anime - Free HD Streaming | StreamVault</title>`;
+      injectMetaAndServe(html, metaTags);
+      return;
+    }
+
     // === HIGH PRIORITY: Trending page ===
     if (requestPath === '/trending') {
       console.log(`[Meta Tags] Trending page`);
@@ -576,7 +596,131 @@ export function serveStatic(app: Express) {
       return;
     }
 
-    // For all other requests, serve index.html
+    // Handle anime detail pages
+    const animeMatch = requestPath.match(/^\/anime\/([^\/]+)/);
+    if (animeMatch) {
+      const slug = animeMatch[1];
+      console.log(`[Meta Tags] Anime page: ${slug}`);
+
+      import('./storage.js').then(({ storage }) => {
+        storage.getAllAnime().then((animeList: any[]) => {
+          const anime = animeList.find((a: any) => a.slug === slug);
+          if (anime) {
+            console.log(`[Meta Tags] Found anime: ${anime.title}`);
+            console.log(`[Meta Tags] Poster URL: ${anime.posterUrl}`);
+            console.log(`[Meta Tags] Backdrop URL: ${anime.backdropUrl}`);
+
+            let html = fs.readFileSync(indexPath, 'utf-8');
+            const title = escapeHtml(anime.title);
+            const description = escapeHtml((anime.description || '').slice(0, 200));
+            const url = `https://streamvault.live/anime/${anime.slug}`;
+            const image = anime.posterUrl || anime.backdropUrl;
+
+            console.log(`[Meta Tags] Using image: ${image}`);
+
+            const metaTags = `
+    <meta property="og:title" content="${title} - Watch Anime Free | StreamVault">
+    <meta property="og:description" content="${description}">
+    <meta property="og:image" content="${image}">
+    <meta property="og:url" content="${url}">
+    <meta property="og:type" content="video.tv_show">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="${image}">
+    <meta name="description" content="${description}">
+    <title>${title} - StreamVault</title>`;
+
+            console.log(`[Meta Tags] Injecting meta tags for anime: ${slug}`);
+            injectMetaAndServe(html, metaTags);
+          } else {
+            console.log(`[Meta Tags] Anime not found: ${slug}`);
+            res.sendFile(indexPath);
+          }
+        }).catch((err: any) => {
+          console.error(`[Meta Tags] Error fetching anime:`, err);
+          res.sendFile(indexPath);
+        });
+      }).catch((err: any) => {
+        console.error(`[Meta Tags] Error importing storage:`, err);
+        res.sendFile(indexPath);
+      });
+      return;
+    }
+
+    // Handle anime watch pages
+    const watchAnimeMatch = requestPath.match(/^\/watch-anime\/([^\/]+)/);
+    if (watchAnimeMatch) {
+      const slug = watchAnimeMatch[1];
+      const season = req.query.season as string;
+      const episode = req.query.episode as string;
+
+      console.log(`[Meta Tags] Anime watch page: ${slug} S${season}E${episode}`);
+
+      import('./storage.js').then(({ storage }) => {
+        storage.getAllAnime().then((animeList: any[]) => {
+          const anime = animeList.find((a: any) => a.slug === slug);
+          if (anime) {
+            let html = fs.readFileSync(indexPath, 'utf-8');
+            const episodeTitle = season && episode ? `S${season}E${episode}` : '';
+            const title = escapeHtml(`Watch ${anime.title}${episodeTitle ? ` - ${episodeTitle}` : ''}`);
+            const description = escapeHtml((anime.description || '').slice(0, 200));
+            const url = `https://streamvault.live/watch-anime/${slug}${season ? `?season=${season}` : ''}${episode ? `&episode=${episode}` : ''}`;
+            const image = anime.backdropUrl || anime.posterUrl;
+
+            const metaTags = `
+    <meta property="og:title" content="${title} - StreamVault">
+    <meta property="og:description" content="${description}">
+    <meta property="og:image" content="${image}">
+    <meta property="og:url" content="${url}">
+    <meta property="og:type" content="video.episode">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="${image}">
+    <meta name="description" content="${description}">
+    <title>${title} - StreamVault</title>`;
+
+            injectMetaAndServe(html, metaTags);
+          } else {
+            res.sendFile(indexPath);
+          }
+        }).catch(() => res.sendFile(indexPath));
+      }).catch(() => res.sendFile(indexPath));
+      return;
+    }
+
+    // Handle blog anime pages
+    const blogAnimeMatch = requestPath.match(/^\/blog\/anime\/([^\/]+)/);
+    if (blogAnimeMatch) {
+      const slug = blogAnimeMatch[1];
+      console.log(`[Meta Tags] Blog anime page: ${slug}`);
+
+      import('./storage.js').then(({ storage }) => {
+        storage.getAllAnime().then((animeList: any[]) => {
+          const anime = animeList.find((a: any) => a.slug === slug);
+          if (anime) {
+            let html = fs.readFileSync(indexPath, 'utf-8');
+            const title = escapeHtml(`${anime.title}${anime.year ? ` (${anime.year})` : ''} - Complete Guide, Cast & Reviews`);
+            const description = escapeHtml(`Everything about ${anime.title}: Plot, cast, ratings, and more. ${(anime.description || '').slice(0, 150)}...`);
+            const url = `https://streamvault.live/blog/anime/${slug}`;
+            const image = anime.backdropUrl || anime.posterUrl;
+
+            const metaTags = `
+    <meta property="og:title" content="${title} | StreamVault">
+    <meta property="og:description" content="${description}">
+    <meta property="og:image" content="${image}">
+    <meta property="og:url" content="${url}">
+    <meta property="og:type" content="video.tv_show">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="${image}">
+    <meta name="description" content="${description}">
+    <title>${title} | StreamVault</title>`;
+
+            injectMetaAndServe(html, metaTags);
+          } else {
+            res.sendFile(indexPath);
+          }
+        }).catch(() => res.sendFile(indexPath));
+      }).catch(() => res.sendFile(indexPath));
+      return;
+    }
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }

@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { useLocation, useSearch } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
-import { ArrowRight, Users, Film, Tv } from 'lucide-react';
+import { ArrowRight, Users, Film, Tv, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useWatchTogether, WatchTogetherProvider } from '@/contexts/watch-together-context';
-import type { Show, Movie } from '@shared/schema';
+import type { Show, Movie, Anime } from '@shared/schema';
 
 function CreateRoomContent() {
     const [, setLocation] = useLocation();
@@ -20,14 +20,14 @@ function CreateRoomContent() {
     } = useWatchTogether();
 
     const [username, setUsername] = useState('');
-    const [contentType, setContentType] = useState<'show' | 'movie'>('show');
+    const [contentType, setContentType] = useState<'show' | 'movie' | 'anime'>('show');
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedContent, setSelectedContent] = useState<Show | Movie | null>(null);
+    const [selectedContent, setSelectedContent] = useState<Show | Movie | Anime | null>(null);
     const [selectedEpisode, setSelectedEpisode] = useState<string | null>(null);
 
     // Parse URL params
     const urlParams = new URLSearchParams(searchString);
-    const preselectedType = urlParams.get('type') as 'show' | 'movie' | null;
+    const preselectedType = urlParams.get('type') as 'show' | 'movie' | 'anime' | null;
     const preselectedId = urlParams.get('id');
 
     // Fetch shows (always fetch if we have a preselected show)
@@ -42,10 +42,22 @@ function CreateRoomContent() {
         enabled: contentType === 'movie' || preselectedType === 'movie'
     });
 
+    // Fetch anime (always fetch if we have a preselected anime)
+    const { data: animeList } = useQuery<Anime[]>({
+        queryKey: ['/api/anime'],
+        enabled: contentType === 'anime' || preselectedType === 'anime'
+    });
+
     // Fetch episodes when show is selected
     const { data: episodes } = useQuery<Array<{ id: string; season: number; episodeNumber: number }>>({
         queryKey: ['/api/episodes', (selectedContent as Show)?.id],
         enabled: contentType === 'show' && !!selectedContent
+    });
+
+    // Fetch anime episodes when anime is selected
+    const { data: animeEpisodes } = useQuery<Array<{ id: string; season: number; episodeNumber: number }>>({
+        queryKey: ['/api/anime-episodes', (selectedContent as Anime)?.id],
+        enabled: contentType === 'anime' && !!selectedContent
     });
 
     // Pre-select content from URL params
@@ -65,27 +77,35 @@ function CreateRoomContent() {
                     setSelectedContent(movie);
                     setSearchQuery(movie.title);
                 }
+            } else if (preselectedType === 'anime' && animeList) {
+                const anime = animeList.find(a => a.id === preselectedId);
+                if (anime) {
+                    setSelectedContent(anime);
+                    setSearchQuery(anime.title);
+                }
             }
         }
-    }, [preselectedType, preselectedId, shows, movies, selectedContent]);
+    }, [preselectedType, preselectedId, shows, movies, animeList, selectedContent]);
 
     // Filter content based on search
     const filteredContent = contentType === 'show'
         ? shows?.filter(s => s.title.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 10)
-        : movies?.filter(m => m.title.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 10);
+        : contentType === 'movie'
+            ? movies?.filter(m => m.title.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 10)
+            : animeList?.filter(a => a.title.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 10);
 
     // Redirect when room is created - NOT USED ANYMORE
     // Room creation now happens on watch-together page
 
     const handleCreate = () => {
         if (!username.trim() || !selectedContent) return;
-        if (contentType === 'show' && !selectedEpisode) return;
+        if ((contentType === 'show' || contentType === 'anime') && !selectedEpisode) return;
 
         // Store room creation params for watch-together page
         sessionStorage.setItem('watchTogether_username', username.trim());
         sessionStorage.setItem('watchTogether_contentType', contentType);
         sessionStorage.setItem('watchTogether_contentId', selectedContent.id);
-        if (contentType === 'show' && selectedEpisode) {
+        if ((contentType === 'show' || contentType === 'anime') && selectedEpisode) {
             sessionStorage.setItem('watchTogether_episodeId', selectedEpisode);
         }
         sessionStorage.setItem('watchTogether_isCreator', 'true');
@@ -139,7 +159,7 @@ function CreateRoomContent() {
                             <span className="bg-primary text-primary-foreground w-6 h-6 rounded-full text-sm flex items-center justify-center">2</span>
                             What to Watch
                         </label>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-3 gap-3">
                             <button
                                 onClick={() => { setContentType('show'); setSelectedContent(null); }}
                                 className={`p-4 rounded-xl border-2 transition-all ${contentType === 'show'
@@ -160,6 +180,16 @@ function CreateRoomContent() {
                                 <Film className="h-8 w-8 mx-auto mb-2" />
                                 <span className="font-medium">Movies</span>
                             </button>
+                            <button
+                                onClick={() => { setContentType('anime'); setSelectedContent(null); }}
+                                className={`p-4 rounded-xl border-2 transition-all ${contentType === 'anime'
+                                    ? 'border-primary bg-primary/10'
+                                    : 'border-border hover:border-primary/50'
+                                    }`}
+                            >
+                                <Sparkles className="h-8 w-8 mx-auto mb-2" />
+                                <span className="font-medium">Anime</span>
+                            </button>
                         </div>
                     </div>
 
@@ -167,12 +197,12 @@ function CreateRoomContent() {
                     <div>
                         <label className="text-lg font-semibold mb-3 block flex items-center gap-2">
                             <span className="bg-primary text-primary-foreground w-6 h-6 rounded-full text-sm flex items-center justify-center">3</span>
-                            Select {contentType === 'show' ? 'Show' : 'Movie'}
+                            Select {contentType === 'show' ? 'Show' : contentType === 'movie' ? 'Movie' : 'Anime'}
                         </label>
                         <Input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder={`Search ${contentType === 'show' ? 'shows' : 'movies'}...`}
+                            placeholder={`Search ${contentType === 'show' ? 'shows' : contentType === 'movie' ? 'movies' : 'anime'}...`}
                             className="mb-3"
                         />
 
@@ -216,8 +246,8 @@ function CreateRoomContent() {
                         )}
                     </div>
 
-                    {/* Step 4: Select Episode (for shows) */}
-                    {contentType === 'show' && selectedContent && episodes && (
+                    {/* Step 4: Select Episode (for shows and anime) */}
+                    {(contentType === 'show' || contentType === 'anime') && selectedContent && episodes && (
                         <div>
                             <label className="text-lg font-semibold mb-3 block flex items-center gap-2">
                                 <span className="bg-primary text-primary-foreground w-6 h-6 rounded-full text-sm flex items-center justify-center">4</span>
@@ -249,7 +279,7 @@ function CreateRoomContent() {
                             !username.trim() ||
                             !selectedContent ||
                             !isConnected ||
-                            (contentType === 'show' && !selectedEpisode)
+                            ((contentType === 'show' || contentType === 'anime') && !selectedEpisode)
                         }
                     >
                         {isConnected ? (

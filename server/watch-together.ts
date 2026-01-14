@@ -22,7 +22,7 @@ interface Room {
     code: string;
     hostId: string;
     hostSessionId: string; // Host's session ID for reconnection
-    contentType: 'show' | 'movie';
+    contentType: 'show' | 'movie' | 'anime';
     contentId: string;
     episodeId?: string;
     users: Map<string, User>;
@@ -77,7 +77,7 @@ export function setupWatchTogether(httpServer: HttpServer): Server {
 
         // Create a new room
         socket.on('room:create', (data: {
-            contentType: 'show' | 'movie';
+            contentType: 'show' | 'movie' | 'anime';
             contentId: string;
             episodeId?: string;
             username: string;

@@ -1,35 +1,23 @@
 {
   "success": true,
-  "identifier": "the-night-manager-s01-streamvaultlive-20260114",
-  "details_url": "https://archive.org/details/the-night-manager-s01-streamvaultlive-20260114",
-  "embed_url": "https://archive.org/embed/the-night-manager-s01-streamvaultlive-20260114",
-  "total_files": 6,
-  "uploaded": 6,
+  "identifier": "thenightmanager-streamvault",
+  "details_url": "https://archive.org/details/thenightmanager-streamvault",
+  "embed_url": "https://archive.org/embed/thenightmanager-streamvault",
+  "total_files": 3,
+  "uploaded": 3,
   "failed": 0,
   "videos": [
     {
-      "filename": "The.Night.Manager.S01E01.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4",
-      "video_url": "https://archive.org/download/the-night-manager-s01-streamvaultlive-20260114/The.Night.Manager.S01E01.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4"
+      "filename": "The.Night.Manager.S02E01.720p.mp4",
+      "video_url": "https://archive.org/download/thenightmanager-streamvault/The.Night.Manager.S02E01.720p.mp4"
     },
     {
-      "filename": "The.Night.Manager.S01E02.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4",
-      "video_url": "https://archive.org/download/the-night-manager-s01-streamvaultlive-20260114/The.Night.Manager.S01E02.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4"
+      "filename": "The.Night.Manager.S02E02.720p.mp4",
+      "video_url": "https://archive.org/download/thenightmanager-streamvault/The.Night.Manager.S02E02.720p.mp4"
     },
     {
-      "filename": "The.Night.Manager.S01E03.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4",
-      "video_url": "https://archive.org/download/the-night-manager-s01-streamvaultlive-20260114/The.Night.Manager.S01E03.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4"
-    },
-    {
-      "filename": "The.Night.Manager.S01E04.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4",
-      "video_url": "https://archive.org/download/the-night-manager-s01-streamvaultlive-20260114/The.Night.Manager.S01E04.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4"
-    },
-    {
-      "filename": "The.Night.Manager.S01E05.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4",
-      "video_url": "https://archive.org/download/the-night-manager-s01-streamvaultlive-20260114/The.Night.Manager.S01E05.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4"
-    },
-    {
-      "filename": "The.Night.Manager.S01E06.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4",
-      "video_url": "https://archive.org/download/the-night-manager-s01-streamvaultlive-20260114/The.Night.Manager.S01E06.720p.BluRay.HIN-ENG.x264.ESub-Vegamovies.is (1).mp4"
+      "filename": "The.Night.Manager.S02E03.720p.mp4",
+      "video_url": "https://archive.org/download/thenightmanager-streamvault/The.Night.Manager.S02E03.720p.mp4"
     }
   ],
   "failed_files": []
