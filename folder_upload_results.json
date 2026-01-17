@@ -1,91 +1,39 @@
 {
   "success": true,
-  "identifier": "videos-streamvault.live",
-  "details_url": "https://archive.org/details/videos-streamvault.live",
-  "embed_url": "https://archive.org/embed/videos-streamvault.live",
-  "total_files": 20,
-  "uploaded": 20,
+  "identifier": "movies-streamvault.live",
+  "details_url": "https://archive.org/details/movies-streamvault.live",
+  "embed_url": "https://archive.org/embed/movies-streamvault.live",
+  "total_files": 7,
+  "uploaded": 7,
   "failed": 0,
   "videos": [
     {
-      "filename": "Percy.Jackson.and.the.Olympians.S02E07.I.Go.Down.With.the.Ship.1080p.DSNP.WEB-DL.DDP5.1.Atmos.H.264-Vegamovies.is (1).mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/Percy.Jackson.and.the.Olympians.S02E07.I.Go.Down.With.the.Ship.1080p.DSNP.WEB-DL.DDP5.1.Atmos.H.264-Vegamovies.is (1).mp4"
+      "filename": "Ballerina.2025.mp4",
+      "video_url": "https://archive.org/download/movies-streamvault.live/Ballerina.2025.mp4"
     },
     {
-      "filename": "The Internship.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The Internship.mp4"
+      "filename": "F1.2025.mp4",
+      "video_url": "https://archive.org/download/movies-streamvault.live/F1.2025.mp4"
     },
     {
-      "filename": "The Rip 2026.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The Rip 2026.mp4"
+      "filename": "Fight or flight.mp4",
+      "video_url": "https://archive.org/download/movies-streamvault.live/Fight or flight.mp4"
     },
     {
-      "filename": "The.Pitt.S01E01.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The.Pitt.S01E01.mp4"
+      "filename": "How.to.Train.Your.Dragon.2025.mp4",
+      "video_url": "https://archive.org/download/movies-streamvault.live/How.to.Train.Your.Dragon.2025.mp4"
     },
     {
-      "filename": "The.Pitt.S01E010.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The.Pitt.S01E010.mp4"
+      "filename": "Mission.Impossible-The.Final.Reckoning.2025.mp4",
+      "video_url": "https://archive.org/download/movies-streamvault.live/Mission.Impossible-The.Final.Reckoning.2025.mp4"
     },
     {
-      "filename": "The.Pitt.S01E011.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The.Pitt.S01E011.mp4"
+      "filename": "Nobody.2.2025.mp4",
+      "video_url": "https://archive.org/download/movies-streamvault.live/Nobody.2.2025.mp4"
     },
     {
-      "filename": "The.Pitt.S01E012.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The.Pitt.S01E012.mp4"
-    },
-    {
-      "filename": "The.Pitt.S01E013.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The.Pitt.S01E013.mp4"
-    },
-    {
-      "filename": "The.Pitt.S01E014.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The.Pitt.S01E014.mp4"
-    },
-    {
-      "filename": "The.Pitt.S01E015.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The.Pitt.S01E015.mp4"
-    },
-    {
-      "filename": "The.Pitt.S01E02.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The.Pitt.S01E02.mp4"
-    },
-    {
-      "filename": "The.Pitt.S01E03.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The.Pitt.S01E03.mp4"
-    },
-    {
-      "filename": "The.Pitt.S01E04.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The.Pitt.S01E04.mp4"
-    },
-    {
-      "filename": "The.Pitt.S01E05.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The.Pitt.S01E05.mp4"
-    },
-    {
-      "filename": "The.Pitt.S01E06.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The.Pitt.S01E06.mp4"
-    },
-    {
-      "filename": "The.Pitt.S01E07.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The.Pitt.S01E07.mp4"
-    },
-    {
-      "filename": "The.Pitt.S01E08.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The.Pitt.S01E08.mp4"
-    },
-    {
-      "filename": "The.Pitt.S01E09.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The.Pitt.S01E09.mp4"
-    },
-    {
-      "filename": "The.Pitt.S02E01.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The.Pitt.S02E01.mp4"
-    },
-    {
-      "filename": "The.Pitt.S02E02.mp4",
-      "video_url": "https://archive.org/download/videos-streamvault.live/The.Pitt.S02E02.mp4"
+      "filename": "The Toxic Avenger.mp4",
+      "video_url": "https://archive.org/download/movies-streamvault.live/The Toxic Avenger.mp4"
     }
   ],
   "failed_files": []
